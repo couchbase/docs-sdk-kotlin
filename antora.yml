@@ -1,6 +1,6 @@
-name: scala-sdk
+name: kotlin-sdk
 version: '3.0dp1'
-title: Scala SDK
+title: Kotlin SDK
 start_page: start-using-sdk.adoc
 nav:
 - modules/ROOT/nav.adoc
