@@ -1,5 +1,6 @@
 name: kotlin-sdk
-version: '3.0dp1'
+version: '3.0'
+prerelease: ALPHA
 title: Kotlin SDK
 start_page: start-using-sdk.adoc
 nav:
