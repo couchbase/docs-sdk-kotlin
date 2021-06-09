@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.couchbase.client</groupId>
+    <artifactId>kotlin-docs-code</artifactId>
+    <version>1.0.0</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.couchbase.client</groupId>
+            <artifactId>couchbase-kotlin-client</artifactId>
+            <version>1.0.0-dp.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>sonatypeSnapshots</id>
+            <name>Sonatype Snapshots</name>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <kotlin.version>1.5.10</kotlin.version>
+        <kotlin.coroutines.version>1.5.0</kotlin.coroutines.version>
+        <kotlin.code.style>official</kotlin.code.style>
+        <dokka.version>1.4.32</dokka.version>
+    </properties>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>./resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                    <args>
+                        <!-- Require explicit visibility modifiers so we don't
+                             accidentally leak stuff into the public API -->
+                        <arg>-Xexplicit-api=strict</arg>
+
+                        <!-- Flag uncommitted and volatile API -->
+                        <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
+                    </args>
+
+                    <sourceDirs>
+                        <sourceDir>${project.basedir}/modules/howtos/examples</sourceDir>
+                        <sourceDir>${project.basedir}/modules/hello-world/examples</sourceDir>
+                        <sourceDir>${project.basedir}/modules/project-docs/examples</sourceDir>
+                        <sourceDir>${project.basedir}/modules/ref/examples</sourceDir>
+                        <sourceDir>${project.basedir}/modules/concept-docs/examples</sourceDir>
+                        <sourceDir>${project.basedir}/modules/devguide/examples</sourceDir>
+                    </sourceDirs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

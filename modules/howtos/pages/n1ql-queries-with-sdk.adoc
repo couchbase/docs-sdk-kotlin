@@ -1,2 +1,0 @@
-= N1QL Queries from the SDK
-
