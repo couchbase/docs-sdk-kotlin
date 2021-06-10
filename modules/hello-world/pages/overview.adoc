@@ -8,8 +8,7 @@ The Couchbase Kotlin SDK is built on top of the same high performance I/O core a
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
 
 WARNING: These pages cover the first _Developer Preview_ of the Couchbase Kotlin SDK 1.0 (DP1).
-As such they are likely to change without notice.
-Developer Preview code _should not_ be used in production.
+Developer Preview code is likely to change without notice, and _should not_ be used in production.
 
 == Installing the SDK
 
@@ -51,11 +50,11 @@ include::example$HelloWorld.kt[]
 ----
 
 More documentation and examples are coming in the future.
-Meanwhile, please explore the xref:https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
+Meanwhile, please explore the https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
 
 == Additional Resources
 
-The API reference can be found xref:http://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.0-dp.1/[here].
+The API reference can be found https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.0-dp.1/[here].
 
 Couchbase welcomes community contributions to the Kotlin SDK.
-The Kotlin SDK source code is available on xref:https://github.com/couchbase/couchbase-jvm-clients[GitHub].
+The Kotlin SDK source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
