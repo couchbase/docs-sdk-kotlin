@@ -27,7 +27,7 @@ The following snippet shows how to do it with https://maven.apache.org/[Maven].
 ----
 <dependency>
   <groupId>com.couchbase.client</groupId>
-  <artifactId>couchbase-kotlin-client</artifactId>
+  <artifactId>kotlin-client</artifactId>
   <version>1.0.0-dp.1</version>
 </dependency>
 ----
@@ -36,12 +36,11 @@ For https://gradle.org/[Gradle], you can use:
 
 [source,groovy]
 ----
-implementation 'com.couchbase.client:couchbase-kotlin-client:1.0.0-dp.1'
+implementation 'com.couchbase.client:kotlin-client:1.0.0-dp.1'
 ----
 
 == Hello Couchbase
 
-Once the Couchbase Kotlin client is included in your project, it's time to start experimenting.
 Here's an example that demonstrates the simplest way to perform a N1QL query and get a document from the K/V service.
 
 [source,kotlin]
