@@ -1,5 +1,6 @@
 = Install and Start Using the Kotlin SDK with Couchbase Server
 :navtitle: Start Using the SDK
+:page-status: Developer Preview
 
 [abstract]
 A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to access a Couchbase cluster.
