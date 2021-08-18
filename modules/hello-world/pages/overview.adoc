@@ -44,10 +44,29 @@ implementation 'com.couchbase.client:kotlin-client:1.0.0-dp.1'
 
 Here's an example that demonstrates the simplest way to perform a N1QL query and get a document from the K/V service.
 
+[{tabs}]
+====
+Local Couchbase Server::
++
+--
 [source,kotlin]
 ----
 include::example$HelloWorld.kt[]
 ----
+--
+
+Couchbase Cloud Sample::
++
+--
+Connecting to https://docs.couchbase.com/cloud/index.html[Couchbase Cloud] is slightly different.
+You'll need to configure the client to use TLS, and specify the trusted CA certificate used by the Couchbase deployment.
+
+[source,kotlin]
+----
+include::example$HelloCloud.kt[]
+----
+--
+====
 
 More documentation and examples are coming in the future.
 Meanwhile, please explore the https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
