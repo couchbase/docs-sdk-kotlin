@@ -13,11 +13,11 @@ public fun main() {
     val bucketName = "bucket"
 
     val encodedTlsCertificate =
-        """
-        -----BEGIN CERTIFICATE-----
-        ... your certificate content in here ...
-        -----END CERTIFICATE-----
-        """
+"""
+-----BEGIN CERTIFICATE-----
+... your certificate content in here ...
+-----END CERTIFICATE-----
+"""
     val tlsCertificates = SecurityConfig.decodeCertificates(
         listOf(encodedTlsCertificate)
     );
