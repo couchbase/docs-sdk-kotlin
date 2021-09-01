@@ -10,8 +10,8 @@
     <dependencies>
         <dependency>
             <groupId>com.couchbase.client</groupId>
-            <artifactId>couchbase-kotlin-client</artifactId>
-            <version>1.0.0-dp.1-SNAPSHOT</version>
+            <artifactId>kotlin-client</artifactId>
+            <version>1.0.0-dp.2</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

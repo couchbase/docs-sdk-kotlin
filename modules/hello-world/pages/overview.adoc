@@ -8,7 +8,7 @@ A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to acce
 The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK.
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
 
-WARNING: These pages cover the first _Developer Preview_ of the Couchbase Kotlin SDK 1.0 (DP1).
+WARNING: These pages cover the _Developer Preview_ of the Couchbase Kotlin SDK 1.0 (DP).
 Developer Preview code is likely to change without notice, and _should not_ be used in production.
 
 == Installing the SDK
@@ -19,7 +19,7 @@ The Couchbase Kotlin SDK requires Java 8 or later.
 We recommend running the latest Java LTS version with the highest patch version available.
 
 Couchbase publishes all stable artifacts to https://search.maven.org/search?q=com.couchbase.client[Maven Central].
-The latest version (as of July 2021) is https://search.maven.org/artifact/com.couchbase.client/couchbase-kotlin-client/1.0.0-dp.1/jar[1.0.0-dp.1].
+The latest version (as of September 2021) is https://search.maven.org/artifact/com.couchbase.client/couchbase-kotlin-client/1.0.0-dp.2/jar[1.0.0-dp.2].
 
 You can use your favorite dependency management tool to install the SDK.
 The following snippet shows how to do it with https://maven.apache.org/[Maven].
@@ -29,7 +29,7 @@ The following snippet shows how to do it with https://maven.apache.org/[Maven].
 <dependency>
   <groupId>com.couchbase.client</groupId>
   <artifactId>kotlin-client</artifactId>
-  <version>1.0.0-dp.1</version>
+  <version>1.0.0-dp.2</version>
 </dependency>
 ----
 
@@ -37,7 +37,7 @@ For https://gradle.org/[Gradle], you can use:
 
 [source,groovy]
 ----
-implementation 'com.couchbase.client:kotlin-client:1.0.0-dp.1'
+implementation 'com.couchbase.client:kotlin-client:1.0.0-dp.2'
 ----
 
 == Hello Couchbase
@@ -73,7 +73,7 @@ Meanwhile, please explore the https://github.com/couchbase/couchbase-jvm-clients
 
 == Additional Resources
 
-The API reference can be found https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.0-dp.1/[here].
+The API reference can be found https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/[here].
 
 Couchbase welcomes community contributions to the Kotlin SDK.
 The Kotlin SDK source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
