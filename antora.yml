@@ -1,6 +1,6 @@
 name: kotlin-sdk
 version: '1.0'
-prerelease: -dp.1
+prerelease: -dp.2
 title: Kotlin SDK
 start_page: hello-world:overview.adoc
 nav:
