@@ -1,2 +1,3 @@
 .Getting Started
 * xref:hello-world:overview.adoc[Start Using the Kotlin SDK]
+* xref:howtos:connecting.adoc[Connecting]
