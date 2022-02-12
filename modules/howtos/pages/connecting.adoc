@@ -1,19 +1,19 @@
-= Connect to a Couchbase Server Cluster
-:description: It's easy. You'll be an expert in no time.
+= Connection Basics
+:description: Connecting to a Couchbase Server cluster and configuring client settings.
 :navtitle: Connecting
 :page-topic-type: howto
-:example-source: 3.2@java-sdk:howtos:example$Queries.java
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
+
+== Connecting to a cluster
 
 Use the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/-companion/connect.html[`Cluster.connect`] companion factory method to create a https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/[`Cluster`].
 
 It's best to create a single Cluster when your application starts up, and share it across your application.
 When your application shuts down, disconnect the Cluster.
 Disconnecting gives any in-flight requests a chance to complete, then releases the resources managed by the Cluster.
-
 
 [source,kotlin]
 ----
@@ -25,7 +25,7 @@ The https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.
 
 <2> `Cluster.connect` returns immediately.
 The SDK continues working in the background to finish connecting.
-Waiting for the connection to complete is optional, but can be good because it lets you know right away if there's a problem with the connection.
+Waiting for the connection to complete is optional, but can be good because it lets you know right away if there is a problem with the connection.
 Waiting here also makes it less likely a following request will time out, since none of the time allotted to the next request will be wasted waiting for the connection to complete.
 
 [#connection-string]
@@ -35,7 +35,7 @@ The SDK needs to know the address of at least one node in the Couchbase Server c
 The simplest connection string is a single hostname or literal IP address, like `"foo.example.com"` or `"127.0.0.1"`.
 
 With DNS SRV, one address is enough.
-The SDK uses the address to look up the DNS SRV record, then inspects the record to learn the addresses of all the nodes.
+The SDK uses the address to look up the DNS SRV record, then inspects the record to discover the addresses of all the nodes.
 
 NOTE: Couchbase Capella always uses DNS SRV.
 
@@ -46,7 +46,7 @@ To specify multiple addresses, join them with commas:
 .Connection string with two addresses
 [source,kotlin]
 ----
-"foo.example.com,bar.example.com"
+val connectionString = "foo.example.com,bar.example.com"
 ----
 
 [#connection-string-ports]
@@ -55,36 +55,36 @@ To specify multiple addresses, join them with commas:
 By default, the Couchbase Key Value (KV) service listens on port 11210 (or 11207 for TLS), and the Manager service listens on port 8091 (or 18091 for TLS).
 The SDK can bootstrap against either service, but the KV service is preferable because it's faster.
 
-If the server is listening on a non-default port, or there's some kind of port mapping going on, include the port in the connection string:
-
+If the server is listening on a non-default port, or there is some kind of port mapping going on, include the port in the connection string:
 
 .Connection string with non-standard KV port
 [source,kotlin]
 ----
-"foo.example.com:1234"
+val connectionString = "foo.example.com:1234"
 ----
 
-If you need to bootstrap against a custom manager port (because the node isn't running the KV service), tell the SDK it's a manager port by appending "=manager", like this:
+If you need to bootstrap against a custom Manager port (because the node isn't running the KV service), tell the SDK it's a Manager port by appending "=manager", like this:
 
-.Connection string with non-standard manager port
+.Connection string with non-standard Manager port
 [source,kotlin]
 ----
-"foo.example.com:4567=manager"
+val connectionString = "foo.example.com:4567=manager"
 ----
 
 [#connection-string-params]
 === Connection string parameters
 
-Connection strings have one more trick up their sleeve: they can configure the SDK's behavior.
+Connection strings have one more trick up their sleeve: they can configure client settings.
 
 We mentioned DNS SRV earlier.
 Let's suppose for some reason you need to tell the SDK not to use DNS SRV.
-There are few different ways to do that, but since we're talking about connections strings...
+There are few different ways to do that, but since we're talking about connections strings,
+let's put a `?` after the address list and add a parameter:
 
 .Connection string with a parameter
 [source,kotlin]
 ----
-"foo.example.com?io.enableDnsSrv=false"
+val connectionString = "foo.example.com?io.enableDnsSrv=false"
 ----
 
 .Connection string parameters don't like sharing
@@ -96,9 +96,101 @@ To include multiple parameters, join them with `&`, like:
 .Connection string with two parameters
 [source,kotlin]
 ----
-"foo.example.com?io.enableDnsSrv=false&timeout.kvTimeout=5s"
+val connectionString =
+    "foo.example.com?io.enableDnsSrv=false&timeout.kvTimeout=5s"
 ----
 
 .Is the connection string a URI?
 TIP: You may prefix the string with `couchbase://` or `couchbases://`, but the SDK doesn't mind if the prefix is absent.
 It will, however, complain if you use the `couchbases://` prefix and neglect to configure the required TLS settings.
+
+[#client-settings]
+== Client settings
+[abstract]
+A "client setting" controls an aspect of the SDK's behavior.
+
+You've already seen how a client setting like `io.enableDnsSrv` can  be <<connection-string-params,included in the connection string>>.
+Here are some other ways to configure client settings.
+
+TIP: It's fine to mix and match the different ways of specifying client settings.
+Just keep in mind the <<client-settings-precedence,precedence rules>>,
+
+[#client-settings-system-property]
+=== System properties
+
+The SDK looks for Java system properties whose names start with `com.couchbase.env.`.
+For each property it finds, it strips the prefix and interprets the rest of the name as client setting name.
+Since we've been using the `io.enableDnsSrv` client setting as an example, here's what it would look like to configure it with a Java system property on the command line:
+
+[source,bash]
+----
+$ java -Dcom.couchbase.env.io.enableDnsSrv=false ...
+----
+
+Alternatively, you can set a system property in code:
+
+[source,kotlin]
+----
+System.setProperty("com.couchbase.env.io.enableDnsSrv", "false")
+----
+Just make sure to set the property _before_ calling `Cluster.connect`, otherwise it will have no effect.
+
+[#client-settings-programmatic]
+=== Programmatic configuration
+
+Finally, you can specify client settings by passing another argument to `Cluster.connect`.
+The extra argument configures the cluster's `ClusterEnvironment`.
+We'll talk more about cluster environments later, but for now you can think of an environment as something that holds client settings.
+
+NOTE: Client settings whose values are Kotlin/Java objects can _only_ be set programmatically.
+This includes settings like the default JSON serializer, the default retry strategy, etc.
+
+There is a Domain-Specific Language (DSL) for configuring the environment, with a traditional builder as an alternative.
+
+[#cluster-env-dsl]
+==== Cluster Environment DSL
+
+.Setting `io.enableDnsSrv` using the DSL
+[source,kotlin]
+----
+include::example$ConnectSnippets.kt[tag=lambda,indent=0]
+----
+
+Each `.` in the setting name corresponds to a nested lambda in the DSL.
+For example, if you also wanted to configure the `io.kvCircuitBreaker.enabled` setting, you could write:
+
+.Setting `io.enableDnsSrv` and `io.kvCircuitBreaker.enabled` using the DSL
+[source,kotlin]
+----
+include::example$ConnectSnippets.kt[tag=lambdaMultiple,indent=0]
+----
+
+TIP: If you type `this.` inside one of the DSL blocks, IntelliJ IDEA's code completion popup will display the settings available in that block.
+
+[#cluster-env-builder]
+==== Cluster Environment builder
+
+There is also a traditional builder to use if you don't like the DSL.
+
+.Setting `io.enableDnsSrv` using a builder
+[source,kotlin]
+----
+include::example$ConnectSnippets.kt[tag=builder,indent=0]
+----
+
+[#client-settings-precedence]
+=== Client settings precedence
+
+When the same setting is specified in different ways, for example as both a system property and a connection string parameter, a simple precedence rule determines which value is used.
+
+System properties have the highest precedence, followed by connection string parameters.
+Programmatic configuration has the lowest precedence.
+
+[#summary]
+== Summary
+
+You've seen how to call `Cluster.connect` to create a single `Cluster` object to share across your application, how to call `waitUntilReady` to wait for the connection to complete, and how to disconnect the Cluster when it's no longer needed.
+
+You're now an expert in the anatomy of a connection string, which includes at least one address to use for bootstrapping the connection, and may specify custom ports and parameters.
+
+Finally, you looked at three different ways to configure client settings: Java system properties, connection string parameters, and programmatic configuration.
