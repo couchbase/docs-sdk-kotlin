@@ -10,13 +10,13 @@
     <dependencies>
         <dependency>
             <groupId>com.couchbase.client</groupId>
-            <artifactId>couchbase-kotlin-client</artifactId>
-            <version>1.0.0-dp.1-SNAPSHOT</version>
+            <artifactId>kotlin-client</artifactId>
+            <version>1.0.0-dp.6</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.30</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.17.1</version>
         </dependency>
     </dependencies>
 
@@ -36,10 +36,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.5.10</kotlin.version>
-        <kotlin.coroutines.version>1.5.0</kotlin.coroutines.version>
+        <kotlin.version>1.6.10</kotlin.version>
         <kotlin.code.style>official</kotlin.code.style>
-        <dokka.version>1.4.32</dokka.version>
     </properties>
 
     <build>
@@ -56,12 +54,8 @@
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
                     <args>
-                        <!-- Require explicit visibility modifiers so we don't
-                             accidentally leak stuff into the public API -->
-                        <arg>-Xexplicit-api=strict</arg>
-
-                        <!-- Flag uncommitted and volatile API -->
-                        <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
+                        <arg>-opt-in=com.couchbase.client.kotlin.annotations.VolatileCouchbaseApi</arg>
+                        <arg>-opt-in=kotlin.RequiresOptIn</arg>
                     </args>
 
                     <sourceDirs>

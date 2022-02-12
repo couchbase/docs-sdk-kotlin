@@ -3,7 +3,7 @@ import com.couchbase.client.core.env.SecurityConfig
 import com.couchbase.client.kotlin.Cluster
 import com.couchbase.client.kotlin.env.dsl.TrustSource
 import kotlinx.coroutines.runBlocking
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 public fun main() {
     // Update these variables to point to your Cloud instance and credentials.
@@ -43,7 +43,7 @@ public fun main() {
         val collection = bucket.defaultCollection()
 
         runBlocking {
-            bucket.waitUntilReady(Duration.ofSeconds(10))
+            bucket.waitUntilReady(10.seconds)
 
             // Create a JSON Document
             val arthur = mapOf(
