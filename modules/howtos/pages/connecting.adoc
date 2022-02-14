@@ -9,7 +9,8 @@ include::project-docs:partial$attributes.adoc[]
 
 == Connecting to a cluster
 
-Use the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/-companion/connect.html[`Cluster.connect`] companion factory method to create a https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/[`Cluster`].
+Use the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/-companion/connect.html[`Cluster.connect`] companion factory method to create a https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/[`Cluster`] object.
+This object represents a connection to a Couchbase Server cluster.
 
 It's best to create a single Cluster when your application starts up, and share it across your application.
 When your application shuts down, disconnect the Cluster.
@@ -31,7 +32,9 @@ Waiting here also makes it less likely a following request will time out, since 
 [#connection-string]
 == Connection string
 
-The SDK needs to know the address of at least one node in the Couchbase Server cluster; it will discover the others.
+The SDK needs to know the address of at least one node in the Couchbase Server cluster.
+After it connects to one node, it will discover the others.
+
 The simplest connection string is a single hostname or literal IP address, like `"foo.example.com"` or `"127.0.0.1"`.
 
 With DNS SRV, one address is enough.
@@ -63,7 +66,7 @@ If the server is listening on a non-default port, or there is some kind of port 
 val connectionString = "foo.example.com:1234"
 ----
 
-If you need to bootstrap against a custom Manager port (because the node isn't running the KV service), tell the SDK it's a Manager port by appending "=manager", like this:
+If you need to bootstrap against a non-standard Manager port (because the node isn't running the KV service), tell the SDK it's a Manager port by appending "=manager", like this:
 
 .Connection string with non-standard Manager port
 [source,kotlin]
@@ -86,6 +89,8 @@ let's put a `?` after the address list and add a parameter:
 ----
 val connectionString = "foo.example.com?io.enableDnsSrv=false"
 ----
+
+(It's usually not necessary to disable support for DNS SRV, even if you're not using it -- we're just using `io.enableDnsSrv` as an example client setting.)
 
 .Connection string parameters don't like sharing
 WARNING: If the `Cluster` uses a shared `ClusterEnvironment`, any parameters in the connection string will be ignored.
@@ -112,7 +117,7 @@ A "client setting" controls an aspect of the SDK's behavior.
 You've already seen how a client setting like `io.enableDnsSrv` can  be <<connection-string-params,included in the connection string>>.
 Here are some other ways to configure client settings.
 
-TIP: It's fine to mix and match the different ways of specifying client settings.
+TIP: It's fine to mix the different ways of specifying client settings.
 Just keep in mind the <<client-settings-precedence,precedence rules>>,
 
 [#client-settings-system-property]
