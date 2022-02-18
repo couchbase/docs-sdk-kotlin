@@ -5,22 +5,22 @@ import com.couchbase.client.kotlin.env.dsl.TrustSource
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
 
-public fun main() {
+fun main() {
     // Update these variables to point to your Cloud instance and credentials.
-    val endpoint = "--your-instance--.dp.cloud.couchbase.com"
+    val endpoint = "--your-instance--.cloud.couchbase.com"
     val username = "username"
     val password = "password"
     val bucketName = "bucket"
 
-    val encodedTlsCertificate =
-"""
+    val pemEncodedTlsCertificate = """
 -----BEGIN CERTIFICATE-----
-... your certificate content in here ...
+... your certificate content goes here ...
 -----END CERTIFICATE-----
 """
+
     val tlsCertificates = SecurityConfig.decodeCertificates(
-        listOf(encodedTlsCertificate)
-    );
+        listOf(pemEncodedTlsCertificate)
+    )
 
     // Connect and open a bucket
     val cluster = Cluster.connect(endpoint, username, password) {
