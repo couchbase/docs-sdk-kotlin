@@ -1,0 +1,141 @@
+= Secure Connections with TLS
+:description: Learn how to enable client support for TLS and configure trusted certificates.
+:navtitle: Configuring TLS
+:page-topic-type: howto
+:page-edition: Enterprise Edition
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+
+Couchbase Capella and Couchbase Server Enterprise Edition support secure connections with TLS.
+
+Each node in a Couchbase cluster has its own TLS certificate which has been signed by a Certificate Authority (CA) certificate, also known as the root certificate.
+When the SDK makes a connection using TLS, it verifies the node it's talking to has a certificate signed by a trusted CA.
+
+In just a moment, you'll learn how to configure the SDK to trust the CA certificate used by the Couchbase cluster, but first...
+
+[[prerequisites]]
+== Prerequisites
+
+You'll need the certificate of the Certificate Authority (CA) that issues certificates for nodes in the cluster.
+
+[{tabs}]
+====
+Couchbase Capella::
++
+--
+Log into the Capella admin website and navigate to your cluster.
+Click on the "Connect" tab and scroll down to "Security Certificates."
+Download the "Root Certificate."
+--
+Couchbase Server::
++
+--
+Log into the admin console and navigate to menu:Security[Certificates].
+Copy the "Trusted Root Certificates" (there might be only one).
+Create a new text file called `ca.pem` and paste the certificates into this file.
+
+TIP: Unless you're working in a local development environment, it's important to transfer the CA certificate using a secure channel, so you know you're getting the correct certificate.
+If you are unable to access the admin console securely over HTTPS, copy the CA certificate from a server node using SSH or some other secure mechanism.
+--
+====
+
+[[connect-tls]]
+== Connecting to a cluster using TLS
+
+Once you have the CA certificate(s) used by the cluster, there are two steps to using TLS:
+
+1. Set the `security.enableTls` client setting to true.
+
+2. Specify a https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin.env.dsl/-trust-source/[`TrustSource`] so the client knows which TLS certificates to trust.
+
+Here's an example, suitable for most deployments:
+
+.Enable TLS and trust certificates in a PEM file.
+[source,kotlin]
+----
+include::example$Tls.kt[tag=certificate,indent=0]
+----
+<1> If you wish to specify the PEM file path using a connection string parameter or Java system property, the client setting name is `security.trustCertificate`.
+<2> Change this to the location of the file containing the CA certificate(s).
+If you downloaded it from Couchbase Capella, it might have a different name.
+
+A `TrustSource` determines whether the client will trust the TLS certificate presented by the server.
+In this case, the client will trust the certificates in the given file, as well as any certificates signed by those certificates.
+
+
+[[hostname-validation]]
+== Hostname validation
+
+When the server presents a certificate to the client, the client checks whether the address encoded in the certificate matches the address the client is connecting to.
+If the address does not match, the client refuses to connect.
+
+TIP: During development, when connecting to a local single-node cluster be sure to use "127.0.0.1" in the connection string instead of "localhost".
+Otherwise, hostname validation will fail.
+
+If you must disable this check, and are sure you understand the consequences, set the `security.enableHostnameVerification` client setting to false.
+However, it's almost always better to address whatever problem is causing hostname validation to fail.
+
+
+[[other-trust-source]]
+== Other TrustSources
+
+You're not limited to reading PEM files from the filesystem.
+Here are some alternate ways to create a `TrustSource`.
+
+[[parse-your-own]]
+=== From X509Certificate objects
+
+You can create a `TrustSource` from a list of `java.security.cert.X509Certificate` objects.
+Here's an example that uses `SecurityConfig.decodeCertificates` to convert a hardcoded string into a list of X.509 certificates to trust:
+
+.Enable TLS and trust decoded X.509 certificates
+[source,kotlin]
+----
+include::example$Tls.kt[tag=trustStoreParseYourOwn,indent=0]
+----
+
+[[keystore]]
+=== From a PKCS#12 archive or Java KeyStore
+
+Alternatively, you can store the certificates in a PKCS#12 archive or Java Key Store and read them like this:
+
+.Enable TLS and trust certificates in a PKCS#12 archive or Java Key Store.
+[source,kotlin]
+----
+include::example$Tls.kt[tag=trustStoreFile,indent=0]
+----
+
+TIP: There's an overload of `TrustSource.trustStore` that accepts an existing `KeyStore` object, for cases when you need more control over how the `KeyStore` is initialized.
+
+
+[[factory]]
+=== From a custom TrustManagerFactory
+
+For ultimate control, you can use a custom `javax.net.ssl.TrustManagerFactory`.
+
+.Enable TLS using a custom trust manager factory.
+[source,kotlin]
+----
+include::example$Tls.kt[tag=trustStoreFactory,indent=0]
+----
+<1> This example trusts any certificate, regardless of who issued it.
+This is insecure.
+Don't do it.
+Like, _ever_, not even if it's "just for development."
+It will slip into your production code by mistake, and you'll be very sad.
+In fact, forget you ever saw this.
+
+[#summary]
+== Summary
+
+When TLS is enabled, the SDK will only talk to nodes whose TLS certificates were signed by a trusted CA.
+It's your responsibility to tell the SDK which root certificates to trust.
+
+You can download the root certificate(s) from the Couchbase Capella admin website, or copy them from the Couchbase Server admin console.
+
+The simplest way to tell the SDK which certificates to trust is to point it at a PEM file containing the root certificate(s).
+Alternatively, the SDK can read certificates from a PKCS#12 archive or a Java KeyStore, or you can give it pre-decoded X509Certificate objects.
+
+The SDK gives you the power to do dangerous things like disable hostname verification, or even disable all security checks by using an insecure trust manager factory.

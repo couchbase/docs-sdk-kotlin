@@ -105,6 +105,8 @@ val connectionString =
     "foo.example.com?io.enableDnsSrv=false&timeout.kvTimeout=5s"
 ----
 
+Any ampersands (`&`) or percent signs (`%`) in a parameter value must be https://en.wikipedia.org/wiki/Percent-encoding[percent-encoded].
+
 .Is the connection string a URI?
 TIP: You may prefix the string with `couchbase://` or `couchbases://`, but the SDK doesn't mind if the prefix is absent.
 It will, however, complain if you use the `couchbases://` prefix and neglect to configure the required TLS settings.
