@@ -109,7 +109,7 @@ Any ampersands (`&`) or percent signs (`%`) in a parameter value must be https:/
 
 .Is the connection string a URI?
 TIP: You may prefix the string with `couchbase://` or `couchbases://`, but the SDK doesn't mind if the prefix is absent.
-It will, however, complain if you use the `couchbases://` prefix and neglect to configure the required TLS settings.
+It will, however, complain if you use the `couchbases://` prefix and neglect to configure the xref:howtos:secure-connections.adoc[required TLS settings].
 
 [#client-settings]
 == Client settings
@@ -196,8 +196,11 @@ Programmatic configuration has the lowest precedence.
 [#summary]
 == Summary
 
-You've seen how to call `Cluster.connect` to create a single `Cluster` object to share across your application, how to call `waitUntilReady` to wait for the connection to complete, and how to disconnect the Cluster when it's no longer needed.
+To connect to Couchbase, create a `Cluster` object by calling `Cluster.connect`.
+Optionally, call `waitUntilReady` to wait for the connection to complete.
+If possible, share a single `Cluster` object across your whole application.
+When the Cluster is no longer needed, call `disconnect` to release resources.
 
-You're now an expert in the anatomy of a connection string, which includes at least one address to use for bootstrapping the connection, and may specify custom ports and parameters.
+A connection string includes at least one address to use for bootstrapping the connection, and may specify custom ports and parameters.
 
-Finally, you looked at three different ways to configure client settings: Java system properties, connection string parameters, and programmatic configuration.
+There are three different ways to configure client settings: Java system properties, connection string parameters, and programmatic configuration.
