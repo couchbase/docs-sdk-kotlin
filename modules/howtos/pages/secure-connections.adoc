@@ -115,7 +115,7 @@ TIP: There's an overload of `TrustSource.trustStore` that accepts an existing `K
 
 For ultimate control, you can use a custom `javax.net.ssl.TrustManagerFactory`.
 
-.Enable TLS using a custom trust manager factory.
+.Enable TLS using an insecure trust manager factory.
 [source,kotlin]
 ----
 include::example$Tls.kt[tag=trustStoreFactory,indent=0]
@@ -138,4 +138,5 @@ You can download the root certificate(s) from the Couchbase Capella admin websit
 The simplest way to tell the SDK which certificates to trust is to point it at a PEM file containing the root certificate(s).
 Alternatively, the SDK can read certificates from a PKCS#12 archive or a Java KeyStore, or you can give it pre-decoded X509Certificate objects.
 
-The SDK gives you the power to do dangerous things like disable hostname verification, or even disable all security checks by using an insecure trust manager factory.
+The SDK gives you the power to disable hostname verification, or even disable all security checks by using an insecure trust manager factory.
+It's best to avoid those settings whenever possible.

@@ -81,7 +81,9 @@ fun secureConnectionTrustFactory() {
     val cluster = Cluster.connect(connectionString, username, password) {
         security {
             enableTls = true
-            trust = TrustSource.factory(InsecureTrustManagerFactory.INSTANCE) // <1>
+            trust = TrustSource.factory(
+                InsecureTrustManagerFactory.INSTANCE // <1>
+            )
         }
     }
 // end::trustStoreFactory[]
