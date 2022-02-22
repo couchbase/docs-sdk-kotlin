@@ -121,11 +121,7 @@ For ultimate control, you can use a custom `javax.net.ssl.TrustManagerFactory`.
 include::example$Tls.kt[tag=trustStoreFactory,indent=0]
 ----
 <1> This example trusts any certificate, regardless of who issued it.
-This is insecure.
-Don't do it.
-Like, _ever_, not even if it's "just for development."
-It will slip into your production code by mistake, and you'll be very sad.
-In fact, forget you ever saw this.
+This defeats the purpose of using a secure connection, and is not suitable for a production environment.
 
 [#summary]
 == Summary
