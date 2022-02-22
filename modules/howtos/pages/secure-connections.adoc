@@ -10,10 +10,11 @@ include::project-docs:partial$attributes.adoc[]
 
 Couchbase Capella and Couchbase Server Enterprise Edition support secure connections with TLS.
 
-Each node in a Couchbase cluster has its own TLS certificate which has been signed by a Certificate Authority (CA) certificate, also known as the root certificate.
-When the SDK makes a connection using TLS, it verifies the node it's talking to has a certificate signed by a trusted CA.
+Each node in a Couchbase cluster has its own TLS certificate.
+The certificates are signed by a Certificate Authority (CA) certificate, also known as the root certificate.
+When using TLS to connect to a node, the SDK verifies the node's certificate is signed by a trusted CA.
 
-In just a moment, you'll learn how to configure the SDK to trust the CA certificate used by the Couchbase cluster, but first...
+In just a moment, you'll learn how to configure the SDK to trust a CA certificate, but first...
 
 [[prerequisites]]
 == Prerequisites
