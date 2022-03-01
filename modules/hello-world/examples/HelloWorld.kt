@@ -6,8 +6,12 @@ public fun main() {
     // Assumes you have Couchbase running locally
     // and the "travel-sample" sample bucket loaded.
 
-    // Connect and open a bucket
-    val cluster = Cluster.connect("127.0.0.1", "Administrator", "password")
+    val cluster = Cluster.connect(
+        connectionString = "127.0.0.1",
+        username = "Administrator",
+        password = "password",
+    )
+
     try {
         val bucket = cluster.bucket("travel-sample")
         val collection = bucket.defaultCollection()

@@ -1,4 +1,3 @@
-import com.couchbase.client.core.deps.io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import com.couchbase.client.core.env.SecurityConfig
 import com.couchbase.client.kotlin.Cluster
 import com.couchbase.client.kotlin.env.dsl.TrustSource
@@ -6,20 +5,21 @@ import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    // Update these variables to point to your Cloud instance and credentials.
+    // Update these variables to point to your Cloud instance
+    // and credentials.
     val endpoint = "--your-instance--.cloud.couchbase.com"
     val username = "username"
     val password = "password"
     val bucketName = "bucket"
 
-    val pemEncodedTlsCertificate = """
+    val pemEncodedCapellaCaCertificate = """
 -----BEGIN CERTIFICATE-----
-... your certificate content goes here ...
+... Certificate Authority certificate (root certificate) goes here ...
 -----END CERTIFICATE-----
 """
 
-    val tlsCertificates = SecurityConfig.decodeCertificates(
-        listOf(pemEncodedTlsCertificate)
+    val trustedCaCertificates = SecurityConfig.decodeCertificates(
+        listOf(pemEncodedCapellaCaCertificate)
     )
 
     // Connect and open a bucket
@@ -29,11 +29,12 @@ fun main() {
 
             // See TrustSource for alternate ways to load certificates
             // (from filesystem, from KeyStore, etc.)
-            trust = TrustSource.certificates(tlsCertificates)
+            trust = TrustSource.certificates(trustedCaCertificates)
 
-            // During development, if you want to trust all certificates then
-            // use InsecureTrustManagerFactory as the trust source.
-            // As the name points out, this is INSECURE!
+            // During development, if you want to trust all
+            // certificates then use InsecureTrustManagerFactory
+            // as the trust source. As the name points out,
+            // this is INSECURE!
             // trust = TrustSource.factory(InsecureTrustManagerFactory.INSTANCE)
         }
     }
