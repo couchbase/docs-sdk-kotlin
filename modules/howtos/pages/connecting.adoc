@@ -121,7 +121,7 @@ You've already seen how a client setting like `io.enableDnsSrv` can  be <<connec
 Here are some other ways to configure client settings.
 
 TIP: It's fine to mix the different ways of specifying client settings.
-Just keep in mind the <<client-settings-precedence,precedence rules>>,
+Just keep in mind the <<client-settings-precedence,precedence rules>>.
 
 [#client-settings-system-property]
 === System properties
