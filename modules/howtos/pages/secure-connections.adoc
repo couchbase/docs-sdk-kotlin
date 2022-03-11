@@ -61,8 +61,8 @@ include::example$Tls.kt[tag=certificate,indent=0]
 <2> Change this to the location of the file containing the CA certificate(s).
 If you downloaded it from Couchbase Capella, it might have a different name.
 
-A `TrustSource` determines whether the client will trust the TLS certificate presented by the server.
-In this case, the client will trust the certificates in the given file, as well as any certificates signed by those certificates.
+The `TrustSource` determines whether the client will trust the TLS certificate presented by the server.
+In this case, the client will trust a certificate if it is signed by any certificate in the given file.
 
 
 [[hostname-validation]]
@@ -126,12 +126,12 @@ This defeats the purpose of using a secure connection, and is not suitable for a
 [#summary]
 == Summary
 
-When TLS is enabled, the SDK will only talk to nodes whose TLS certificates were signed by a trusted CA.
-It's your responsibility to tell the SDK which root certificates to trust.
+When TLS is enabled, the SDK will only talk to nodes whose TLS certificates were signed by a trusted Certificate Authority (CA).
+It's your responsibility to tell the SDK which CA certificates to trust.
 
-You can download the root certificate(s) from the Couchbase Capella admin website, or copy them from the Couchbase Server admin console.
+You can download the CA certificates from the Couchbase Capella admin website, or copy them from the Couchbase Server admin console.
 
-The simplest way to tell the SDK which certificates to trust is to point it at a PEM file containing the root certificate(s).
+The simplest way to tell the SDK which CA certificates to trust is to point it at a PEM file containing the certificates.
 Alternatively, the SDK can read certificates from a PKCS#12 archive or a Java KeyStore, or you can give it pre-decoded X509Certificate objects.
 
 The SDK gives you the power to disable hostname verification, or even disable all security checks by using an insecure trust manager factory.
