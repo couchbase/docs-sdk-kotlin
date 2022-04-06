@@ -108,9 +108,26 @@ val connectionString =
 Any ampersands (`&`) or percent signs (`%`) in a parameter value must be https://en.wikipedia.org/wiki/Percent-encoding[percent-encoded].
 It's fine to percent-encode the whole value.
 
-.Is the connection string a URI?
-TIP: You may prefix the string with `couchbase://` or `couchbases://`, but the SDK doesn't mind if the prefix is absent.
-It will, however, complain if you use the `couchbases://` prefix and neglect to configure the xref:howtos:secure-connections.adoc[required TLS settings].
+[#connection-string-scheme]
+=== Connection string scheme
+
+A connection string may start with a URI scheme.
+The supported prefixes are `couchbase://` and `couchbases://` (note the final 's', which stands for "secure").
+For example:
+
+.Connection string with a URI scheme specifying TLS is required
+[source]
+----
+couchbases://foo.example.com
+----
+
+The `couchbases://` prefix uses secure connections with TLS.
+
+The `couchbase://` prefix uses insecure connections by default, but you can still enable TLS with the `security.enableTls` client setting.
+
+NOTE: The xref:howtos:secure-connections.adoc[Secure Connections] documentation describes additional client settings that might be required when TLS is enabled.
+
+Omitting the scheme is equivalent to specifying the `couchbase://` prefix.
 
 [#client-settings]
 == Client settings
