@@ -93,7 +93,7 @@ val connectionString = "foo.example.com?io.enableDnsSrv=false"
 (It's usually not necessary to disable support for DNS SRV, even if you're not using it -- we're just using `io.enableDnsSrv` as an example client setting.)
 
 .Connection string parameters don't like sharing
-WARNING: If the `Cluster` uses a shared `ClusterEnvironment`, any parameters in the connection string will be ignored.
+WARNING: If you decide to share a `ClusterEnvironment` by calling `Cluster.connectUsingSharedEnvironment`, the connection string must not have parameters.
 Environment sharing is an advanced topic we'll cover later.
 
 To include multiple parameters, join them with `&`, like:

@@ -16,11 +16,10 @@ Developer Preview code is likely to change without notice, and _should not_ be u
 
 This guide assumes you are familiar with setting up a Kotlin project using Gradle or Maven.
 
-The Couchbase Kotlin SDK requires Java 8 or later.
+The Couchbase Kotlin SDK requires Java 8 or later, and Kotlin 1.6 or later.
 We recommend running the latest Java LTS version with the highest patch version available.
 
-Couchbase publishes all stable artifacts to https://search.maven.org/search?q=com.couchbase.client[Maven Central].
-The latest version (as of March 2022) is https://search.maven.org/artifact/com.couchbase.client/kotlin-client/{kotlin-current-version}/jar[{kotlin-current-version}].
+All stable versions of the SDK are https://search.maven.org/artifact/com.couchbase.client/kotlin-client[available on Maven Central].
 
 You can use your favorite dependency management tool to include the SDK in your project.
 
@@ -152,7 +151,9 @@ Meanwhile, please explore the https://github.com/couchbase/couchbase-jvm-clients
 
 == Additional Resources
 
-The API reference can be found {kotlin-api-link}[here].
+The https://couchbase.live[Couchbase Playground] has Kotlin examples you can edit and run in your web browser.
+
+The API reference is {kotlin-api-link}[here].
 
 Couchbase welcomes community contributions to the Kotlin SDK.
-The Kotlin SDK source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
+The source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
