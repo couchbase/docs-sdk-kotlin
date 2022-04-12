@@ -78,7 +78,7 @@ val connectionString = "foo.example.com:4567=manager"
 [#connection-string-params]
 === Connection string parameters
 
-Connection strings have one more trick up their sleeve: they can configure client settings.
+Connection strings can also configure client settings.
 
 We mentioned DNS SRV earlier.
 Let's suppose for some reason you need to tell the SDK not to use DNS SRV.

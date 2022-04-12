@@ -6,13 +6,13 @@ include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
-Let's define those terms.
+Let's define those words.
 
 [#document]
 == Document
 
 A document is an entry in the database.
-Each document has an ID (sometimes called a "key") and a value.
+Each document has an ID (sometimes called a "key") and a value (sometimes called the "content").
 
 The document ID can be any UTF-8 string not larger than 250 bytes.
 
@@ -22,12 +22,12 @@ Unless you say otherwise, the SDK assumes the document value is in JSON format.
 [#collection]
 == Collection
 
-A collection is a place to store documents that belong together.
+A collection is a place to put documents that belong together.
 You get to decide what it means to "belong."
 Developers usually put documents of the same type in the same collection.
 
 For example, imagine you have two types of documents: customers and invoices.
-You could store the customer documents in a collection called `customers`, and the invoice documents in a collection called `invoices`.
+You could put the customer documents in a collection called `customers`, and the invoice documents in a collection called `invoices`.
 
 Each document belongs to exactly one collection.
 A document's ID is unique within the collection.
@@ -35,7 +35,7 @@ A document's ID is unique within the collection.
 [#scope]
 == Scope
 
-A scope holds collections that belong together.
+A scope is a place to put collections that belong together.
 You get to decide what it means to "belong."
 If your application has multiple tenants, you could have one scope per tenant.
 
@@ -66,8 +66,7 @@ If you're using Couchbase Server 7 or later, you can add more scopes and collect
 [#getting-a-collection]
 == Getting a Collection
 
-You'll need to know how to get a `Cluster` object.
-If you haven't learned this yet, please read xref:howtos:connecting.adoc[].
+Before you start, you'll need to know xref:howtos:connecting.adoc[how to get a `Cluster` object].
 
 Use the `Cluster` object to get a `Collection`.
 
@@ -94,17 +93,21 @@ val myCollection = bucket
 `Cluster`, `Bucket`, `Scope`, and `Collection` objects are thread-safe.
 You can get them when the application starts, and share the same objects everywhere.
 
-TIP: The Couchbase SDK's `Collection` class has the same short name as `kotlin.collections.Collection`.
+[TIP]
+.Avoiding class name conflicts
+====
+The Couchbase SDK's `Collection` class has the same short name as `kotlin.collections.Collection`.
 If you need to use both in the same file, an import alias can help avoid confusion.
 [source,kotlin]
 ----
 import com.couchbase.client.kotlin.Collection as CouchbaseCollection
 ----
+====
 
 [#summary]
 == Summary
 
-* Buckets hold scopes.
-* Scopes hold collections.
-* Collections hold documents.
-* Documents hold data, usually in JSON format.
+* A bucket holds scopes.
+* A scope holds collections.
+* A collection holds documents.
+* A document holds data, usually in JSON format.

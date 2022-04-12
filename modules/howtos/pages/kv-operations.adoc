@@ -1,0 +1,135 @@
+= Key Value Operations
+:description: The Key Value (KV) service, sometimes called the "data service", is the best way to get or change one document when you know its ID.
+:navtitle: KV Operations
+:page-topic-type: howto
+:page-aliases: ROOT:document-operations.adoc,ROOT:documents-creating,ROOT:documents-updating,ROOT:documents-retrieving,ROOT:documents-deleting
+:example-source: 3.2@java-sdk:howtos:example$Queries.java
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+Here we cover CRUD operations, document expiration, and optimistic locking with CAS.
+
+[#prerequisites]
+== Before You Start
+
+You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluster].
+
+You should know about xref:howtos:organizing-documents.adoc[documents and collections, and how to get a Couchbase `Collection` object].
+
+You should know https://kotlinlang.org/docs/coroutines-basics.html[how to call a Kotlin suspending function].
+
+[#basic-kv-ops]
+== CRUD Operations
+
+The KV service has https://en.wikipedia.org/wiki/CRUD[CRUD] operations for working with full documents.
+This table shows the Couchbase KV method for each CRUD operation.
+
+[%autowidth,cols="<,1*<"]
+|===
+h| CRUD operation  h| Couchbase KV method
+ | Create           | <<insert,Collection.insert>>
+ | Read             | <<get,Collection.get>>
+ | Update           | <<replace,Collection.replace>>
+ | Delete           | <<remove,Collection.remove>>
+ | Create or Update | <<upsert,Collection.upsert>>
+|===
+
+[#insert]
+=== Insert (Create)
+
+The `insert` method creates a new document in a collection.
+
+This method has two required parameters:
+
+* `id` - The new document's ID.
+* `content` - The new document's value.
+
+If the collection already has a document with the same ID, the `insert` method throws `DocumentExistsException`.
+
+For example, let's insert a document that represents a person.
+The document ID is the person's username.
+The document content is some information about the person.
+
+.Creating a new document
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=insert,indent=0]
+----
+
+[#get]
+=== Get (Read)
+
+The `get` method reads a document from a collection.
+
+It has one required parameter:
+
+* `id` - The ID of the document to get.
+
+If the collection does not have a document with this ID, the `get` method throws `DocumentNotFoundException`.
+
+
+.Reading a document
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=get,indent=0]
+----
+
+
+[#replace]
+=== Replace (Update)
+
+The `replace` method updates the value of an existing document.
+
+This method has two required parameters:
+
+* `id` - The ID of the document to replace.
+* `content` - The document's new value.
+
+If the collection does not have a document with this ID, the `replace` method throws `DocumentNotFoundException`.
+
+.Updating an existing document
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=replace,indent=0]
+----
+
+[#remove]
+=== Remove (Delete)
+
+The `remove` method deletes a document from a collection.
+
+This method has one required parameter:
+
+* `id` - The ID of the document to remove.
+
+If the collection does not have a document with this ID, the `remove` method throws `DocumentNotFoundException`.
+
+.Deleting a document
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=remove,indent=0]
+----
+
+
+[#upsert]
+=== Upsert (Create or Update)
+
+The word "upsert" is a https://simple.wikipedia.org/wiki/Portmanteau_word[portmanteau word] that means "**up**date or in**sert**."
+
+If the document already exists, the `upsert` method updates (replaces) it.
+If the document does not exist, the `upsert` method inserts it.
+
+This method has two required parameters:
+
+* `id` - The ID of the document to create or update.
+* `content` - The document's new value.
+
+.Creating or updating a document
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=upsert,indent=0]
+----
+
+You can run this example many times.
+It should succeed each time, because the `upsert` method does not care if the document already exists.
