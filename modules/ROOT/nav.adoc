@@ -2,3 +2,7 @@
 * xref:hello-world:overview.adoc[Start Using the Kotlin SDK]
 * xref:howtos:connecting.adoc[Connecting]
 * xref:howtos:secure-connections.adoc[Secure Connections with TLS]
+
+.Working with Data
+* xref:howtos:organizing-documents.adoc[Organizing Documents]
+//* xref:howtos:kv-operations.adoc[Key Value Operations]

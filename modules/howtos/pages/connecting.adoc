@@ -7,6 +7,7 @@ include::project-docs:partial$attributes.adoc[]
 [abstract]
 {description}
 
+[#connecting-to-a-cluster]
 == Connecting to a cluster
 
 Use the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/-companion/[`Cluster.connect`] companion factory method to create a https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/[`Cluster`] object.
@@ -27,7 +28,7 @@ The https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.
 <2> `Cluster.connect` returns immediately.
 The SDK continues working in the background to finish connecting.
 Waiting for the connection to complete is optional, but can be good because it lets you know right away if there is a problem with the connection.
-Waiting here also makes it less likely a following request will time out, since none of the time allotted to the next request will be wasted waiting for the connection to complete.
+Waiting here also makes it less likely a following request will time out, since none of the time allotted to the next request will be spent waiting for the connection to complete.
 
 [#connection-string]
 == Connection string
