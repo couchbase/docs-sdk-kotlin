@@ -1,5 +1,5 @@
 = Key Value Operations
-:description: The Key Value (KV) service, sometimes called the "data service", is the best way to get or change one document when you know its ID.
+:description: The Key Value (KV) service, sometimes called the "data service", is often the best way to get or change a document when you know its ID.
 :navtitle: KV Operations
 :page-topic-type: howto
 :page-aliases: ROOT:document-operations.adoc,ROOT:documents-creating,ROOT:documents-updating,ROOT:documents-retrieving,ROOT:documents-deleting
@@ -22,7 +22,7 @@ You should know https://kotlinlang.org/docs/coroutines-basics.html[how to call a
 [#basic-kv-ops]
 == CRUD Operations
 
-The KV service has https://en.wikipedia.org/wiki/CRUD[CRUD] operations for working with full documents.
+The KV service has https://en.wikipedia.org/wiki/CRUD[CRUD] operations for working with whole documents.
 This table shows the Couchbase KV method for each CRUD operation.
 
 [%autowidth,cols="<,1*<"]
@@ -94,6 +94,9 @@ If the collection does not have a document with this ID, the `replace` method th
 include::example$KvBasic.kt[tag=replace,indent=0]
 ----
 
+CAUTION: When you replace a document, it's usually good to use <<optimistic-locking,optimistic locking>>.
+Otherwise, changes might get lost if two people change the same document at the same time.
+
 [#remove]
 === Remove (Delete)
 
@@ -133,3 +136,135 @@ include::example$KvBasic.kt[tag=upsert,indent=0]
 
 You can run this example many times.
 It should succeed each time, because the `upsert` method does not care if the document already exists.
+
+== Document Expiry
+
+A document's "expiry" is the time when Couchbase should delete the document.
+
+Normally, a document does not expire.
+It stays in a collection until you remove it. footnote:ephemeral-buckets[
+When you create a bucket, you can choose how the bucket stores your documents.
+One choice is to make an "ephemeral" bucket.
+An ephemeral bucket is like a cache.
+It stores documents only in memory, not on disk.
+If there's not enough memory to put a new document in an ephemeral bucket, Couchbase removes old documents even if they haven't expired yet.
+]
+This is good if you need to keep the document forever, or if you don't know how long you need to keep the document.
+
+You can also tell Couchbase how long to keep a document.
+This is good for temporary data, like a cache or a user's web session.
+This can also help you follow privacy laws that say you must delete old data about users.
+
+There are different ways to set a document's expiry.
+
+=== Set a document's expiry
+
+A CRUD operation that changes a document can set the document's expiry.
+Here is an upsert operation that tells Couchbase to delete the document 3 hours in the future:
+
+.Upserting a document that will expire 3 hours in the future
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=upsertWithExpiry,indent=0]
+----
+<1> `3.hours` is a `kotlin.time.Duration`. You can say `seconds`, `minutes`, `hours`, or `days`.
+
+[#touch]
+==== Set expiry without changing the document
+
+The `touch` method sets a document's expiry, but does not change the document content.
+This is good for making a temporary document live longer.
+
+.Set a document's expiry
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=touch,indent=0]
+----
+
+The `getAndTouch` method reads a document and sets its expiry at the same time.
+This is more efficient than calling `get` and `touch` separately.
+
+.Read a document and set its expiry at the same time
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=getAndTouch,indent=0]
+----
+<1> This line is the only difference from the <<get>> example.
+
+[#get-expiry]
+=== Get a document's expiry
+
+To get a document's expiry, call the `get` method and pass `withExpiry = true`.
+The `get` method returns a `GetResult` object.
+The result's `expiry` property tells you when the document will expire.
+
+CAUTION: If you do not pass `withExpiry = true`, the result's `expiry` will be `Expiry.Unknown`.
+The SDK only gets the expiry if you ask for it, because it's faster to not get the expiry.
+
+If the expiry is an instance of `Expiry.None`, the document does not expire.
+If the expiry is an instance of `Expiry.Absolute`, the expiry's `instant` property is when the document expires.
+
+.Getting a document's expiry
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=getWithExpiry,indent=0]
+----
+<1> If you do not say `withExpiry = true`, then `result.expiry` will be `Expiry.Unknown`.
+
+[#preserve-expiry]
+=== Change a document, but keep the old expiry
+
+Unless you say otherwise, changing a document also changes its expiry.
+If you do not pass a value for `expiry`, the document will not expire, _even if the document previously had an expiry_.
+If this is not what you want, you must tell Couchbase to keep the document's expiry.
+
+If you use Couchbase 7 or newer, this is easy.
+If you use an older version of Couchbase, it's more work.
+
+[{tabs}]
+====
+Couchbase 7 or newer::
++
+--
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=replacePreserveExpiry,indent=0]
+----
+
+[CAUTION]
+This example just shows how to use the `preserveExpiry` parameter.
+When you replace a document, it's usually good to use <<optimistic-locking,optimistic locking>>.
+Otherwise, changes might get lost if two people change the same document at the same time.
+--
+
+Before Couchbase 7::
++
+--
+You will need to know how to <<get-expiry,get a document's expiry>>.
+
+You will need to know about <<optimistic-locking,optimistic locking>>.
+
+Inside the optimistic locking loop, get the document expiry
+and pass it to the CRUD operation.
+
+This example changes Alice's favorite food to hamburger, without changing the document expiry.
+
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=replacePreserveExpiryHardWayLocking,indent=0]
+----
+<1> It is important to use `withExpiry = true`.
+Otherwise `GetResult.expiry` will not have the real expiry, and `replace` will throw an exception.
+--
+====
+
+=== Bucket and Collection Maximum Time-To-Live (TTL)
+
+A bucket or collection can have a "maximum time-to-live" (Max TTL).
+
+When a document is changed in a bucket or collection with a Max TTL, the document's expiry is set to the Max TTL, unless you say the document should expire sooner than the Max TTL.
+
+[#optimistic-locking]
+== Optimistic Locking
+
+Coming soon...
