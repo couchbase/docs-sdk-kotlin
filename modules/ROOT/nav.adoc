@@ -5,4 +5,4 @@
 
 .Working with Data
 * xref:howtos:organizing-documents.adoc[Organizing Documents]
-//* xref:howtos:kv-operations.adoc[Key Value Operations]
+* xref:howtos:kv-operations.adoc[Key Value Operations]
