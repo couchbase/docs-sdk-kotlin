@@ -2,9 +2,14 @@ import com.couchbase.client.core.error.CasMismatchException
 import com.couchbase.client.core.error.DocumentExistsException
 import com.couchbase.client.core.error.DocumentNotFoundException
 import com.couchbase.client.kotlin.Collection
+import com.couchbase.client.kotlin.CommonOptions
+import com.couchbase.client.kotlin.codec.Transcoder
+import com.couchbase.client.kotlin.kv.Durability
 import com.couchbase.client.kotlin.kv.Expiry
 import com.couchbase.client.kotlin.kv.GetResult
+import com.couchbase.client.kotlin.kv.MutationResult
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 
 /*
  * Copyright 2022 Couchbase, Inc.
@@ -74,7 +79,7 @@ private suspend fun get(collection: Collection) {
     try {
         val result: GetResult = collection.get(id = "alice")
         val content = result.contentAs<Map<String, Any?>>()
-        println("The user's favorite color is ${content["favoriteColor"]}")
+        println("The character's favorite color is ${content["favoriteColor"]}")
     } catch (t: DocumentNotFoundException) {
         println("Get failed because the document does not exist.")
     }
@@ -113,7 +118,7 @@ private suspend fun getAndTouch(collection: Collection) {
             expiry = Expiry.of(3.hours), // <1>
         )
         val content = result.contentAs<Map<String, Any?>>()
-        println("The user's favorite color is ${content["favoriteColor"]}")
+        println("The character's favorite color is ${content["favoriteColor"]}")
     } catch (t: DocumentNotFoundException) {
         println("GetAndTouch failed because the document does not exist.")
     }
@@ -193,4 +198,94 @@ private suspend fun getWithExpiry(collection: Collection) {
         else -> println("Oops, forgot to pass `withExpiry = true`.")
     }
 // end::getWithExpiry[]
+}
+
+
+private suspend fun replaceWithCas(collection: Collection) {
+// tag::replaceWithCas[]
+    while (true) { // <1>
+        val result: GetResult = collection.get(id = "alice")
+
+        val oldContent = result.contentAs<Map<String, Any?>>()
+        val newContent = oldContent + ("favoriteFood" to "hamburger")
+
+        try {
+            collection.replace(
+                id = "alice",
+                content = newContent,
+                cas = result.cas
+            )
+            return
+
+        } catch (t: CasMismatchException) {
+            // Someone else changed the document after we read it!
+            // Start again.
+        }
+    }
+// end::replaceWithCas[]
+}
+
+// tag::mutate[]
+suspend inline fun <reified T> Collection.mutate(
+    id: String,
+    expiry: Expiry = Expiry.none(),
+    preserveExpiry: Boolean = false,
+    transcoder: Transcoder? = null,
+    durability: Durability = Durability.none(),
+    common: CommonOptions = CommonOptions.Default,
+    block: (GetResult) -> T,
+): MutationResult {
+    while (true) {
+        val old = get(
+            id = id,
+            withExpiry = preserveExpiry,
+            common = common,
+        )
+
+        val newContent = block(old)
+        val newExpiry = if (preserveExpiry) old.expiry else expiry
+
+        try {
+            return replace(
+                id = id,
+                content = newContent,
+                common = common,
+                transcoder = transcoder,
+                durability = durability,
+                expiry = newExpiry,
+                cas = old.cas
+            )
+        } catch (_: CasMismatchException) {
+            // Someone else modified the document. Start again.
+        }
+    }
+}
+// end::mutate[]
+
+
+private suspend fun callingMutate(collection: Collection) {
+// tag::callingMutate[]
+    collection.mutate("alice") { old: GetResult ->
+        val oldContent = old.contentAs<Map<String, Any?>>()
+        return@mutate oldContent + ("favoriteFood" to "hamburger")
+    }
+// end::callingMutate[]
+}
+
+private suspend fun pessimisticLocking(collection: Collection) {
+// tag::pessimisticLocking[]
+    val result: GetResult = collection.getAndLock(
+        id = "alice",
+        lockTime = 15.seconds, // <1>
+    )
+
+    val oldContent = result.contentAs<Map<String, Any?>>()
+    val newContent = oldContent + ("favoriteFood" to "hamburger")
+
+    collection.replace( // <2>
+        id = "alice",
+        content = newContent,
+        cas = result.cas,
+    )
+// end::pessimisticLocking[]
 }
