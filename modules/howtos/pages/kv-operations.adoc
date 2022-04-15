@@ -56,6 +56,8 @@ The document content is some information about the character.
 ----
 include::example$KvBasic.kt[tag=insert,indent=0]
 ----
+<1> The content doesn't have to be a `Map`.
+To learn more, please read xref:howtos:json.adoc[].
 
 [#get]
 === Get (Read)

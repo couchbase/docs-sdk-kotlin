@@ -1,0 +1,223 @@
+= Working with JSON
+:description: The SDK makes it easy to turn Kotlin objects into JSON, and JSON into Kotlin objects.
+:navtitle: Working with JSON
+:page-topic-type: howto
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+
+[#prerequisites]
+== Before You Start
+
+You should know xref:howtos:kv-operations.adoc[how to do basic Key Value operations].
+
+You should know about https://simple.wikipedia.org/wiki/JSON[JSON].
+
+
+[#data-binding-intro]
+== Introduction to Data Binding
+
+It's good to store documents in JSON format, because some Couchbase services only work with JSON documents.
+
+When we talk about "data binding" in the Couchbase SDK, we mean converting Kotlin objects into JSON, and converting JSON into Kotlin objects.
+Data binding happens automatically, so you don't need to write a lot of code.
+
+//The Couchbase Kotlin SDK uses https://github.com/FasterXML/jackson-databind[Jackson], a popular and fast library for JSON data binding.
+//You can tell the SDK to use a different library.
+//We'll talk about that later.
+
+== Data binding with Map
+
+The simplest data binding uses a Kotlin `Map` object to represent document content.
+Here is an example:
+
+.Using a Kotlin `Map` to represent document content
+[source,kotlin]
+----
+include::example$Json.kt[tag=dataBindingMap,indent=0]
+----
+
+The example prints:
+
+[source]
+----
+Content in Couchbase: {"favoriteColor":"blue"} <1>
+Content as Map: {favoriteColor=blue} <2>
+----
+<1> The SDK converted the `Map` to JSON, then saved the JSON in Couchbase.
+<2> The `contentAs` method converted the JSON into a Kotlin `Map`.
+
+== Data binding with your own classes
+
+It's often good to make Kotlin classes that represent the structure of your data.
+Then you can work your own classes instead of maps.
+
+When you write a document, the `content` argument can be an instance of your own class.
+The SDK will use data binding to convert your object to JSON.
+
+When you read a document, you can ask the SDK to convert the content to an instance of your own class.
+
+Here is an example:
+
+.Data binding with a user-defined class
+[source,kotlin]
+----
+include::example$Json.kt[tag=dataBindingUserDefined,indent=0]
+----
+
+The example prints:
+
+[source]
+----
+Content in Couchbase: {"favoriteColor":"blue"}
+Content as MyClass: MyClass(favoriteColor=blue)
+----
+
+In this example, `MyClass` is very simple -- it has only one property.
+Data binding works with complicated classes, too.
+Your classes can have properties that are maps or lists of other complicated objects.
+Experiment and have fun!
+
+[#skip-data-binding]
+== Writing content already in JSON format
+
+If the data you want to save in Couchbase is already in JSON format, you must tell the SDK to skip data binding.
+
+There are two ways to skip data binding.
+This example shows both ways:
+
+.Writing a JSON document without data binding
+[source,kotlin]
+----
+include::example$Json.kt[tag=skipDataBinding,indent=0]
+----
+<1> We will talk more about `RawJsonTranscoder` and `Content` in the <<transcoders,transcoders section>>.
+
+[CAUTION]
+====
+If you use a `String` for the content, and don't skip data binding, the SDK will assume you want the document content to be a JSON String.
+For example, if you write:
+[source,kotlin]
+----
+include::example$Json.kt[tag=failToSkipDataBinding,indent=0]
+----
+The document content in Couchbase will be:
+[source,json]
+----
+"{\"favoriteColor\":\"blue\"}"
+----
+
+instead of what you probably want:
+[source,json]
+----
+{"favoriteColor":"blue"}
+----
+
+To fix this problem, <<skip-data-binding,skip data binding>>,
+====
+
+[#json-serializer]
+== JsonSerializer
+
+The part of the SDK that does data binding is called a `JsonSerializer`.
+The SDK includes serializers for popular JSON processing libraries.
+You can add support for other libraries, too.
+
+
+[#jackson]
+=== Jackson
+
+The Kotlin SDK uses the https://github.com/FasterXML/jackson-databind[Jackson data binding library].
+Jackson is a fast and popular library for working with JSON.
+
+CAUTION: The Kotlin SDK includes a repackaged version of Jackson for its own internal use.
+Your code should not use that version of Jackson.
+Always import Jackson classes from the `com.fasterxml.jackson` package.
+Never import Jackson classes from the `com.couchbase.client.core.deps.com.fasterxml.jackson` package.
+
+When you use your own classes for data binding, you can put special Jackson annotations on your classes to change how the data binding works.
+You can use annotations to change the JSON field names, or ignore some properties of your classes.
+Jackson is a powerful tool with many features.
+
+To learn more about Jackson, please read the https://github.com/FasterXML/jackson-docs[Jackson documentation].
+
+[#jackson-tree-model]
+[TIP]
+.Jackson Tree Model
+====
+Jackson can represent a JSON document as a tree of `TreeNode` objects.
+You can use data binding with `TreeNode`.
+This is useful if you don't know the structure of the document.
+For example:
+
+[source,kotlin]
+----
+include::example$Json.kt[tag=dataBindingWithTreeNode,indent=0]
+----
+
+Sometimes it's easier to do data binding with a `TreeNode` than a `Map`.
+====
+
+
+[#moshi]
+=== Moshi
+
+https://github.com/square/moshi[Moshi] is another popular library for working with JSON.
+If you like Moshi more than Jackson, you can tell the SDK to use Moshi instead.
+
+First, add Moshi as a dependency of your project:
+
+[{tabs}]
+====
+Gradle (Kotlin)::
++
+--
+[source,kotlin,subs="+attributes"]
+----
+implementation("com.squareup.moshi:moshi-kotlin:{moshi-version}")
+----
+
+--
+Gradle (Groovy)::
++
+--
+[source,groovy,subs="+attributes"]
+----
+implementation "com.squareup.moshi:moshi-kotlin:{moshi-version}"
+----
+
+--
+Maven::
++
+--
+[source,xml,subs="+attributes"]
+----
+<dependency>
+    <groupId>com.squareup.moshi</groupId>
+    <artifactId>moshi-kotlin</artifactId>
+    <version>{moshi-version}</version>
+</dependency>
+----
+--
+====
+
+When you connect to the cluster, tell the SDK to use Moshi as the default JSON serializer:
+
+[source,kotlin]
+----
+include::example$Json.kt[tag=moshi,indent=0]
+----
+<1> Please read the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin.codec/-moshi-json-serializer/[MoshiJsonSerializer API reference] to see more options.
+
+=== Custom JsonSerializer
+
+If there is a JSON library you like more than Jackson or Moshi, you can make your own serializer by implementing the `JsonSerializer` interface.
+The <<moshi,Moshi>> section shows how to tell the SDK which serializer to use.
+
+Alternatively, you can <<skip-data-binding,skip data binding>> and use your preferred JSON library to read and write JSON without using the SDK.
+
+[#transcoders]
+== Transcoders
+
+Coming soon...

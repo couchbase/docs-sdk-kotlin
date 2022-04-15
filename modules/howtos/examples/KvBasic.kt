@@ -43,7 +43,7 @@ private suspend fun insert(collection: Collection) {
     try {
         collection.insert(
             id = "alice",
-            content = mapOf("favoriteColor" to "blue"),
+            content = mapOf("favoriteColor" to "blue"), // <1>
         )
     } catch (t: DocumentExistsException) {
         println("Insert failed because the document already exists.")
