@@ -2,8 +2,6 @@
 :description: The Key Value (KV) service, sometimes called the "data service", is often the best way to get or change a document when you know its ID.
 :navtitle: KV Operations
 :page-topic-type: howto
-:page-aliases: ROOT:document-operations.adoc,ROOT:documents-creating,ROOT:documents-updating,ROOT:documents-retrieving,ROOT:documents-deleting
-:example-source: 3.2@java-sdk:howtos:example$Queries.java
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]
