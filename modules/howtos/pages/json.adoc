@@ -220,4 +220,17 @@ Alternatively, you can <<skip-data-binding,skip data binding>> and use your pref
 [#transcoders]
 == Transcoders
 
-Coming soon...
+When you write a document to Couchbase, a "transcoder" controls how the `content` argument is converted into the bytes stored in Couchbase.
+
+The default transcoder is called `JsonTranscoder`. It uses a `JsonSerializer` to convert the content to and from JSON.
+
+The SDK knows about three types of content:
+
+
+
+There are some other important transcoders.
+
+
+
+
+
