@@ -170,7 +170,7 @@ Every Couchbase document has a Compare-And-Swap (CAS) value.
 The CAS value is a number that changes every time the document changes.
 
 Most KV operations that change documents have a `cas` parameter.
-If you set this parameter, the operation fails with `CasMismatchException` if the document's current CAS value does not match the `cas` you set.
+If you set this parameter, the operation fails with `CasMismatchException` if the document's current CAS value does not match the `cas` parameter value.
 
 Optimistic locking can make `get` and `replace` behave like an atomic unit:
 
