@@ -121,7 +121,7 @@ To fix this problem, <<skip-data-binding,skip data binding>>,
 == JsonSerializer
 
 The part of the SDK that does data binding is called a `JsonSerializer`.
-The SDK includes serializers for popular JSON processing libraries.
+The SDK includes serializers for some popular JSON libraries.
 You can add support for other libraries, too.
 
 
