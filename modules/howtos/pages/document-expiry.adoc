@@ -120,7 +120,7 @@ You will need to know how to <<get-expiry,get a document's expiry>>.
 You will need to know about xref:howtos:kv-operations.adoc#optimistic-locking[optimistic locking].
 
 Inside the optimistic locking loop, get the document expiry
-and pass it to the CRUD operation.
+and pass it to the `replace` method.
 
 This example changes Alice's favorite food to hamburger, without changing the document expiry.
 
@@ -132,6 +132,9 @@ include::example$KvBasic.kt[tag=replacePreserveExpiryHardWayLocking,indent=0]
 Otherwise `GetResult.expiry` will not have the real expiry, and `replace` will throw an exception.
 --
 ====
+
+TIP: A N1QL query that changes a document also removes the document expiry.
+If you use Couchbase Server 7.1 or later, you can change this behavior by passing `preserveExpiry = true` when calling the `query` method.
 
 == Bucket and Collection Maximum Time-To-Live (TTL)
 

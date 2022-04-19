@@ -28,10 +28,9 @@ This example uses a N1QL query to get 10 documents from the default collection i
 ----
 include::example$Query.kt[tag=simpleQueryDefaultCollection,indent=0]
 ----
-
-TIP: The `query` method returns a `Flow<QueryFlowItem>`.
+<1> The `query` method returns a `Flow<QueryFlowItem>`.
 Nothing happens until you collect the flow.
-Calling `execute` is one way to collect the flow.
+Calling `execute` is an easy way to collect the flow.
 
 [#open-bucket-before-query]
 [CAUTION]
@@ -39,7 +38,7 @@ Calling `execute` is one way to collect the flow.
 ====
 If you use a version of Couchbase before 6.5, you must open a bucket before doing a query.
 It does not need to be the bucket you are searching.
-If you forget to open a bucket, the `query` method throws `FeatureNotAvailableException`.
+If you forget to open a bucket, the SDK throws `FeatureNotAvailableException`.
 ====
 
 [#search-non-default-collection]
@@ -89,7 +88,7 @@ They also help the server parse and plan the query.
 You can give parameters names, or refer to them by position.
 
 NOTE: Some parts of a N1QL statement cannot be parameters.
-If you use a parameter where it is not allowed, `execute` throws an exception.
+If you use a parameter where it is not allowed, the SDK throws an exception.
 
 [#named-parameters]
 === Named parameters
@@ -129,7 +128,7 @@ This information is called "query metadata." A `QueryMetadata` object holds this
 It is expensive to return some kinds of metadata, like metrics and profiling information.
 If you want that information, you must ask for it when doing the query.
 
-This example requests all metadata, and prints it:
+This example asks for all metadata, and prints it:
 
 [source,kotlin]
 ----
@@ -155,7 +154,7 @@ NOTE: The streaming version of `execute` returns `QueryMetadata` instead of `Que
 == Prepared Statements
 
 Each time you execute a query, the server makes a plan for finding the results.
-If you run a query frequently, it's good to ask the server to remember the plan.
+You can ask the server to remember the plan.
 This turns your query into a "prepared statement."
 
 To run a query as a prepared statement, pass `adhoc = false` to the `query` method, like this:
@@ -166,8 +165,8 @@ include::example$Query.kt[tag=preparedStatement,indent=0]
 ----
 
 A prepared statement is not always faster than an adhoc query.
-Sometimes the server can make better plans for an adhoc query than for a prepared statement.
-It's good to measure the performance of your query so you know whether it's better to use a prepared statement.
+Sometimes the server can make a better plan for an adhoc query than for a prepared statement.
+It's good to measure the performance of your query, so you know if it's good to use a prepared statement.
 
 [#read-only]
 == Read-Only Queries
@@ -188,7 +187,7 @@ include::example$Query.kt[tag=readOnly,indent=0]
 
 When you change a document in Couchbase, it takes time for the Query service to index the document.
 A query index "runs behind" the KV service.
-When you execute a query, you get to choose if you want to wait for the Query indexes to "catch up" to the latest KV changes.
+When you execute a query, you get to choose if you want to wait for the index to "catch up" to the latest KV changes.
 
 [#scan-consistency-unbounded]
 === Unbounded
@@ -204,13 +203,14 @@ This is the default value for the `query` method's `consistency` parameter.
 
 When you choose "request plus" scan consistency, changes that happened before you called `execute` are always reflected in the query results.
 "Request plus" is more expensive than "unbounded", because the server must wait for the query index to catch up.
-The "plus" in "request plus" means changes that happened after you called `execute` might be reflected in the results, too.
+(The "plus" in "request plus" means changes that happened after you called `execute` might be reflected in the results, too.)
 
 [#scan-consistency-consistent-with]
 === Consistent With
 
 If you made some changes, you can tell the server to wait for the changes to be indexed.
-To use "consistent with" scan consistency, you must keep track of the mutation tokens from the changes you want to wait for.
+In other words, the query results will be "consistent with" the changes you made.
+To use this kind of scan consistency, you must keep track of the mutation tokens from the changes you want to wait for.
 
 [source,kotlin]
 ----

@@ -156,7 +156,7 @@ private suspend fun replacePreserveExpiryHardWayLocking(collection: Collection) 
                 id = documentId,
                 content = newContent,
                 expiry = old.expiry,
-                cas = old.cas, // <2>
+                cas = old.cas,
             )
             break
 

@@ -24,7 +24,7 @@ private suspend fun simpleQueryDefaultCollection(cluster: Cluster) {
 // tag::simpleQueryDefaultCollection[]
     val queryResult: QueryResult = cluster
         .query("SELECT * FROM `travel-sample` LIMIT 10")
-        .execute()
+        .execute() // <1>
 
     queryResult.rows.forEach { row: QueryRow ->
         println("Found row: " + row.contentAs<Map<String, Any?>>())
