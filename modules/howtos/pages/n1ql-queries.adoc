@@ -1,0 +1,218 @@
+= N1QL Queries from the SDK
+:description: You can query for documents in Couchbase using the N1QL query language.
+:navtitle: N1QL from the SDK
+:page-topic-type: howto
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+N1QL is based on SQL, but designed for structured and flexible JSON documents.
+
+[#prerequisites]
+== Before You Start
+
+You should know http://query.pub.couchbase.com/tutorial/#1[how to write a N1QL query].
+
+You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluster].
+
+You should know about xref:howtos:organizing-documents.adoc[documents and collections].
+
+The examples on this page use the sample bucket `travel-sample`.
+
+[#search-default-collection]
+== Searching the Default Collection
+
+This example uses a N1QL query to get 10 documents from the default collection in the `travel-sample` bucket.
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=simpleQueryDefaultCollection,indent=0]
+----
+
+TIP: The `query` method returns a `Flow<QueryFlowItem>`.
+Nothing happens until you collect the flow.
+Calling `execute` is one way to collect the flow.
+
+[#open-bucket-before-query]
+[CAUTION]
+.Buckets and Queries Before Couchbase 6.5
+====
+If you use a version of Couchbase before 6.5, you must open a bucket before doing a query.
+It does not need to be the bucket you are searching.
+If you forget to open a bucket, the `query` method throws `FeatureNotAvailableException`.
+====
+
+[#search-non-default-collection]
+== Searching a Non-Default Collection
+
+The `travel-sample` bucket has a scope called `inventory`.
+This scope has copies of the documents from the default collection, organized into collections.
+
+This example gets 10 documents from the `airline` collection in the `inventory` scope.
+There are two versions of the example.
+Both versions do the same thing, but one uses `Cluster.query`, and the other uses `Scope.query`.
+Look at both to see the difference.
+
+[{tabs}]
+====
+Cluster.query::
++
+--
+If you use `Cluster.query` to search a non-default collection, the `FROM` clause must have the bucket name, scope name, and collection name.
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=simpleQueryCluster,indent=0]
+----
+--
+Scope.query::
++
+--
+
+If you use `Scope.query` to search a non-default collection, the `FROM` clause does not need the bucket name or scope name.
+Instead, this information comes from the `Scope` object.
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=simpleQueryScope,indent=0]
+----
+--
+====
+
+[#parameters]
+== Query Parameters
+
+A "query parameter" is like a variable in a N1QL statement.
+Query parameters protect you from SQL injection.
+They also help the server parse and plan the query.
+
+You can give parameters names, or refer to them by position.
+
+NOTE: Some parts of a N1QL statement cannot be parameters.
+If you use a parameter where it is not allowed, `execute` throws an exception.
+
+[#named-parameters]
+=== Named parameters
+
+Using named parameters often make it easier to read complex queries.
+
+.A query with named parameters
+[source,kotlin]
+----
+include::example$Query.kt[tag=namedParameters,indent=0]
+----
+
+<1> In this example, the `WHERE` condition is `country = $country`.
+Unfortunately, Kotlin doesn't have a nice way to escape a dollar sign (`$`) in multi-line strings.
+
+WARNING: When using named parameters, always escape the dollar sign (`$`) in the placeholder name.
+Otherwise, Kotlin will do string interpolation, which does not prevent SQL injection.
+
+[#positional-parameters]
+=== Positional parameters
+
+If you use positional parameters, the order of the parameters must match the order of the question mark (`?`) placeholders in the statement.
+
+.A query with positional parameters
+[source,kotlin]
+----
+include::example$Query.kt[tag=positionalParameters,indent=0]
+----
+
+[#metadata]
+== Metadata
+
+The server returns more than just rows.
+It also returns information about how the query was executed, how long it took, and any bad things that happened.
+This information is called "query metadata." A `QueryMetadata` object holds this information.
+
+It is expensive to return some kinds of metadata, like metrics and profiling information.
+If you want that information, you must ask for it when doing the query.
+
+This example requests all metadata, and prints it:
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=metadata,indent=0]
+----
+
+[#streaming]
+== Streaming
+
+The previous examples store all result rows in memory.
+If there are many rows, this can use a lot of memory.
+
+To use less memory, pass a lambda to `execute` and work on each row one at a time, like this:
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=streaming,indent=0]
+----
+
+NOTE: The streaming version of `execute` returns `QueryMetadata` instead of `QueryResult`.
+
+[#prepared-statements]
+== Prepared Statements
+
+Each time you execute a query, the server makes a plan for finding the results.
+If you run a query frequently, it's good to ask the server to remember the plan.
+This turns your query into a "prepared statement."
+
+To run a query as a prepared statement, pass `adhoc = false` to the `query` method, like this:
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=preparedStatement,indent=0]
+----
+
+A prepared statement is not always faster than an adhoc query.
+Sometimes the server can make better plans for an adhoc query than for a prepared statement.
+It's good to measure the performance of your query so you know whether it's better to use a prepared statement.
+
+[#read-only]
+== Read-Only Queries
+
+If a query does not change data, it's good to tell the SDK the query is "read-only."
+
+The server will ensure a read-only query does not change data.
+If a read-only query fails, the SDK retries it because it knows it's safe to retry.
+
+To run a read-only query, pass `readonly = true` to the `query` method, like this:
+[source,kotlin]
+----
+include::example$Query.kt[tag=readOnly,indent=0]
+----
+
+[#scan-consistency]
+== Scan Consistency
+
+When you change a document in Couchbase, it takes time for the Query service to index the document.
+A query index "runs behind" the KV service.
+When you execute a query, you get to choose if you want to wait for the Query indexes to "catch up" to the latest KV changes.
+
+[#scan-consistency-unbounded]
+=== Unbounded
+
+Unless you say otherwise, the Query service will not wait.
+It will only search documents that were already indexed when the query started.
+This is called "unbounded" scan consistency.
+
+This is the default value for the `query` method's `consistency` parameter.
+
+[#scan-consistency-request-plus]
+=== Request Plus
+
+When you choose "request plus" scan consistency, changes that happened before you called `execute` are always reflected in the query results.
+"Request plus" is more expensive than "unbounded", because the server must wait for the query index to catch up.
+The "plus" in "request plus" means changes that happened after you called `execute` might be reflected in the results, too.
+
+[#scan-consistency-consistent-with]
+=== Consistent With
+
+If you made some changes, you can tell the server to wait for the changes to be indexed.
+To use "consistent with" scan consistency, you must keep track of the mutation tokens from the changes you want to wait for.
+
+[source,kotlin]
+----
+include::example$Query.kt[tag=consistentWith,indent=0]
+----

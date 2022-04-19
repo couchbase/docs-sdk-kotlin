@@ -19,7 +19,7 @@ If there's not enough memory to put a new document in an ephemeral bucket, Couch
 ]
 This is good if you need to keep the document forever, or if you don't know how long you need to keep the document.
 
-You can tell Couchbase how long to keep a document.
+You can tell Couchbase a document should expire after some time.
 This is good for temporary data, like a cache or a user's web session.
 This can also help you follow privacy laws that say you must delete old data about users.
 
