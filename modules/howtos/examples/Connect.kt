@@ -5,7 +5,7 @@ import kotlin.time.Duration.Companion.seconds
 fun main() {
     val cluster = Cluster.connect(
         connectionString = "couchbase://127.0.0.1", // <1>
-        username = "Administrator",
+        username = "username",
         password = "password",
     )
 

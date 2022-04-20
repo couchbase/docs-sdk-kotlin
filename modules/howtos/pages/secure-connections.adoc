@@ -80,7 +80,7 @@ TIP: During development, when connecting to a local single-node cluster be sure 
 Otherwise, hostname validation will fail.
 
 If you must disable this check, and are sure you understand the consequences, set the `security.enableHostnameVerification` client setting to false.
-However, it's almost always better to address whatever problem is causing hostname validation to fail.
+However, it's almost always better to fix the problem that causes hostname validation to fail.
 
 
 [[other-trust-source]]

@@ -45,7 +45,7 @@ This method has two required parameters:
 
 If the collection already has a document with the same ID, the `insert` method throws `DocumentExistsException`.
 
-For example, let's pretend we're writing a program that helps a storyteller remember details about characters in their stories.
+For example, let's pretend we're writing a program that helps a storyteller remember details about characters in a story.
 
 To start, let's insert a document that represents a character in a story.
 The document ID is the character's name.
