@@ -4,14 +4,14 @@ import kotlin.time.Duration.Companion.seconds
 
 fun main() {
     val cluster = Cluster.connect(
-        connectionString = "127.0.0.1",
+        connectionString = "couchbase://127.0.0.1", // <1>
         username = "Administrator",
         password = "password",
     )
 
-    runBlocking { // <1>
+    runBlocking { // <2>
         try {
-            cluster.waitUntilReady(10.seconds) // <2>
+            cluster.waitUntilReady(10.seconds) // <3>
             // ...
         } finally {
             cluster.disconnect()

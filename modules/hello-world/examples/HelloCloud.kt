@@ -1,63 +1,36 @@
-import com.couchbase.client.core.env.SecurityConfig
 import com.couchbase.client.kotlin.Cluster
-import com.couchbase.client.kotlin.env.dsl.TrustSource
+import com.couchbase.client.kotlin.query.execute
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    // Update these variables to point to your Cloud instance
-    // and credentials.
-    val endpoint = "--your-instance--.cloud.couchbase.com"
-    val username = "username"
-    val password = "password"
-    val bucketName = "bucket"
+    // Replace with your cluster address.
+    val address = "--your-cluster--.cloud.couchbase.com"
 
-    val pemEncodedCapellaCaCertificate = """
------BEGIN CERTIFICATE-----
-... Certificate Authority certificate (root certificate) goes here ...
------END CERTIFICATE-----
-"""
-
-    val trustedCaCertificates = SecurityConfig.decodeCertificates(
-        listOf(pemEncodedCapellaCaCertificate)
+    val cluster = Cluster.connect(
+        connectionString = "couchbases://$address", // <1>
+        username = "username", // Replace with credentials
+        password = "password", // of a database user account.
     )
 
-    // Connect and open a bucket
-    val cluster = Cluster.connect(endpoint, username, password) {
-        security {
-            enableTls = true
-
-            // See TrustSource for alternate ways to load certificates
-            // (from filesystem, from KeyStore, etc.)
-            trust = TrustSource.certificates(trustedCaCertificates)
-
-            // During development, if you want to trust all
-            // certificates then use InsecureTrustManagerFactory
-            // as the trust source. As the name points out,
-            // this is INSECURE!
-            // trust = TrustSource.factory(InsecureTrustManagerFactory.INSTANCE)
-        }
-    }
-
     try {
-        val bucket = cluster.bucket(bucketName)
-        val collection = bucket.defaultCollection()
-
         runBlocking {
-            bucket.waitUntilReady(10.seconds)
+            val collection = cluster
+                .bucket("travel-sample")
+                .waitUntilReady(10.seconds)
+                .defaultCollection()
 
-            // Create a JSON Document
-            val arthur = mapOf(
-                "name" to "Arthur",
-                "email" to "kingarthur@couchbase.com",
-                "interests" to listOf("Holy Grail", "African Swallows")
-            )
+            // Execute a N1QL query
+            val queryResult = cluster
+                .query("select * from `travel-sample` limit 3")
+                .execute()
+            queryResult.rows.forEach { println(it) }
+            println(queryResult.metadata)
 
-            // Store the Document
-            collection.upsert("u:king_arthur", arthur)
-
-            // Load the document and print it (content and metadata)
-            println(collection.get("u:king_arthur"))
+            // Get a document from the K/V service
+            val getResult = collection.get("airline_10")
+            println(getResult)
+            println(getResult.contentAs<Map<String, Any?>>())
         }
     } finally {
         runBlocking { cluster.disconnect() }

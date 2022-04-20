@@ -1,23 +1,23 @@
 import com.couchbase.client.kotlin.Cluster
 import com.couchbase.client.kotlin.query.execute
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Duration.Companion.seconds
 
-public fun main() {
-    // Assumes you have Couchbase running locally
-    // and the "travel-sample" sample bucket loaded.
-
+fun main() {
     val cluster = Cluster.connect(
-        connectionString = "127.0.0.1",
-        username = "Administrator",
-        password = "password",
+        connectionString = "couchbase://127.0.0.1",
+        username = "username", // Replace with credentials
+        password = "password", // of a database user account.
     )
 
     try {
-        val bucket = cluster.bucket("travel-sample")
-        val collection = bucket.defaultCollection()
-
         runBlocking {
-            // Perform a N1QL query and buffer the results
+            val collection = cluster
+                .bucket("travel-sample")
+                .waitUntilReady(10.seconds)
+                .defaultCollection()
+
+            // Execute a N1QL query
             val queryResult = cluster
                 .query("select * from `travel-sample` limit 3")
                 .execute()

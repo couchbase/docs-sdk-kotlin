@@ -21,17 +21,20 @@ Disconnecting gives any in-flight requests a chance to complete, then releases t
 ----
 include::example$Connect.kt[]
 ----
-<1> The Kotlin SDK uses https://kotlinlang.org/docs/coroutines-overview.html[coroutines] for asynchronous execution.
+<1> If you're connecting to Capella, enable TLS by using `couchbases://` (note the final 's') instead of `couchbase://`.
+For more information about TLS, see xref:howtos:secure-connections.adoc[Secure Connections].
+
+<2> The Kotlin SDK uses https://kotlinlang.org/docs/coroutines-overview.html[coroutines] for asynchronous execution.
 Many of the methods in the SDK are suspending functions, and can only be called from a coroutine context.
 The https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/run-blocking.html[runBlocking] method is a convenient way to create a coroutine context in a main method, in test code, or in some other blocking context, but should never be called from within another coroutine.
 
-<2> `Cluster.connect` returns immediately.
+<3> `Cluster.connect` returns immediately.
 The SDK continues working in the background to finish connecting.
 Waiting for the connection to complete is optional, but can be good because it lets you know right away if there is a problem with the connection.
 Waiting here also makes it less likely a following request will time out, since none of the time allotted to the next request will be spent waiting for the connection to complete.
 
 [#connection-string]
-== Connection string
+== Connection String
 
 The SDK needs to know the address of at least one node in the Couchbase Server cluster.
 After it connects to one node, it will discover the others.
@@ -131,7 +134,7 @@ NOTE: The xref:howtos:secure-connections.adoc[Secure Connections] documentation 
 Omitting the scheme is equivalent to specifying the `couchbase://` prefix.
 
 [#client-settings]
-== Client settings
+== Client Settings
 [abstract]
 A "client setting" controls an aspect of the SDK's behavior.
 
