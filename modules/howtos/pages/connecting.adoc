@@ -2,6 +2,7 @@
 :description: Connecting to a Couchbase Server cluster and configuring client settings.
 :navtitle: Connecting
 :page-topic-type: howto
+:page-toclevels: 2
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]

@@ -2,6 +2,7 @@
 :description: The Key Value (KV) service, sometimes called the "data service", is often the best way to get or change a document when you know its ID.
 :navtitle: KV Operations
 :page-topic-type: howto
+:page-toclevels: 2
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]

@@ -2,6 +2,7 @@
 :description: Learn how to enable client support for TLS and configure trusted certificates.
 :navtitle: Configuring TLS
 :page-topic-type: howto
+:page-toclevels: 2
 :page-edition: Enterprise Edition
 include::project-docs:partial$attributes.adoc[]
 

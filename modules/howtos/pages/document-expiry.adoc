@@ -2,6 +2,7 @@
 :description: Setting an expiry lets you control how long Couchbase keeps a document.
 :navtitle: Document Expiry
 :page-topic-type: howto
+:page-toclevels: 2
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]
