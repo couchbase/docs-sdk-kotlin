@@ -17,7 +17,7 @@ You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluste
 
 You should know about xref:howtos:organizing-documents.adoc[documents and collections].
 
-The examples on this page use the sample bucket `travel-sample`.
+The examples on this page use the `travel-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample bucket].
 
 [#search-default-collection]
 == Searching the Default Collection
@@ -215,4 +215,21 @@ To use this kind of scan consistency, you must keep track of the mutation tokens
 [source,kotlin]
 ----
 include::example$Query.kt[tag=consistentWith,indent=0]
+----
+
+== Client Context ID
+
+Each query has a "client context ID" that helps with debugging.
+If you know a query's ID, you can search for the ID in the Couchbase Server logs or a network trace.
+
+The ID can be any string.
+It's good for the ID to be different every time you execute a query.
+If you do not set the ID, the SDK will use a different random UUID every time.
+
+In this example, the client context ID includes the name of an application user, so it's easy to search for all queries related to the user.
+
+.Setting the client context ID
+[source,kotlin]
+----
+include::example$Query.kt[tag=clientContextId,indent=0]
 ----

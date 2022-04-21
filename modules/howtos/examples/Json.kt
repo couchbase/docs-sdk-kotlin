@@ -21,6 +21,7 @@ import com.couchbase.client.kotlin.codec.MoshiJsonSerializer
 import com.couchbase.client.kotlin.codec.RawJsonTranscoder
 import com.couchbase.client.kotlin.kv.GetResult
 import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -90,8 +91,8 @@ private suspend fun dataBindingWithTreeNode(collection: Collection) {
     // tag::dataBindingWithTreeNode[]
     val json = collection.get(id="alice").contentAs<TreeNode>()
     when {
-        json.isArray -> println("Content is a JSON Array")
-        json.isObject -> println("Content is a JSON Object")
+        json is ArrayNode -> println("Content is a JSON Array")
+        json is ObjectNode -> println("Content is a JSON Object")
         else -> println("Content is a JSON primitive")
     }
 // end::dataBindingWithTreeNode[]

@@ -3,6 +3,7 @@ import com.couchbase.client.kotlin.Scope
 import com.couchbase.client.kotlin.kv.MutationResult
 import com.couchbase.client.kotlin.kv.MutationState
 import com.couchbase.client.kotlin.query.*
+import java.util.*
 
 /*
  * Copyright 2022 Couchbase, Inc.
@@ -183,3 +184,15 @@ private suspend fun consistentWith(cluster: Cluster) {
         .execute()
 // end::consistentWith[]
 }
+
+private suspend fun clientContextId(cluster: Cluster) {
+// tag::clientContextId[]
+    val queryResult: QueryResult = cluster
+        .query(
+            statement = "SELECT * FROM `travel-sample` LIMIT 10",
+            clientContextId = "user-44-" + UUID.randomUUID(),
+        )
+        .execute()
+// end::clientContextId[]
+}
+

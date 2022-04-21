@@ -14,7 +14,6 @@ You should know xref:howtos:kv-operations.adoc[how to do basic Key Value operati
 
 You should know about https://simple.wikipedia.org/wiki/JSON[JSON].
 
-
 [#data-binding-intro]
 == Introduction to Data Binding
 
@@ -22,10 +21,6 @@ It's good to store documents in JSON format, because some Couchbase services onl
 
 When we talk about "data binding" in the Couchbase SDK, we mean converting Kotlin objects into JSON, and converting JSON into Kotlin objects.
 Data binding happens automatically, so you don't need to write a lot of code.
-
-//The Couchbase Kotlin SDK uses https://github.com/FasterXML/jackson-databind[Jackson], a popular and fast library for JSON data binding.
-//You can tell the SDK to use a different library.
-//We'll talk about that later.
 
 == Data binding with Map
 
@@ -158,7 +153,6 @@ include::example$Json.kt[tag=dataBindingWithTreeNode,indent=0]
 
 Sometimes it's easier to do data binding with a `TreeNode` than a `Map`.
 ====
-
 
 [#moshi]
 === Moshi

@@ -120,7 +120,7 @@ Maven::
 
 == Hello Couchbase
 
-Here's an example that demonstrates the simplest way to perform a N1QL query and get a document from the K/V service.
+Here's an example that shows how to execute a N1QL query and get a document from the Key Value (KV) service.
 
 [{tabs}]
 ====
@@ -128,6 +128,8 @@ Couchbase Capella::
 +
 --
 This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] trial cluster, which has the `travel-sample` bucket installed by default.
+
+(If you're not using Couchbase Capella, click the **Local Couchbase Server** tab above.)
 
 Before running the example:
 
@@ -165,6 +167,8 @@ include::example$HelloWorld.kt[]
 
 
 == Additional Resources
+
+Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum].
 
 The https://couchbase.live[Couchbase Playground] has Kotlin examples you can edit and run in your web browser.
 
