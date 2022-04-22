@@ -89,7 +89,7 @@ private suspend fun failToSkipDataBinding(collection: Collection) {
 
 private suspend fun dataBindingWithTreeNode(collection: Collection) {
     // tag::dataBindingWithTreeNode[]
-    val json = collection.get(id="alice").contentAs<TreeNode>()
+    val json = collection.get(id = "alice").contentAs<TreeNode>()
     when {
         json is ArrayNode -> println("Content is a JSON Array")
         json is ObjectNode -> println("Content is a JSON Object")
