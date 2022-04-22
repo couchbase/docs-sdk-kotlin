@@ -233,7 +233,7 @@ suspend inline fun <reified T> Collection.mutate(
     transcoder: Transcoder? = null,
     durability: Durability = Durability.none(),
     common: CommonOptions = CommonOptions.Default,
-    block: (GetResult) -> T,
+    transform: (GetResult) -> T,
 ): MutationResult {
     while (true) {
         val old = get(
@@ -242,7 +242,7 @@ suspend inline fun <reified T> Collection.mutate(
             common = common,
         )
 
-        val newContent = block(old)
+        val newContent = transform(old)
         val newExpiry = if (preserveExpiry) old.expiry else expiry
 
         try {
