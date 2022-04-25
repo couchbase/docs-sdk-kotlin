@@ -7,7 +7,7 @@ include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
-Here we cover CRUD operations, document expiration, and optimistic locking with CAS.
+Here we cover CRUD operations, document expiration, and locking strategies.
 
 [#prerequisites]
 == Before You Start
@@ -220,7 +220,7 @@ Pessimistic locking stops anyone except you from changing a document.
 
 When a document is locked, only people who know the CAS value from `getAndLock` can modify the document.
 
-Changing a locked document releases the lock.
+The lock is released when you change the document using the correct CAS, or when you call the `unlock` method.
 
 .Changing a document safely, using pessimistic locking
 [source,kotlin]
@@ -232,7 +232,7 @@ The lock time can be as short as 1 second, or as long as 30 seconds.
 <2> `replace` automatically releases the lock.
 Alternatively, you can release the lock by calling `unlock`.
 
-Pessimistic locking is very expensive.
+Pessimistic locking is expensive.
 It's usually better to use optimistic locking.
 
 [#summary]
