@@ -1,0 +1,178 @@
+= Full Text Search
+:description: You can use the Full Text Search (FTS) service to find JSON documents that have certain words, phrases, or geographic coordinates.
+:navtitle: Full Text Search
+:page-topic-type: howto
+:page-toclevels: 2
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+
+The Full Text Search (FTS) service finds JSON documents that have certain words, phrases, or geographic coordinates.
+It can also search for numbers and dates.
+
+TIP: If you only need to search for numbers or dates, it might be better to use a N1QL query.
+
+When searching for words and phrases, you can look for an exact match or similar words (like "beauty" and "beautiful").
+For numbers and dates, you can look for values in a range.
+For geographic coordinates, you can look for values near a location or within a region.
+
+For all kinds of FTS searches, you can ask the server to count the number of matching documents that belong to different categories, called "facets."
+
+[#prerequisites]
+== Before You Start
+
+You should know xref:{version-server}@server:fts/fts-creating-indexes.adoc[how to create a Full Text Search index].
+
+You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluster].
+
+The examples on this page use the `travel-sample` and `beer-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample buckets].
+
+[#simple-example]
+== A Simple FTS Search
+
+This example searches for documents that have the word "pool" in one of the indexed fields.
+
+If you want to run this example, first create an index called `travel-sample-index` on the `travel-sample` bucket.
+
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=simpleQuery,indent=0]
+----
+<1> The argument to `queryString` uses the same syntax as when you search an index using the Couchbase web UI.
+`SearchQuery` has other companion factory methods for doing different kinds of searches.
+
+
+[#scoring]
+== Scoring
+
+The server gives each row a score.
+A higher score means the row is a better match.
+
+It takes work to calculate the score.
+If you don't need the score, tell the server to give each row a score of zero, like this:
+
+.Disable scoring
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=disableScoring,indent=0]
+----
+<1> This line tells the server we don't care about scores.
+
+
+
+
+
+
+//[#sorting]
+//== Sorting
+//
+//Unless you say otherwise, result rows are sorted by score, from highest to lowest.
+//Use the `sort` parameter to tell the server to sort the rows differently.
+//
+
+
+[#pagination]
+== Pagination
+
+If you don't need all the result rows at once, you can ask the server to return one page of results.
+
+The `searchQuery` method has a `limit` parameter that tells the server how many rows to return.
+This is the page size.
+
+There is also a `page` parameter that tells the server which rows to include in the results.
+
+There are two ways to say which page to return.
+
+[#offset-pagination]
+=== Offset pagination
+
+With offset pagination, you tell the server how many result rows to skip before it should start including rows in the result.
+
+For example, this code skips the first 10 rows:
+
+.Offset-based pagination
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=offsetPagination,indent=0]
+----
+<1> Offsets are zero-based, so this skips the first 10 rows.
+
+This kind of pagination is unstable, because a row's offset can change if a different document is changed, added, or removed.
+Imagine if this happens:
+
+1. You ask for the first page, using offset 0 and limit 10.
+2. Someone removes from Couchbase the document at offset 3.
+3. You ask for the second page, using offset 10 and limit 10.
+
+After step 2, the row that would have been the first row of the second page is now the last row of the first page.
+Now in step 3, you don't see the row that "moved" to the first page.
+
+Offset pagination can be expensive if the offset is very large.
+
+[#keyset-pagination]
+=== Keyset pagination
+
+NOTE: Keyset pagination requires Couchbase Server 6.6.1 or later.
+
+When the server sorts the search results, it assigns a "sort key" to each row.
+The sort key is also called the "keyset".
+
+With keyset pagination, you tell the server to return the page after (or before) a row whose keyset you remember from a previous search.
+
+Here's an example that uses offset pagination to get the first page.
+Then it uses keyset pagination to get the next page.
+
+.Keyset-based pagination
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=keysetPagination,indent=0]
+----
+<1> Starting at offset 0 is the default.
+You can remove this line.
+<2> There is also a `searchBefore` method.
+You can pass `SearchKeyset` or `SearchRow`.
+
+Keyset pagination is less expensive than offset pagination when the offset is large.
+Keyset pagination is stable if you are careful about sorting.
+See the cautions below.
+
+CAUTION: For stable keyset pagination, the `sort` argument must not let any two rows be equal.
+It's good to always end the sort with `SearchSort.byId()`, so no two rows are equal.
+
+CAUTION: Changing the sort invalidates a keyset (unless the new sort is the total opposite of the old sort).
+If you use a keyset to search with a different sort, you will get bad results.
+
+TIP: `keyset.serialize()` converts a keyset to a string, so you can send it to a client.
+When you receive the string back from the client, pass it to the `SearchKeyset.deserialize` companion factory method to turn it back into a `SearchKeyset`.
+
+
+
+[#total-rows]
+=== Total number of rows
+
+The search result metadata has a `totalRows` property that tells you how many rows matched the query, even if you limit the results to fewer rows.
+
+.Getting the total number of rows
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=totalRows,indent=0]
+----
+<1> This can be greater than the `limit` argument.
+
+
+
+[#streaming]
+== Streaming
+
+The previous examples store all result rows in memory.
+If there are many rows, this can use a lot of memory.
+
+To use less memory, pass a lambda to `execute` and work on each row one at a time, like this:
+
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=streaming,indent=0]
+----
+
+NOTE: The streaming version of `execute` returns `SearchMetadata` instead of `SearchResult`.

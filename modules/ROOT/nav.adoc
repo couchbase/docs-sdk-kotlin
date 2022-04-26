@@ -9,3 +9,4 @@
 * xref:howtos:document-expiry.adoc[Document Expiry]
 * xref:howtos:json.adoc[Working with JSON]
 * xref:howtos:n1ql-queries.adoc[Query]
+* xref:howtos:full-text-search.adoc[Full Text Search]
