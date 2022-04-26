@@ -34,6 +34,7 @@ The examples on this page use the `travel-sample` and `beer-sample` xref:{versio
 This example searches for documents that have the word "pool" in one of the indexed fields.
 
 If you want to run this example, first create an index called `travel-sample-index` on the `travel-sample` bucket.
+Then run:
 
 [source,kotlin]
 ----
@@ -49,28 +50,144 @@ include::example$FullTextSearch.kt[tag=simpleQuery,indent=0]
 The server gives each row a score.
 A higher score means the row is a better match.
 
-It takes work to calculate the score.
+Calculating the score takes time.
 If you don't need the score, tell the server to give each row a score of zero, like this:
+
+NOTE: Disabling scoring requires Couchbase Server 6.6.1 or later.
 
 .Disable scoring
 [source,kotlin]
 ----
 include::example$FullTextSearch.kt[tag=disableScoring,indent=0]
 ----
-<1> This line tells the server we don't care about scores.
+<1> This line tells the server you don't care about scores.
 
+[#sorting]
+== Sorting
 
+By default, result rows are sorted by score, from highest to lowest.
+Use the `sort` parameter to tell the server to sort the rows differently.
 
+This example sorts the results by the value of the "country" field:
 
+.Sort by `country` field
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=sortByCountry,indent=0]
+----
+<1> `byField` also has optional parameters.
+We will talk about them next.
 
+`SearchSort` has companion factory methods for creating `SearchSort` objects.
+These objects tell the server how to sort the results.
 
-//[#sorting]
-//== Sorting
-//
-//Unless you say otherwise, result rows are sorted by score, from highest to lowest.
-//Use the `sort` parameter to tell the server to sort the rows differently.
-//
+[#sorting-by-field]
+=== Sorting by field value
 
+`SearchSort.byField` tells the server to sort the rows using the value of a document field.
+
+Required parameter:
+
+* `field` -- Name of the field to use.
+
+Optional parameters:
+
+* `direction` -- Can be `ASCENDING` (A to Z) or `DESCENDING` (Z to A).
+The default direction is `ASCENDING`.
+
+* `missing` -- Tells the server where to put rows that don't have a value for the field.
+Can be `FIRST` or `LAST`.
+The default is `LAST`.
+
+* `type` -- The type of the field.
+Can be `STRING`, `NUMBER`, `DATE`, or `AUTO`.
+The default type is `AUTO`, which tells the server to infer the type.
+
+* `mode` -- A field can have more than one value.
+This happens if the value is an array, or if the value is a string that is analyzed as more than one token.
+The `mode` parameter tells the server which value to use for sorting.
+If a field does not have more than one value, this parameter does nothing.
+Possible values:
+** `MIN` -- Use the minimum value.
+** `MAX` -- Use the maximum value.
+** `DEFAULT` -- The server will sort the rows the same way every time, but you won't know which value (or values) it used for sorting.
++
+The default mode is `DEFAULT`.
+
+[#sorting-by-score]
+=== Sorting by score
+
+`SearchSort.byScore` tells the server to sort the rows using each row's score.
+
+Optional parameters:
+
+* `direction` -- `ASCENDING` (low to high) or `DESCENDING` (high to low).
+The default direction is `DESCENDING`.
+
+[#sorting-by-id]
+=== Sorting by document ID
+
+The `SearchSort.byId` companion factory method creates a `SearchSort` object that tells the server to sort the rows using each row's document ID.
+
+Optional parameters:
+
+* `direction` -- `ASCENDING` (A to Z) or `DESCENDING` (Z to A).
+The default direction is `ASCENDING`.
+
+[#sorting-by-geo-distance]
+=== Sorting by geographic distance
+
+`SearchSort.byGeoDistance` tells the server to look at a field that has a geographic location, and sort the rows based on how far the field value is from some other location.
+
+Required parameter:
+
+* `field` -- Name of the field to use.
+The field must be indexed as a geographic point.
+
+* `location` -- The starting point for measuring distance.
+
+Optional parameters:
+
+* `direction` -- `ASCENDING` (near to far) or `DESCENDING` (far to near).
+The default direction is `ASCENDING`.
+
+* `unit` -- The `GeoDistanceUnit` to use for reporting the distance.
+The default unit is `GeoDistanceUnit.METERS`.
+
+[#sorting-by-string-syntax]
+=== Sorting with string syntax
+
+`SearchSort.by` lets you specify the sort using the syntax described in xref:{version-server}@server:fts/fts-search-response.adoc#sorting-with-strings[Sorting with Strings].
+For example:
+
+.Sorting with strings
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=sortWithStrings,indent=0]
+----
+
+[#multi-level-sorting]
+=== More than one sort
+
+You can join `SearchSort` objects to create a sort with more than one level.
+Here are two examples that do the same thing in different ways:
+
+.Multi-level sort using the `then` infix method
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=multiSortThen,indent=0]
+----
+
+.Multi-level sort using the `SearchSort.of` companion factory method
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=multiSortList,indent=0]
+----
+
+Both examples first sort the results by the value of the "country" field.
+Rows with the same country value are sorted by document ID.
+
+NOTE: The example for <<sorting-by-string-syntax>> also creates a multi-level sort.
 
 [#pagination]
 == Pagination
@@ -138,7 +255,7 @@ Keyset pagination is stable if you are careful about sorting.
 See the cautions below.
 
 CAUTION: For stable keyset pagination, the `sort` argument must not let any two rows be equal.
-It's good to always end the sort with `SearchSort.byId()`, so no two rows are equal.
+It's good to always use a <<multi-level-sorting,multi-level sort>> that ends with `<<sorting-by-id,SearchSort.byId()>>`, so no two rows are equal.
 
 CAUTION: Changing the sort invalidates a keyset (unless the new sort is the total opposite of the old sort).
 If you use a keyset to search with a different sort, you will get bad results.

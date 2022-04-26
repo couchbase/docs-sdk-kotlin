@@ -90,7 +90,7 @@ include::example$KvBasic.kt[tag=getWithExpiry,indent=0]
 [#preserve-expiry]
 == Change a document, but keep the old expiry
 
-Unless you say otherwise, changing a document also changes its expiry.
+By default, changing a document also changes its expiry.
 If you do not pass a value for `expiry`, the document will not expire, _even if the document previously had an expiry_.
 If this is not what you want, you must tell Couchbase to keep the document's expiry.
 

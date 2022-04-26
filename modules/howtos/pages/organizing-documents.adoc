@@ -18,7 +18,7 @@ Each document has key (sometimes called an "ID") and a value (sometimes called t
 The document key can be any UTF-8 string not larger than 250 bytes.
 
 The document value can be any kind of data (text or binary) not larger than 20 https://simple.wikipedia.org/wiki/Mebibyte[MiB].
-Unless you say otherwise, the SDK assumes the document value is in JSON format.
+By default, the SDK assumes the document value is in JSON format.
 
 [#collection]
 == Collection

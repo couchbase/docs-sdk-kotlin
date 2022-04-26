@@ -193,7 +193,7 @@ When you execute a query, you get to choose if you want to wait for the index to
 [#scan-consistency-unbounded]
 === Unbounded
 
-Unless you say otherwise, the Query service will not wait.
+By default, the Query service will not wait.
 It will only search documents that were already indexed when the query started.
 This is called "unbounded" scan consistency.
 

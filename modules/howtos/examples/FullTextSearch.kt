@@ -80,6 +80,43 @@ private suspend fun disableScoring(cluster: Cluster) {
 // end::disableScoring[]
 }
 
+private suspend fun sortByCountry(cluster: Cluster) {
+// tag::sortByCountry[]
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = SearchQuery.queryString("pool"),
+            sort = SearchSort.byField("country"), // <1>
+        )
+        .execute()
+// end::sortByCountry[]
+}
+
+private suspend fun sortWithStrings() {
+// tag::sortWithStrings[]
+    val sort: SearchSort = SearchSort.by(
+        "country", "state", "city", "-_score"
+    )
+// end::sortWithStrings[]
+}
+
+private suspend fun multiSortThen(cluster: Cluster) {
+// tag::multiSortThen[]
+    val multiLevelSort: SearchSort =
+        SearchSort.byField("country") then SearchSort.byId()
+// end::multiSortThen[]
+}
+
+private suspend fun multiSortList(cluster: Cluster) {
+// tag::multiSortList[]
+    val multiLevelSort: SearchSort = SearchSort.of(listOf(
+        SearchSort.byField("country"),
+        SearchSort.byId(),
+    ))
+// end::multiSortList[]
+}
+
+
 private suspend fun offsetPagination(cluster: Cluster) {
 // tag::offsetPagination[]
     val searchResult: SearchResult = cluster
