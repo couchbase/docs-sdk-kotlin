@@ -1,16 +1,3 @@
-import com.couchbase.client.core.error.CasMismatchException
-import com.couchbase.client.core.error.DocumentExistsException
-import com.couchbase.client.core.error.DocumentNotFoundException
-import com.couchbase.client.kotlin.Collection
-import com.couchbase.client.kotlin.CommonOptions
-import com.couchbase.client.kotlin.codec.Transcoder
-import com.couchbase.client.kotlin.kv.Durability
-import com.couchbase.client.kotlin.kv.Expiry
-import com.couchbase.client.kotlin.kv.GetResult
-import com.couchbase.client.kotlin.kv.MutationResult
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
-
 /*
  * Copyright 2022 Couchbase, Inc.
  *
@@ -27,6 +14,18 @@ import kotlin.time.Duration.Companion.seconds
  * limitations under the License.
  */
 
+import com.couchbase.client.core.error.CasMismatchException
+import com.couchbase.client.core.error.DocumentExistsException
+import com.couchbase.client.core.error.DocumentNotFoundException
+import com.couchbase.client.kotlin.Collection
+import com.couchbase.client.kotlin.CommonOptions
+import com.couchbase.client.kotlin.codec.Transcoder
+import com.couchbase.client.kotlin.kv.Durability
+import com.couchbase.client.kotlin.kv.Expiry
+import com.couchbase.client.kotlin.kv.GetResult
+import com.couchbase.client.kotlin.kv.MutationResult
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 
 private suspend fun upsert(collection: Collection) {
 // tag::upsert[]

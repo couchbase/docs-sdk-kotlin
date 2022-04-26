@@ -1,0 +1,12 @@
+= Get Involved
+:navtitle: Get Involved
+include::project-docs:partial$attributes.adoc[]
+
+
+== Contributing
+
+Couchbase welcomes community contributions to the {name-sdk}.
+The https://github.com/couchbase/couchbase-jvm-clients[{name-sdk} source code^] is available on GitHub.
+Please see the https://github.com/couchbase/couchbase-jvm-clients/blob/master/CONTRIBUTING.md[CONTRIBUTING^] file for further information.
+
+include::7.0@sdk:shared:partial$contrib.adoc[tag=contrib]

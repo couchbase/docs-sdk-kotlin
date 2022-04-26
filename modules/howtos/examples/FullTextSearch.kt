@@ -1,11 +1,3 @@
-import com.couchbase.client.kotlin.Cluster
-import com.couchbase.client.kotlin.http.CouchbaseHttpResponse
-import com.couchbase.client.kotlin.http.HttpBody
-import com.couchbase.client.kotlin.http.HttpTarget
-import com.couchbase.client.kotlin.http.formatPath
-import com.couchbase.client.kotlin.search.*
-import kotlinx.coroutines.runBlocking
-
 /*
  * Copyright 2022 Couchbase, Inc.
  *
@@ -22,6 +14,13 @@ import kotlinx.coroutines.runBlocking
  * limitations under the License.
  */
 
+import com.couchbase.client.kotlin.Cluster
+import com.couchbase.client.kotlin.http.CouchbaseHttpResponse
+import com.couchbase.client.kotlin.http.HttpBody
+import com.couchbase.client.kotlin.http.HttpTarget
+import com.couchbase.client.kotlin.http.formatPath
+import com.couchbase.client.kotlin.search.*
+import kotlinx.coroutines.runBlocking
 
 private suspend fun simpleQuery(cluster: Cluster) {
 // tag::simpleQuery[]

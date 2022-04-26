@@ -10,3 +10,10 @@
 * xref:howtos:json.adoc[Working with JSON]
 * xref:howtos:n1ql-queries.adoc[Query]
 * xref:howtos:full-text-search.adoc[Full Text Search]
+
+.Project Docs
+* xref:project-docs:sdk-release-notes.adoc[SDK Release Notes]
+* xref:project-docs:compatibility.adoc[Compatibility]
+* xref:project-docs:sdk-licenses.adoc[Licenses]
+* xref:project-docs:get-involved.adoc[Get Involved]
+** https://docs.couchbase.com/home/contribute/index.html[Improve the Docs]

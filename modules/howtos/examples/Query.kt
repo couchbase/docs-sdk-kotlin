@@ -1,10 +1,3 @@
-import com.couchbase.client.kotlin.Cluster
-import com.couchbase.client.kotlin.Scope
-import com.couchbase.client.kotlin.kv.MutationResult
-import com.couchbase.client.kotlin.kv.MutationState
-import com.couchbase.client.kotlin.query.*
-import java.util.*
-
 /*
  * Copyright 2022 Couchbase, Inc.
  *
@@ -20,6 +13,13 @@ import java.util.*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.couchbase.client.kotlin.Cluster
+import com.couchbase.client.kotlin.Scope
+import com.couchbase.client.kotlin.kv.MutationResult
+import com.couchbase.client.kotlin.kv.MutationState
+import com.couchbase.client.kotlin.query.*
+import java.util.*
 
 private suspend fun simpleQueryDefaultCollection(cluster: Cluster) {
 // tag::simpleQueryDefaultCollection[]

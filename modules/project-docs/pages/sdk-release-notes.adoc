@@ -1,0 +1,19 @@
+= Couchbase Kotlin SDK Release Notes and Archives
+:description: Release notes for the Couchbase Kotlin Client.
+:navtitle: Release Notes
+:page-topic-type: project-doc
+:page-partial:
+
+// tag::all[]
+[abstract]
+{description}
+
+[[v1.0.0]]
+== Version 1.0.0 (3 April 2022)
+
+Initial GA release.
+
+//== Older Releases
+//
+//Although https://www.couchbase.com/support-policy/enterprise-software[no longer supported], documentation for older releases continues to be available in our https://docs-archive.couchbase.com/home/index.html[docs archive].
+// end::all[]
