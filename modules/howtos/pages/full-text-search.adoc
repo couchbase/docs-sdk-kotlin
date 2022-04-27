@@ -43,6 +43,11 @@ include::example$FullTextSearch.kt[tag=simpleQuery,indent=0]
 <1> The argument to `queryString` uses the same syntax as when you search an index using the Couchbase web UI.
 `SearchQuery` has other companion factory methods for doing different kinds of searches.
 
+[#query-types]
+== Queries
+
+The FTS service can do xref:{version-server}@server:fts/fts-supported-queries.adoc[many kinds of queries].
+The Kotlin SDK's `SearchQuery` class has a companion factory method for each kind of query.
 
 [#scoring]
 == Scoring
@@ -277,7 +282,69 @@ include::example$FullTextSearch.kt[tag=totalRows,indent=0]
 ----
 <1> This can be greater than the `limit` argument.
 
+[#compound-queries]
+== Compound Queries
 
+You can use boolean logic to combine queries into a "compound query."
+
+Imagine Alice is searching for a hotel.
+She would prefer a hotel with a sauna, but she would settle for a swimming pool.
+
+Alice can use a `disjunction` query to search for "sauna" _or_ "pool".
+She can _boost_ the "sauna" query, so hotels with a sauna get higher scores relative to other hotels.
+
+."OR" query with boost
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=poolOrSauna,indent=0]
+----
+<1> There are other kinds of compound queries.
+Use `conjunction` for "and".
+Use `negation` for "not".
+Use `boolean` for a complex query with "must", "should", and "mustNot" sub-queries.
+<2> Alice thinks saunas are better than swimming pools, so she boosts this part of the query.
+
+NOTE: Boosting a query has no effect unless the query is part of a compound query.
+
+[#facets]
+== Facets
+
+A facet is like a histogram.
+For each document matching the search query, the server inspects a field of the document to see which bin (or "category") the field value belongs to.
+
+For `numeric` and `date` facets, you specify the categories up front as value ranges.
+Common use cases include counting the number of documents in certain price ranges, like: $1 to $5, $5 to $20, $20+, or time ranges like: "today", "yesterday", or "more than a week ago".
+
+Unlike a histogram, it's okay if the ranges overlap.
+If a field value matches more than one range, each matching range has its count incremented.
+
+For `term` facets, the server creates one category for each distinct value it sees in the field.
+
+For example, let's say your documents have a "color" field where the value is one of "red", "green", or "blue".
+The result of a term facet targeting the "color" field tells you the number of times each color appears as the field value.
+
+Facets have a `size` parameter, which is an upper bound on the number of categories reported in the facet result.
+For example, if you request a size of 3, the server will do its best to return the 3 largest categories.
+To be more precise, it will select the top 3 categories from each partition executing the query, and then merge each partition's result into the final result.
+
+CAUTION: If you are using multiple partitions and require an exact result, the size must be >= the number of categories; otherwise the result should be considered an estimate.
+
+Facet results are not affected by query pagination.
+
+To create a facet, use one of the `SearchFacet` companion factory methods.
+To retrieve the result in a type-safe way, pass the facet to `SearchResult.get` (or `SearchMetadata.get`).
+Alternatively, iterate over `SearchResult.facets` (or `SearchMetadata.facets`) and cast each `FacetResult` to the appropriate type.
+
+CAUTION: Facets and/or ranges with no matching documents are omitted from the results.
+
+This example uses the `beer-sample` bucket.
+It requires an index called `beer-sample-index`, with fields "abv" and "category" indexed as stored fields.
+
+.Searching with facets
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=searchQueryWithFacets,indent=0]
+----
 
 [#streaming]
 == Streaming

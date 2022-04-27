@@ -37,6 +37,22 @@ private suspend fun simpleQuery(cluster: Cluster) {
 // end::simpleQuery[]
 }
 
+private suspend fun poolOrSauna(cluster: Cluster) {
+// tag::poolOrSauna[]
+    val saunaOrPool: SearchQuery = SearchQuery.disjunction( // <1>
+        SearchQuery.match("sauna") boost 1.5, // <2>
+        SearchQuery.match("pool"),
+    )
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = saunaOrPool,
+        )
+        .execute()
+// end::poolOrSauna[]
+}
+
+
 private suspend fun totalRows(cluster: Cluster) {
 // tag::totalRows[]
     val searchResult: SearchResult = cluster
@@ -163,6 +179,49 @@ private suspend fun keysetPagination(cluster: Cluster) {
         .execute()
 
 // end::keysetPagination[]
+}
+
+internal suspend fun searchQueryWithFacets(cluster: Cluster) {
+    // tag::searchQueryWithFacets[]
+    // Count results that fall into these "alcohol by volume" ranges.
+    // Optionally assign names to the ranges.
+    val low = NumericRange.bounds(min = 0, max = 3.5, name = "low")
+    val high = NumericRange.lowerBound(3.5, name = "high")
+    val abv = SearchFacet.numeric(
+        field = "abv",
+        ranges = listOf(low, high),
+        name = "Alcohol by volume",
+    )
+
+    // Find the 5 most frequent values in the "category" field.
+    val beerType = SearchFacet.term("category", size = 5)
+
+    val result = cluster.searchQuery(
+        indexName = "beer-sample-index",
+        query = SearchQuery.matchAll(),
+        facets = listOf(abv, beerType),
+    ).execute()
+
+    // Print all facet results. Results do not include empty facets
+    // or ranges. Categories are ordered by size, descending.
+    result.facets.forEach { facet ->
+        println(facet.name)
+        facet.categories.forEach { println("  $it") }
+        facet.other.let { if (it > 0) println("  <other> ($it)") }
+        println()
+    }
+
+    // Alternatively, print results for a specific facet:
+    val abvResult = result[abv]
+    if (abvResult == null) {
+        println("No search results matched any of the 'abv' facet ranges.")
+    } else {
+        println("Alcohol by volume (again)")
+        println(" low (${abvResult[low]?.count ?: 0})")
+        println(" high (${abvResult[high]?.count ?: 0})")
+        println()
+    }
+    // end::searchQueryWithFacets[]
 }
 
 
