@@ -32,13 +32,13 @@ The https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.
 <3> `Cluster.connect` returns immediately.
 The SDK continues working in the background to finish connecting.
 Waiting for the connection to complete is optional, but can be good because it lets you know right away if there is a problem with the connection.
-Waiting here also makes it less likely a following request will time out, since none of the time allotted to the next request will be spent waiting for the connection to complete.
+Waiting here also makes it less likely a following request times out, since none of the time allotted to the next request is spent waiting for the connection to complete.
 
 [#connection-string]
 == Connection String
 
 The SDK needs to know the address of at least one node in the Couchbase Server cluster.
-After it connects to one node, it will discover the others.
+After it connects to one node, it discovers the others.
 
 The simplest connection string is a single hostname or literal IP address, like `"foo.example.com"` or `"127.0.0.1"`.
 
@@ -48,7 +48,7 @@ The SDK uses the address to look up the DNS SRV record, then inspects the record
 NOTE: Couchbase Capella always uses DNS SRV.
 
 If you're not using DNS SRV, it's good to include the addresses of multiple nodes in the connection string.
-The more addresses you provide, the more likely the SDK will be able to connect when some nodes are unavailable.
+The more addresses you provide, the more likely the SDK is able to connect when some nodes are unavailable.
 To specify multiple addresses, join them with commas:
 
 .Connection string with two addresses
@@ -163,7 +163,7 @@ Alternatively, you can set a system property in code:
 ----
 System.setProperty("com.couchbase.env.io.enableDnsSrv", "false")
 ----
-Just make sure to set the property _before_ calling `Cluster.connect`, otherwise it will have no effect.
+Just make sure to set the property _before_ calling `Cluster.connect`, otherwise it has no effect.
 
 [#client-settings-programmatic]
 === Programmatic configuration
@@ -195,7 +195,7 @@ For example, if you also wanted to configure the `io.kvCircuitBreaker.enabled` s
 include::example$ConnectSnippets.kt[tag=lambdaMultiple,indent=0]
 ----
 
-TIP: If you type `this.` inside one of the DSL blocks, IntelliJ IDEA's code completion popup will display the settings available in that block.
+TIP: If you type `this.` inside one of the DSL blocks, IntelliJ IDEA's code completion popup displays the settings available in that block.
 
 [#cluster-env-builder]
 ==== Cluster Environment builder

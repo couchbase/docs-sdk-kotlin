@@ -50,7 +50,7 @@ It's often good to make Kotlin classes that represent the structure of your data
 Then you can work your own classes instead of maps.
 
 When you write a document, the `content` argument can be an instance of your own class.
-The SDK will use data binding to convert your object to JSON.
+The SDK uses data binding to convert your object to JSON.
 
 When you read a document, you can ask the SDK to convert the content to an instance of your own class.
 
@@ -92,13 +92,13 @@ include::example$Json.kt[tag=skipDataBinding,indent=0]
 
 [CAUTION]
 ====
-If you use a `String` for the content, and don't skip data binding, the SDK will assume you want the document content to be a JSON String.
+If you use a `String` for the content, and don't skip data binding, the SDK assumes you want the document content to be a JSON String.
 For example, if you write:
 [source,kotlin]
 ----
 include::example$Json.kt[tag=failToSkipDataBinding,indent=0]
 ----
-The document content in Couchbase will be:
+The document content in Couchbase is:
 [source,json]
 ----
 "{\"favoriteColor\":\"blue\"}"

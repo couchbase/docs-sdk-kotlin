@@ -36,7 +36,7 @@ You should know xref:howtos:kv-operations.adoc[how to do Key Value operations].
 A CRUD operation that changes a document can set the document's expiry.
 Here is an upsert operation that tells Couchbase to delete the document 3 hours in the future:
 
-.Upserting a document that will expire 3 hours in the future
+.Upserting a document that expires 3 hours in the future
 [source,kotlin]
 ----
 include::example$KvBasic.kt[tag=upsertWithExpiry,indent=0]
@@ -70,9 +70,9 @@ include::example$KvBasic.kt[tag=getAndTouch,indent=0]
 
 To get a document's expiry, call the `get` method and pass `withExpiry = true`.
 The `get` method returns a `GetResult` object.
-The result's `expiry` property tells you when the document will expire.
+The result's `expiry` property tells you when the document expires.
 
-CAUTION: If you do not pass `withExpiry = true`, the result's `expiry` will be `Expiry.Unknown`.
+CAUTION: If you do not pass `withExpiry = true`, the result's `expiry` is `Expiry.Unknown`.
 The SDK only gets the expiry if you ask for it, because it's faster to not get the expiry.
 
 If the expiry is an instance of `Expiry.None`, the document does not expire.
@@ -83,13 +83,13 @@ If the expiry is an instance of `Expiry.Absolute`, the expiry's `instant` proper
 ----
 include::example$KvBasic.kt[tag=getWithExpiry,indent=0]
 ----
-<1> If you do not say `withExpiry = true`, then `result.expiry` will be `Expiry.Unknown`.
+<1> If you do not say `withExpiry = true`, then `result.expiry` is `Expiry.Unknown`.
 
 [#preserve-expiry]
 == Change a document, but keep the old expiry
 
 By default, changing a document also changes its expiry.
-If you do not pass a value for `expiry`, the document will not expire, _even if the document previously had an expiry_.
+If you do not pass a value for `expiry`, the document does not expire, _even if the document previously had an expiry_.
 If this is not what you want, you must tell Couchbase to keep the document's expiry.
 
 If you use Couchbase 7 or newer, this is easy.
@@ -136,6 +136,6 @@ You can set the Max TTL when you create the bucket or collection in the Couchbas
 You can tell Couchbase to delete a document in the future by assigning an expiry to the document.
 
 Changing a document changes its expiry, unless you <<preserve-expiry,tell Couchbase to preserve the existing expiry>>.
-If you do not specify an expiry when changing a document, the document will never expire, _even if it previously had an expiry_.
+If you do not specify an expiry when changing a document, the document never expires, _even if it previously had an expiry_.
 
 The expiry is included in a `GetResult`, but only if you pass `withExpiry = true` when calling `get`.

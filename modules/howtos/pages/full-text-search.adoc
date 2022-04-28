@@ -74,7 +74,7 @@ If you want to know how the server calculated the score, pass `explain = true` w
 include::example$FullTextSearch.kt[tag=explainScoring,indent=0]
 ----
 <1> This line tells the server you want to know how each score is calculated.
-If you don't do this, `row.explanation` will be an empty ByteArray.
+If you don't do this, `row.explanation` is an empty ByteArray.
 <2> `row.explanation` is a ByteArray holding a JSON Object.
 This example just prints it, but you can parse it as JSON if you want.
 
@@ -116,7 +116,7 @@ The `row.fieldsAs<T>` method uses data binding to convert the JSON into an insta
 If you want, you can convert the fields into an instance of a user-defined class instead of a Map.
 See xref:howtos:json.adoc[Working with JSON] for more information about data binding.
 +
-NOTE: If all requested fields are missing or unstored, and you're not searching a multi-collection index, `row.fields` will be null and `row.fieldsAs<T>` will return null.
+NOTE: If all requested fields are missing or unstored, and you're not searching a multi-collection index, `row.fields` is null and `row.fieldsAs<T>` returns null.
 
 [#collections]
 === Collections
@@ -131,7 +131,7 @@ The value of this field is the name of the matching document's parent collection
 ----
 include::example$FullTextSearch.kt[tag=collections,indent=0]
 ----
-<1> The server will only search in these collections
+<1> The server only searches in these collections
 <2> The `_$c` field is always present when searching a multi-collection index.
 
 CAUTION: Be careful when using <<keyset-pagination,keyset pagination>> with a multi-collection index.
@@ -218,7 +218,7 @@ If a field does not have more than one value, this parameter does nothing.
 Possible values:
 ** *`MIN`* -- Use the minimum value.
 ** *`MAX`* -- Use the maximum value.
-** *`DEFAULT`* -- The server will sort the rows the same way every time, but you won't know which value (or values) it used for sorting.
+** *`DEFAULT`* -- The server sorts the rows the same way every time, but the order is unspecified.
 +
 The default mode is `DEFAULT`.
 
@@ -323,7 +323,7 @@ include::example$FullTextSearch.kt[tag=offsetPagination,indent=0]
 <1> Offsets are zero-based, so this skips the first 10 rows.
 
 This kind of pagination is unstable, because a row's offset can change if a different document is changed, added, or removed.
-Imagine if this happens:
+Imagine this happens:
 
 1. You ask for the first page, using offset 0 and limit 10.
 2. Someone removes from Couchbase the document at offset 3.
@@ -366,7 +366,7 @@ It's good to always use a <<multi-level-sorting,multi-level sort>> that ends wit
 Be careful when searching a multi-collection index, since document IDs are only guaranteed to be unique within a single collection.
 
 CAUTION: Changing the sort invalidates a keyset (unless the new sort is the total opposite of the old sort).
-If you use a keyset to search with a different sort, you will get bad results.
+If you use a keyset to search with a different sort, you get bad results.
 
 TIP: `keyset.serialize()` converts a `SearchKeyset` to a string, so you can send it to a client.
 When you receive the string back from the client, pass it to the `SearchKeyset.deserialize` companion factory method to turn it back into a `SearchKeyset`.
@@ -414,6 +414,8 @@ Use `boolean` for a complex query with "must", "should", and "mustNot" sub-queri
 A facet is like a histogram.
 For each document matching the search query, the server inspects a field of the document to see which bin (or "category") the field value belongs to.
 
+The FTS service supports three kinds of facets: `numeric`, `date`, and `term`.
+
 For `numeric` and `date` facets, you specify the categories up front as value ranges.
 Common use cases include counting the number of documents in certain price ranges, like: $1 to $5, $5 to $20, $20+, or time ranges like: "today", "yesterday", or "more than a week ago".
 
@@ -426,8 +428,8 @@ For example, let's say your documents have a "color" field where the value is on
 The result of a `term` facet on the "color" field tells you the number of times each color appears as the field value.
 
 Facets have a `size` parameter, which is an upper bound on the number of categories reported in the facet result.
-For example, if you request a `size` of 3, the server will do its best to return the 3 largest categories.
-To be more precise, it will select the top 3 categories from each partition executing the query, and then merge each partition's result into the final result.
+For example, if you request a `size` of 3, the server does its best to return the 3 largest categories.
+To be more precise, it selects the top 3 categories from each partition executing the query, and then merge each partition's result into the final result.
 
 NOTE: If you are using multiple partitions and require an exact result, the size must be >= the number of categories; otherwise the result should be considered an estimate.
 
@@ -458,8 +460,8 @@ When you execute an FTS search, you get to choose if you want to wait for the in
 [#scan-consistency-unbounded]
 === Unbounded
 
-By default, the FTS service will not wait.
-It will only search documents that were already indexed when the search started.
+By default, the FTS service does not wait.
+It only searches documents that were already indexed when the search started.
 This is called "unbounded" scan consistency.
 
 This is the default value for the `searchQuery` method's `consistency` parameter.
@@ -468,7 +470,7 @@ This is the default value for the `searchQuery` method's `consistency` parameter
 === Consistent With
 
 If you made some changes, you can tell the server to wait for the changes to be indexed.
-In other words, the search results will be "consistent with" the changes you made.
+In other words, the search results are "consistent with" the changes you made.
 To use this kind of scan consistency, you must keep track of the mutation tokens from the changes you want to wait for.
 
 [source,kotlin]
@@ -480,7 +482,7 @@ include::example$FullTextSearch.kt[tag=consistentWith,indent=0]
 == Partial Failures
 
 An FTS index can have multiple partitions that live on different Couchbase Server nodes.
-If there is a problem with a partition, the FTS service will give you results from only the healthy partitions.
+If there is a problem with a partition, the FTS service gives you the results from only the healthy partitions.
 Documents indexed by an unhealthy partition are not included in the results.
 
 NOTE: If no partitions are healthy, the `searchQuery` method throws an exception.

@@ -106,7 +106,7 @@ include::example$Query.kt[tag=namedParameters,indent=0]
 Unfortunately, Kotlin doesn't have a nice way to escape a dollar sign (`$`) in multi-line strings.
 
 WARNING: When using named parameters, always escape the dollar sign (`$`) in the placeholder name.
-Otherwise, Kotlin will do string interpolation, which does not prevent SQL injection.
+Otherwise, Kotlin does string interpolation, which does not prevent SQL injection.
 
 [#positional-parameters]
 === Positional parameters
@@ -174,7 +174,7 @@ It's good to measure the performance of your query, so you know if it's good to 
 
 If a query does not change data, it's good to tell the SDK the query is "read-only."
 
-The server will ensure a read-only query does not change data.
+The server ensures a read-only query does not change data.
 If a read-only query fails, the SDK retries it because it knows it's safe to retry.
 
 To run a read-only query, pass `readonly = true` to the `query` method, like this:
@@ -193,8 +193,8 @@ When you execute a query, you get to choose if you want to wait for the index to
 [#scan-consistency-unbounded]
 === Unbounded
 
-By default, the Query service will not wait.
-It will only search documents that were already indexed when the query started.
+By default, the Query service does not wait.
+It only searches documents that were already indexed when the query started.
 This is called "unbounded" scan consistency.
 
 This is the default value for the `query` method's `consistency` parameter.
@@ -210,7 +210,7 @@ When you choose "request plus" scan consistency, changes that happened before yo
 === Consistent With
 
 If you made some changes, you can tell the server to wait for the changes to be indexed.
-In other words, the query results will be "consistent with" the changes you made.
+In other words, the query results are "consistent with" the changes you made.
 To use this kind of scan consistency, you must keep track of the mutation tokens from the changes you want to wait for.
 
 [source,kotlin]
@@ -225,7 +225,7 @@ If you know a query's ID, you can search for the ID in the Couchbase Server logs
 
 The ID can be any string.
 It's good for the ID to be different every time you execute a query.
-If you do not set the ID, the SDK will use a different random UUID every time.
+If you do not set the ID, the SDK uses a different random UUID every time.
 
 In this example, the client context ID includes the name of an application user, so it's easy to search for all queries related to the user.
 

@@ -67,8 +67,8 @@ include::example$Tls.kt[tag=certificate,indent=0]
 <2> Change this to the location of the file containing the CA certificate(s).
 If you downloaded it from Couchbase Capella, it might have a different name.
 
-The `TrustSource` determines whether the client will trust the TLS certificate presented by the server.
-In this case, the client will trust a certificate if it is signed by any certificate in the given file.
+The `TrustSource` determines whether the client trusts the TLS certificate presented by the server.
+In this case, the client trusts a certificate if it is signed by any certificate in the given file.
 
 
 [[hostname-validation]]
@@ -78,7 +78,7 @@ When the server presents a certificate to the client, the client checks whether 
 If the address does not match, the client refuses to connect.
 
 TIP: During development, when connecting to a local single-node cluster be sure to use "127.0.0.1" in the connection string instead of "localhost".
-Otherwise, hostname validation will fail.
+Otherwise, hostname validation fails.
 
 If you must disable this check, and are sure you understand the consequences, set the `security.enableHostnameVerification` client setting to false.
 However, it's almost always better to fix the problem that causes hostname validation to fail.
@@ -132,7 +132,7 @@ This defeats the purpose of using a secure connection, and is not suitable for a
 [#summary]
 == Summary
 
-When TLS is enabled, the SDK will only talk to nodes whose TLS certificates were signed by a trusted Certificate Authority (CA).
+When TLS is enabled, the SDK only talks to nodes whose TLS certificates were signed by a trusted Certificate Authority (CA).
 Unless you are connecting to a Couchbase Capella cluster, it's your responsibility to tell the SDK which CA certificates to trust.
 
 You can download the CA certificates from the Couchbase Capella admin website, or copy them from the Couchbase Server admin console.
