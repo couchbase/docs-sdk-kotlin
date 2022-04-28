@@ -134,40 +134,6 @@ private suspend fun replacePreserveExpiry(collection: Collection) {
 // end::replacePreserveExpiry[]
 }
 
-
-private suspend fun replacePreserveExpiryHardWayLocking(collection: Collection) {
-
-// tag::replacePreserveExpiryHardWayLocking[]
-    val documentId = "alice"
-
-    while (true) {
-        val old = collection.get(
-            id = documentId,
-            withExpiry = true, // <1>
-        )
-
-        val oldContent = old.contentAs<Map<String, Any?>>()
-        val newContent = oldContent +
-                ("favoriteFood" to "hamburger")
-
-        try {
-            collection.replace(
-                id = documentId,
-                content = newContent,
-                expiry = old.expiry,
-                cas = old.cas,
-            )
-            break
-
-        } catch (_: CasMismatchException) {
-            // Someone else changed the document,
-            // and the expiry might have changed too.
-            // Start again.
-        }
-    }
-// end::replacePreserveExpiryHardWayLocking[]
-}
-
 private suspend fun replacePreserveExpiryHardWay(collection: Collection) {
 // tag::replacePreserveExpiryHardWay[]
     val documentId = "alice"

@@ -9,9 +9,7 @@ include::project-docs:partial$attributes.adoc[]
 {description}
 
 The Full Text Search (FTS) service finds JSON documents that have certain words, phrases, or geographic coordinates.
-It can also search for numbers and dates.
-
-TIP: If you only need to search for numbers or dates, it might be better to use a N1QL query.
+It can also search numeric and date/time fields.
 
 When searching for words and phrases, you can look for an exact match or similar words (like "beauty" and "beautiful").
 For numbers and dates, you can look for values in a range.
@@ -22,7 +20,7 @@ For all kinds of FTS searches, you can ask the server to count the number of mat
 [#prerequisites]
 == Before You Start
 
-You should know xref:{version-server}@server:fts/fts-creating-indexes.adoc[how to create a Full Text Search index].
+You should know xref:{version-server}@server:fts:fts-creating-indexes.adoc[how to create a Full Text Search index].
 
 You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluster].
 
@@ -42,18 +40,46 @@ include::example$FullTextSearch.kt[tag=simpleQuery,indent=0]
 ----
 <1> The argument to `queryString` uses the same syntax as when you search an index using the Couchbase web UI.
 `SearchQuery` has other companion factory methods for doing different kinds of searches.
+<2> The `searchQuery` method returns a `Flow<SearchFlowItem>`.
+Nothing happens until you collect the flow.
+Calling `execute` is an easy way to collect the flow.
 
 [#query-types]
 == Queries
 
-The FTS service can do xref:{version-server}@server:fts/fts-supported-queries.adoc[many kinds of queries].
+The FTS service can do xref:{version-server}@server:fts:fts-supported-queries.adoc[many kinds of queries].
 The Kotlin SDK's `SearchQuery` class has a companion factory method for each kind of query.
 
-[#scoring]
-== Scoring
+[#result-rows]
+== Result Rows
 
-The server gives each row a score.
+Each matching document is returned as a `SearchRow`.
+By default, a `SearchRow` only has a document ID, a score, and the name of the FTS index partition it came from.
+The `searchQuery` method has optional parameters that let you request more information about the matching document.
+
+[#score]
+=== Score
+
+The server gives each row a numeric score.
 A higher score means the row is a better match.
+
+[#explain-score]
+==== Explain the score
+
+If you want to know how the server calculated the score, pass `explain = true` when calling `searchQuery`, like this:
+
+.Explain scoring
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=explainScoring,indent=0]
+----
+<1> This line tells the server you want to know how each score is calculated.
+If you don't do this, `row.explanation` will be an empty ByteArray.
+<2> `row.explanation` is a ByteArray holding a JSON Object.
+This example just prints it, but you can parse it as JSON if you want.
+
+[#disable-score]
+==== Disable scoring
 
 Calculating the score takes time.
 If you don't need the score, tell the server to give each row a score of zero, like this:
@@ -66,6 +92,83 @@ NOTE: Disabling scoring requires Couchbase Server 6.6.1 or later.
 include::example$FullTextSearch.kt[tag=disableScoring,indent=0]
 ----
 <1> This line tells the server you don't care about scores.
+
+[#fields]
+=== Fields
+
+By default, the server does not return any document content.
+You can tell the server to return stored document fields.
+Pass `fields = listOf("*")` when calling `searchQuery` to include all stored fields in the result.
+If you only want fields "foo" and "bar", pass `fields = listOf("foo", "bar")`.
+
+TIP: Only stored fields are included.
+If you're not getting the results you expect, check the index definition.
+
+.Include stored fields in result rows
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=fields,indent=0]
+----
+<1> This line tells the server you want the result rows to include _all_ stored fields.
+<2> `row.fields` is a ByteArray holding a JSON object that has the requested fields.
+The `row.fieldsAs<T>` method uses data binding to convert the JSON into an instance of `T?` (in this case, a Kotlin Map).
++
+If you want, you can convert the fields into an instance of a user-defined class instead of a Map.
+See xref:howtos:json.adoc[Working with JSON] for more information about data binding.
++
+NOTE: If all requested fields are missing or unstored, and you're not searching a multi-collection index, `row.fields` will be null and `row.fieldsAs<T>` will return null.
+
+[#collections]
+=== Collections
+
+Couchbase 7.0 and later let you define an index on multiple collections in the same scope.
+You can limit the search to specific collections using the optional `collections` parameter of the `searchQuery` method.
+
+TIP: When searching a multi-index collection, the server always returns a field called `_$c`.
+The value of this field is the name of the matching document's parent collection.
+
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=collections,indent=0]
+----
+<1> The server will only search in these collections
+<2> The `_$c` field is always present when searching a multi-collection index.
+
+CAUTION: Be careful when using <<keyset-pagination,keyset pagination>> with a multi-collection index.
+Documents in different collections can have the same ID, so sorting by ID does not necessarily guarantee a total ordering of the results.
+
+[#highlight]
+=== Highlight (fragments)
+
+You can ask the server to include a fragment of a matching field value, and highlight the search term within the fragment.
+
+TIP: Highlighting requires storing the field value and including term vectors.
+If you're not getting the results you expect, check the index definition.
+
+.Highlight matches
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=highlight,indent=0]
+----
+<1> This line tells the server you want the result to include fragments, and you want the matching text to be wrapped in HTML tags, like this: `<mark>pool</mark>`.
+Alternatively, you can use `Highlight.ansi()` to mark the matches using ANSI escape codes.
++
+TIP: The `Highlight.html` and `ansi` methods have an optional `fields` parameter that limits highlighting to only the fields you specify.
+
+<2> When you request highlighting, the server also tells you the location of the matched text within the field.
+<3> The `row.fragments` property is a `Map<String, List<String>>`.
+Each key is name of a field where a search term was found.
+The value is a list of fragments of the field text, with the search term highlighted.
+
+=== Locations
+
+When you request  <<highlight,highlighting>>, the server also return the locations of the matched terms within the field value.
+The `SearchRow.locations` property is a list of `SearchLocation` objects.
+
+If you want the location information, but don't need fragments, pass `includeLocations = true` when calling `searchQuery` instead of passing a value for `highlight`.
+
+TIP: To get locations, the index must include term vectors for the field.
+If you're not getting the results you expect, check the index definition.
 
 [#sorting]
 == Sorting
@@ -93,29 +196,29 @@ These objects tell the server how to sort the results.
 
 Required parameter:
 
-* `field` -- Name of the field to use.
+* *`field: String`* -- Name of the field to use.
 
 Optional parameters:
 
-* `direction` -- Can be `ASCENDING` (A to Z) or `DESCENDING` (Z to A).
+* *`direction: Direction`* -- Can be `ASCENDING` (A to Z) or `DESCENDING` (Z to A).
 The default direction is `ASCENDING`.
 
-* `missing` -- Tells the server where to put rows that don't have a value for the field.
+* *`missing: Missing`* -- Tells the server where to put rows that don't have a value for the field.
 Can be `FIRST` or `LAST`.
 The default is `LAST`.
 
-* `type` -- The type of the field.
+* *`type: FieldType`* -- The type of the field.
 Can be `STRING`, `NUMBER`, `DATE`, or `AUTO`.
 The default type is `AUTO`, which tells the server to infer the type.
 
-* `mode` -- A field can have more than one value.
+* *`mode: Mode`* -- A field can have more than one value.
 This happens if the value is an array, or if the value is a string that is analyzed as more than one token.
 The `mode` parameter tells the server which value to use for sorting.
 If a field does not have more than one value, this parameter does nothing.
 Possible values:
-** `MIN` -- Use the minimum value.
-** `MAX` -- Use the maximum value.
-** `DEFAULT` -- The server will sort the rows the same way every time, but you won't know which value (or values) it used for sorting.
+** *`MIN`* -- Use the minimum value.
+** *`MAX`* -- Use the maximum value.
+** *`DEFAULT`* -- The server will sort the rows the same way every time, but you won't know which value (or values) it used for sorting.
 +
 The default mode is `DEFAULT`.
 
@@ -126,17 +229,17 @@ The default mode is `DEFAULT`.
 
 Optional parameters:
 
-* `direction` -- `ASCENDING` (low to high) or `DESCENDING` (high to low).
+* *`direction: Direction`* -- `ASCENDING` (low to high) or `DESCENDING` (high to low).
 The default direction is `DESCENDING`.
 
 [#sorting-by-id]
 === Sorting by document ID
 
-The `SearchSort.byId` companion factory method creates a `SearchSort` object that tells the server to sort the rows using each row's document ID.
+`SearchSort.byId` tells the server to sort the rows using each row's document ID.
 
 Optional parameters:
 
-* `direction` -- `ASCENDING` (A to Z) or `DESCENDING` (Z to A).
+* *`direction: Direction`* -- `ASCENDING` (A to Z) or `DESCENDING` (Z to A).
 The default direction is `ASCENDING`.
 
 [#sorting-by-geo-distance]
@@ -144,25 +247,25 @@ The default direction is `ASCENDING`.
 
 `SearchSort.byGeoDistance` tells the server to look at a field that has a geographic location, and sort the rows based on how far the field value is from some other location.
 
-Required parameter:
+Required parameters:
 
-* `field` -- Name of the field to use.
+* *`field: String`* -- Name of the field to use.
 The field must be indexed as a geographic point.
 
-* `location` -- The starting point for measuring distance.
+* *`location: GeoPoint`* -- The starting point for measuring distance.
 
 Optional parameters:
 
-* `direction` -- `ASCENDING` (near to far) or `DESCENDING` (far to near).
+* *`direction: Direction`* -- `ASCENDING` (near to far) or `DESCENDING` (far to near).
 The default direction is `ASCENDING`.
 
-* `unit` -- The `GeoDistanceUnit` to use for reporting the distance.
+* *`unit: GeoDistanceUnit`* -- The unit of measurement to use for reporting the distance.
 The default unit is `GeoDistanceUnit.METERS`.
 
 [#sorting-by-string-syntax]
 === Sorting with string syntax
 
-`SearchSort.by` lets you specify the sort using the syntax described in xref:{version-server}@server:fts/fts-search-response.adoc#sorting-with-strings[Sorting with Strings].
+`SearchSort.by` lets you specify the sort using the syntax described in xref:{version-server}@server:fts:fts-search-response.adoc#sorting-with-strings[Sorting with Strings].
 For example:
 
 .Sorting with strings
@@ -189,22 +292,21 @@ include::example$FullTextSearch.kt[tag=multiSortThen,indent=0]
 include::example$FullTextSearch.kt[tag=multiSortList,indent=0]
 ----
 
-Both examples first sort the results by the value of the "country" field.
-Rows with the same country value are sorted by document ID.
+First, the rows are sorted by the value of the "country" field.
+Then, rows with the same country are sorted by document ID.
 
 NOTE: The example for <<sorting-by-string-syntax>> also creates a multi-level sort.
 
 [#pagination]
 == Pagination
 
-If you don't need all the result rows at once, you can ask the server to return one page of results.
+If you don't need all the result rows at once, you can ask the server to return one page at a time.
 
 The `searchQuery` method has a `limit` parameter that tells the server how many rows to return.
 This is the page size.
 
 There is also a `page` parameter that tells the server which rows to include in the results.
-
-There are two ways to say which page to return.
+There are two ways to ask for a page.
 
 [#offset-pagination]
 === Offset pagination
@@ -261,14 +363,13 @@ See the cautions below.
 
 CAUTION: For stable keyset pagination, the `sort` argument must not let any two rows be equal.
 It's good to always use a <<multi-level-sorting,multi-level sort>> that ends with `<<sorting-by-id,SearchSort.byId()>>`, so no two rows are equal.
+Be careful when searching a multi-collection index, since document IDs are only guaranteed to be unique within a single collection.
 
 CAUTION: Changing the sort invalidates a keyset (unless the new sort is the total opposite of the old sort).
 If you use a keyset to search with a different sort, you will get bad results.
 
-TIP: `keyset.serialize()` converts a keyset to a string, so you can send it to a client.
+TIP: `keyset.serialize()` converts a `SearchKeyset` to a string, so you can send it to a client.
 When you receive the string back from the client, pass it to the `SearchKeyset.deserialize` companion factory method to turn it back into a `SearchKeyset`.
-
-
 
 [#total-rows]
 === Total number of rows
@@ -298,13 +399,14 @@ She can _boost_ the "sauna" query, so hotels with a sauna get higher scores rela
 ----
 include::example$FullTextSearch.kt[tag=poolOrSauna,indent=0]
 ----
-<1> There are other kinds of compound queries.
+<1> Alice thinks saunas are better than swimming pools, so she boosts this part of the query.
+
+NOTE: Boosting a query has no effect unless the query is part of a compound query.
+
+There are other kinds of compound queries.
 Use `conjunction` for "and".
 Use `negation` for "not".
 Use `boolean` for a complex query with "must", "should", and "mustNot" sub-queries.
-<2> Alice thinks saunas are better than swimming pools, so she boosts this part of the query.
-
-NOTE: Boosting a query has no effect unless the query is part of a compound query.
 
 [#facets]
 == Facets
@@ -315,19 +417,19 @@ For each document matching the search query, the server inspects a field of the 
 For `numeric` and `date` facets, you specify the categories up front as value ranges.
 Common use cases include counting the number of documents in certain price ranges, like: $1 to $5, $5 to $20, $20+, or time ranges like: "today", "yesterday", or "more than a week ago".
 
-Unlike a histogram, it's okay if the ranges overlap.
+TIP: Unlike a histogram, it's okay if the ranges overlap.
 If a field value matches more than one range, each matching range has its count incremented.
 
 For `term` facets, the server creates one category for each distinct value it sees in the field.
 
 For example, let's say your documents have a "color" field where the value is one of "red", "green", or "blue".
-The result of a term facet targeting the "color" field tells you the number of times each color appears as the field value.
+The result of a `term` facet on the "color" field tells you the number of times each color appears as the field value.
 
 Facets have a `size` parameter, which is an upper bound on the number of categories reported in the facet result.
-For example, if you request a size of 3, the server will do its best to return the 3 largest categories.
+For example, if you request a `size` of 3, the server will do its best to return the 3 largest categories.
 To be more precise, it will select the top 3 categories from each partition executing the query, and then merge each partition's result into the final result.
 
-CAUTION: If you are using multiple partitions and require an exact result, the size must be >= the number of categories; otherwise the result should be considered an estimate.
+NOTE: If you are using multiple partitions and require an exact result, the size must be >= the number of categories; otherwise the result should be considered an estimate.
 
 Facet results are not affected by query pagination.
 
@@ -335,7 +437,7 @@ To create a facet, use one of the `SearchFacet` companion factory methods.
 To retrieve the result in a type-safe way, pass the facet to `SearchResult.get` (or `SearchMetadata.get`).
 Alternatively, iterate over `SearchResult.facets` (or `SearchMetadata.facets`) and cast each `FacetResult` to the appropriate type.
 
-CAUTION: Facets and/or ranges with no matching documents are omitted from the results.
+NOTE: Facets and/or ranges with no matching documents are omitted from the results.
 
 This example uses the `beer-sample` bucket.
 It requires an index called `beer-sample-index`, with fields "abv" and "category" indexed as stored fields.
@@ -344,6 +446,51 @@ It requires an index called `beer-sample-index`, with fields "abv" and "category
 [source,kotlin]
 ----
 include::example$FullTextSearch.kt[tag=searchQueryWithFacets,indent=0]
+----
+
+[#scan-consistency]
+== Scan Consistency
+
+When you change a document in Couchbase, it takes time for the FTS service to index the document.
+An FTS index "runs behind" the KV service.
+When you execute an FTS search, you get to choose if you want to wait for the index to "catch up" to the latest KV changes.
+
+[#scan-consistency-unbounded]
+=== Unbounded
+
+By default, the FTS service will not wait.
+It will only search documents that were already indexed when the search started.
+This is called "unbounded" scan consistency.
+
+This is the default value for the `searchQuery` method's `consistency` parameter.
+
+[#scan-consistency-consistent-with]
+=== Consistent With
+
+If you made some changes, you can tell the server to wait for the changes to be indexed.
+In other words, the search results will be "consistent with" the changes you made.
+To use this kind of scan consistency, you must keep track of the mutation tokens from the changes you want to wait for.
+
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=consistentWith,indent=0]
+----
+
+[#partial-failures]
+== Partial Failures
+
+An FTS index can have multiple partitions that live on different Couchbase Server nodes.
+If there is a problem with a partition, the FTS service will give you results from only the healthy partitions.
+Documents indexed by an unhealthy partition are not included in the results.
+
+NOTE: If no partitions are healthy, the `searchQuery` method throws an exception.
+
+If you want to know if the FTS service was able to search all partitions, check the `SearchMetadata.errors` property.
+This property is a map where the key is the name of an index partition, and the value is an error reported by that partition.
+
+[source,kotlin]
+----
+include::example$FullTextSearch.kt[tag=partialFailure,indent=0]
 ----
 
 [#streaming]

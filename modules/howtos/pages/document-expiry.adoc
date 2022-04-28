@@ -31,8 +31,6 @@ There are different ways to set a document's expiry.
 
 You should know xref:howtos:kv-operations.adoc[how to do Key Value operations].
 
-
-
 == Set a document's expiry
 
 A CRUD operation that changes a document can set the document's expiry.
@@ -116,21 +114,8 @@ Otherwise, changes might get lost if two threads or computers change the same do
 Before Couchbase 7::
 +
 --
-You will need to know how to <<get-expiry,get a document's expiry>>.
-
-You will need to know about xref:howtos:kv-operations.adoc#optimistic-locking[optimistic locking].
-
-Inside the optimistic locking loop, get the document expiry
-and pass it to the `replace` method.
-
-This example changes Alice's favorite food to hamburger, without changing the document expiry.
-
-[source,kotlin]
-----
-include::example$KvBasic.kt[tag=replacePreserveExpiryHardWayLocking,indent=0]
-----
-<1> It is important to use `withExpiry = true`.
-Otherwise `GetResult.expiry` will not have the real expiry, and `replace` will throw an exception.
+Copy the `Collection.mutate` extension function from the xref:howtos:kv-operations.adoc#collection-mutate[optimistic locking] section.
+This function has a `preserveExpiry` parameter that works with any version of Couchbase Server.
 --
 ====
 

@@ -15,10 +15,17 @@
  */
 
 import com.couchbase.client.kotlin.Cluster
+import com.couchbase.client.kotlin.codec.JsonSerializer
+import com.couchbase.client.kotlin.codec.typeRef
 import com.couchbase.client.kotlin.http.CouchbaseHttpResponse
 import com.couchbase.client.kotlin.http.HttpBody
 import com.couchbase.client.kotlin.http.HttpTarget
 import com.couchbase.client.kotlin.http.formatPath
+import com.couchbase.client.kotlin.kv.MutationResult
+import com.couchbase.client.kotlin.kv.MutationState
+import com.couchbase.client.kotlin.query.QueryResult
+import com.couchbase.client.kotlin.query.QueryScanConsistency
+import com.couchbase.client.kotlin.query.execute
 import com.couchbase.client.kotlin.search.*
 import kotlinx.coroutines.runBlocking
 
@@ -29,18 +36,19 @@ private suspend fun simpleQuery(cluster: Cluster) {
             indexName = "travel-sample-index",
             query = SearchQuery.queryString("pool"), // <1>
         )
-        .execute()
+        .execute() // <2>
 
-    searchResult.rows.forEach { row ->
-        println("Found row: $row")
+    searchResult.rows.forEach { row: SearchRow ->
+        println("Document ${row.id} has score ${row.score}")
+        println(row)
     }
 // end::simpleQuery[]
 }
 
 private suspend fun poolOrSauna(cluster: Cluster) {
 // tag::poolOrSauna[]
-    val saunaOrPool: SearchQuery = SearchQuery.disjunction( // <1>
-        SearchQuery.match("sauna") boost 1.5, // <2>
+    val saunaOrPool: SearchQuery = SearchQuery.disjunction(
+        SearchQuery.match("sauna") boost 1.5, // <1>
         SearchQuery.match("pool"),
     )
     val searchResult: SearchResult = cluster
@@ -83,6 +91,23 @@ private suspend fun streaming(cluster: Cluster) {
 
 }
 
+private suspend fun explainScoring(cluster: Cluster) {
+// tag::explainScoring[]
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = SearchQuery.queryString("pool"),
+            explain = true, // <1>
+        )
+        .execute()
+
+    searchResult.rows.forEach { row ->
+        println(String(row.explanation)) // <2>
+    }
+
+// end::explainScoring[]
+}
+
 
 private suspend fun disableScoring(cluster: Cluster) {
 // tag::disableScoring[]
@@ -95,6 +120,59 @@ private suspend fun disableScoring(cluster: Cluster) {
         .execute()
 // end::disableScoring[]
 }
+
+
+private suspend fun fields(cluster: Cluster) {
+// tag::fields[]
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = SearchQuery.queryString("pool"),
+            fields = listOf("*"), // <1>
+        )
+        .execute()
+
+    searchResult.rows.forEach { row ->
+        println(row.fieldsAs<Map<String, Any?>>()) // <2>
+    }
+// end::fields[]
+}
+
+private suspend fun collections(cluster: Cluster) {
+// tag::collections[]
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-multi-collection-index",
+            query = SearchQuery.queryString("San Francisco"),
+            collections = listOf("airport", "landmark") // <1>
+        )
+        .execute()
+
+    searchResult.rows.forEach { row ->
+        val fields = row.fieldsAs<Map<String, Any?>>()
+        val collection = fields?.get("_\$c") // <2>
+        println("Found document ${row.id} in collection $collection")
+    }
+// end::collections[]
+}
+
+private suspend fun highlight(cluster: Cluster) {
+// tag::highlight[]
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = SearchQuery.queryString("pool"),
+            highlight = Highlight.html() // <1>
+        )
+        .execute()
+
+    searchResult.rows.forEach { row ->
+        println(row.locations) // <2>
+        println(row.fragments) // <3>
+    }
+// end::highlight[]
+}
+
 
 private suspend fun sortByCountry(cluster: Cluster) {
 // tag::sortByCountry[]
@@ -222,6 +300,51 @@ internal suspend fun searchQueryWithFacets(cluster: Cluster) {
         println()
     }
     // end::searchQueryWithFacets[]
+}
+
+private suspend fun consistentWith(cluster: Cluster) {
+// tag::consistentWith[]
+    val collection = cluster
+        .bucket("travel-sample")
+        .defaultCollection()
+
+    val mutationResult: MutationResult =
+        collection.upsert(
+            id = "my-fake-hotel",
+            content = mapOf("description" to "This hotel is imaginary.")
+        )
+
+    val mutationState = MutationState()
+    mutationState.add(mutationResult)
+
+    val queryResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = SearchQuery.match("imaginary"),
+            consistency = SearchScanConsistency
+                .consistentWith(mutationState),
+        )
+        .execute()
+// end::consistentWith[]
+}
+
+private suspend fun partialFailure(cluster: Cluster) {
+// tag::partialFailure[]
+    val searchResult: SearchResult = cluster
+        .searchQuery(
+            indexName = "travel-sample-index",
+            query = SearchQuery.queryString("pool")
+        )
+        .execute()
+
+    if (searchResult.metadata.errors.isNotEmpty()) {
+        println("Partial failure!")
+    }
+
+    searchResult.metadata.errors.forEach { (indexPartition, errorMessage) ->
+        println("Partition $indexPartition reported error: $errorMessage")
+    }
+// end::partialFailure[]
 }
 
 
