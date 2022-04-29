@@ -92,7 +92,7 @@ include::example$Json.kt[tag=skipDataBinding,indent=0]
 
 [CAUTION]
 ====
-If you use a `String` for the content, and don't skip data binding, the SDK assumes you want the document content to be a JSON String.
+If you use a `String` for the content when changing a document, and don't skip data binding, the SDK assumes you want the document content to be a JSON String.
 For example, if you write:
 [source,kotlin]
 ----
@@ -112,6 +112,19 @@ instead of what you probably want:
 
 To fix this problem, <<skip-data-binding,skip data binding>>,
 ====
+
+=== Reading JSON content without data binding
+
+Sometimes it's useful to get the content of a JSON document as a byte array.
+This examples shows how to get the unprocessed bytes of a document:
+
+.Reading a JSON document as a byte array
+[source,kotlin]
+----
+include::example$Json.kt[tag=skipDataBindingRead,indent=0]
+----
+<1> The byte array contains the unprocessed document content.
+You can parse the JSON yourself, or do something else with the bytes.
 
 [#json-serializer]
 == JsonSerializer
@@ -142,8 +155,8 @@ To learn more about Jackson, please read the https://github.com/FasterXML/jackso
 [TIP]
 .Jackson Tree Model
 ====
-Jackson can represent a JSON document as a tree of `TreeNode` objects.
-You can use data binding with `TreeNode`.
+Jackson can represent a JSON document as a tree of `JsonNode` objects.
+You can use data binding with `JsonNode`.
 This is useful if you don't know the structure of the document.
 For example:
 
@@ -152,8 +165,22 @@ For example:
 include::example$Json.kt[tag=dataBindingWithTreeNode,indent=0]
 ----
 
-Sometimes it's easier to do data binding with a `TreeNode` than a `Map`.
+Sometimes it's easier to do data binding with a `JsonNode` than a `Map`.
 ====
+
+[#customize-jackson-mapper]
+==== Customizing the Jackson mapper
+
+By default, `JacksonJsonSerializer` uses a `JsonMapper` with default settings, and the Kotlin and JDK 8 modules.
+
+You can use your own Jackson mapper instead.
+This example creates a `JacksonJsonSerializer` with a different mapper, and configures the SDK to use it by default:
+
+.Overriding the default Jackson JsonMapper
+[source,kotlin]
+----
+include::example$Json.kt[tag=customObjectMapper,indent=0]
+----
 
 [#moshi]
 === Moshi
@@ -211,8 +238,3 @@ If there is a JSON library you like more than Jackson or Moshi, you can make you
 The <<moshi,Moshi>> section shows how to tell the SDK which serializer to use.
 
 Alternatively, you can <<skip-data-binding,skip data binding>> and use your preferred JSON library to read and write JSON without using the SDK.
-
-[#transcoders]
-== Transcoders
-
-Coming soon...

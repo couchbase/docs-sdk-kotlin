@@ -17,14 +17,22 @@
 import com.couchbase.client.kotlin.Cluster
 import com.couchbase.client.kotlin.Collection
 import com.couchbase.client.kotlin.codec.Content
+import com.couchbase.client.kotlin.codec.JacksonJsonSerializer
 import com.couchbase.client.kotlin.codec.MoshiJsonSerializer
 import com.couchbase.client.kotlin.codec.RawJsonTranscoder
+import com.couchbase.client.kotlin.encryption.databind.jackson.EncryptionModule
 import com.couchbase.client.kotlin.kv.GetResult
 import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlin.time.Duration.Companion.minutes
 
 private suspend fun dataBindingMap(collection: Collection) {
 // tag::dataBindingMap[]
@@ -77,6 +85,13 @@ private suspend fun skipDataBinding(collection: Collection) {
 // end::skipDataBinding[]
 }
 
+private suspend fun skipDataBindingRead(collection: Collection) {
+    // tag::skipDataBindingRead[]
+    val result: GetResult = collection.get(id = "alice")
+    val jsonBytes: ByteArray = result.content.bytes // <1>
+// end::skipDataBindingRead[]
+}
+
 private suspend fun failToSkipDataBinding(collection: Collection) {
     // tag::failToSkipDataBinding[]
     // Don't do this!
@@ -89,13 +104,30 @@ private suspend fun failToSkipDataBinding(collection: Collection) {
 
 private suspend fun dataBindingWithTreeNode(collection: Collection) {
     // tag::dataBindingWithTreeNode[]
-    val json = collection.get(id = "alice").contentAs<TreeNode>()
+    val json = collection.get(id = "alice").contentAs<JsonNode>()
     when {
         json is ArrayNode -> println("Content is a JSON Array")
         json is ObjectNode -> println("Content is a JSON Object")
         else -> println("Content is a JSON primitive")
     }
 // end::dataBindingWithTreeNode[]
+}
+
+private fun getMyCustomJsonMapper() = jsonMapper()
+
+private suspend fun customObjectMapper(
+    collection: Collection,
+    connectionString: String,
+    username: String,
+    password: String,
+) {
+    // tag::customObjectMapper[]
+    val jsonMapper: JsonMapper = getMyCustomJsonMapper()
+
+    val cluster = Cluster.connect(connectionString, username, password) {
+        jsonSerializer = JacksonJsonSerializer(jsonMapper)
+    }
+// end::customObjectMapper[]
 }
 
 private suspend fun moshi(collection: Collection) {
