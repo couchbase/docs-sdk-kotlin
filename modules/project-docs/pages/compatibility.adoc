@@ -24,7 +24,7 @@ It is best to upgrade either the SDK or the Couchbase version you are using.
 [#table_sdk_versions]
 [cols="50,50"]
 |===
-| | SDK 1.x
+| | SDK 1.0
 
 | *Server 5.0-5.5*
 | *✖*
