@@ -9,17 +9,16 @@ A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to acce
 The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK.
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
 
-WARNING: These pages cover the _Developer Preview_ of the Couchbase Kotlin SDK 1.0.
-Developer Preview code is likely to change without notice, and _should not_ be used in production.
+[#prerequisites]
+== Before You Start
+
+* You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
+
+* You will need Java 8 or later, and Kotlin 1.6.20 or later.
+We recommend running the latest Java LTS version with the highest patch version available, and the latest version of Kotlin.
+
 
 == Installing the SDK
-
-This guide assumes you are familiar with setting up a Kotlin project using Gradle or Maven.
-
-The Couchbase Kotlin SDK requires Java 8 or later, and Kotlin 1.6 or later.
-We recommend running the latest Java LTS version with the highest patch version available.
-
-All stable versions of the SDK are https://search.maven.org/artifact/com.couchbase.client/kotlin-client[available on Maven Central].
 
 You can use your favorite dependency management tool to include the SDK in your project.
 
@@ -166,7 +165,10 @@ include::example$HelloWorld.kt[]
 ====
 
 
+[#additional-resources]
 == Additional Resources
+
+To see more documentation, select a chapter from the navigation sidebar on the left.
 
 Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum].
 

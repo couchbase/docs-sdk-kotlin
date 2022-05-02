@@ -1,5 +1,5 @@
 :kotlin-api-link: https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/
-:kotlin-current-version: 1.0.0-dp.7
+:kotlin-current-version: 1.0.0
 :moshi-version: 1.13.0
 :version-server: 7.0
 :name-sdk: Kotlin SDK
