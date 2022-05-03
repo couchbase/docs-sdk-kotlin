@@ -13,9 +13,10 @@ It provides idiomatic Kotlin features like default arguments, suspend functions,
 == Before You Start
 
 * You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
+The SDK requires Kotlin 1.6.20 or later.
 
-* You will need Java 8 or later, and Kotlin 1.6.20 or later.
-We recommend running the latest Java LTS version with the highest patch version available, and the latest version of Kotlin.
+* You will need Java 8 or later.
+We recommend running the latest Java LTS version with the highest patch version available.
 
 == Installing the SDK
 
