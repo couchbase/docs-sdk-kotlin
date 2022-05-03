@@ -9,7 +9,7 @@
 {description}
 
 [[v1.0.0]]
-== Version 1.0.0 (3 April 2022)
+== Version 1.0.0 (3 May 2022)
 
 Initial GA release.
 
