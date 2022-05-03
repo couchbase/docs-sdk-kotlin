@@ -17,8 +17,9 @@ It provides idiomatic Kotlin features like default arguments, suspend functions,
 * You will need Java 8 or later, and Kotlin 1.6.20 or later.
 We recommend running the latest Java LTS version with the highest patch version available, and the latest version of Kotlin.
 
-
 == Installing the SDK
+
+All stable versions of the SDK are https://search.maven.org/artifact/com.couchbase.client/kotlin-client[available on Maven Central].
 
 You can use your favorite dependency management tool to include the SDK in your project.
 
