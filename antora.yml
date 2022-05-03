@@ -5,6 +5,3 @@ start_page: hello-world:overview.adoc
 nav:
 - modules/ROOT/nav.adoc
 server_version: '7.0'
-asciidoc:
-  attributes:
-    page-status: Developer Preview

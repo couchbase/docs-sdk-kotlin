@@ -1,6 +1,5 @@
 = Install and Start Using the Kotlin SDK with Couchbase Server
 :navtitle: Start Using the SDK
-:page-status: Developer Preview
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]
