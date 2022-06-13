@@ -11,7 +11,9 @@
 [[v1.0.1]]
 == Version 1.0.1 (8 June 2022)
 
-Version 1.0.1 is the first patch release of the Kotlin SDK, bringing a number of improvements.
+Version 1.0.1 is the second release of the Kotlin SDK, bringing a number of improvements.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.1/index.html[API Reference]
 
 === Improvements
 
