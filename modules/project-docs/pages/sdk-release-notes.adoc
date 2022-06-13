@@ -8,6 +8,18 @@
 [abstract]
 {description}
 
+[[v1.0.1]]
+== Version 1.0.1 (8 June 2022)
+
+=== Improvements
+* https://issues.couchbase.com/browse/KCBC-79[KCBC-79]:
+JacksonJsonSerializer now accepts the jackson `ObjectMapper` which for example makes it easier to use out of the box with Spring Boot.
+* https://issues.couchbase.com/browse/JVMCBC-1093[JVMCBC-1093]:
+Previously, when a DNS SRV lookup failure occured, the SDK logged this as a `WARNING` along with a stack trace.
+The lookup failure is typically harmless, so the log message has now been downgraded to `INFO` level, without a stack trace.
+* https://issues.couchbase.com/browse/JVMCBC-1088[JVMCBC-1088]:
+Updated Netty to version `4.1.77.Final`.
+
 [[v1.0.0]]
 == Version 1.0.0 (3 May 2022)
 
