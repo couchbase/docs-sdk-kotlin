@@ -236,6 +236,21 @@ Alternatively, you can release the lock by calling `unlock`.
 Pessimistic locking is expensive.
 It's usually better to use optimistic locking.
 
+
+
+== Selecting Fields
+
+The `project()` feature allows you to select a couple of fields -- specify a path or paths within the JSON document, and this list is fetched rather than the whole document.
+
+[source,kotlin]
+----
+	project​(Iterable<String> paths)
+	project​(String path, String... morePaths)
+----
+
+This feature is implemented by internally using our subdocument API, which you can access directly -- for more sophisticated selection of portions of a document -- xref:subdocument-operations.adoc[].
+
+
 [#summary]
 == Summary
 

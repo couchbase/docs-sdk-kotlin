@@ -1,0 +1,183 @@
+= Install and Start Using the Kotlin SDK with Couchbase Server
+:navtitle: Start Using the SDK
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to access a Couchbase cluster.
+
+The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK.
+It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
+
+[#prerequisites]
+== Before You Start
+
+* You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
+The SDK requires Kotlin 1.6.20 or later.
+
+* You will need Java 8 or later.
+We recommend running the latest Java LTS version with the highest patch version available.
+
+== Installing the SDK
+
+All stable versions of the SDK are https://search.maven.org/artifact/com.couchbase.client/kotlin-client[available on Maven Central].
+
+You can use your favorite dependency management tool to include the SDK in your project.
+
+[{tabs}]
+====
+Gradle (Kotlin)::
++
+--
+[source,kotlin,subs="+attributes"]
+----
+implementation("com.couchbase.client:kotlin-client:{kotlin-current-version}")
+----
+
+--
+Gradle (Groovy)::
++
+--
+[source,groovy,subs="+attributes"]
+----
+implementation "com.couchbase.client:kotlin-client:{kotlin-current-version}"
+----
+
+--
+Maven::
++
+--
+[source,xml,subs="+attributes"]
+----
+<dependency>
+  <groupId>com.couchbase.client</groupId>
+  <artifactId>kotlin-client</artifactId>
+  <version>{kotlin-current-version}</version>
+</dependency>
+----
+--
+====
+
+[snapshots]
+== Using a Snapshot Version (optional)
+
+Couchbase publishes pre-release snapshot artifacts to the Sonatype OSS Snapshot Repository.
+If you wish to use a snapshot version, you'll need to tell your build tool about this repository.
+
+[{tabs}]
+====
+Gradle (Kotlin)::
++
+--
+.`*build.gradle.kts*`
+[source,kotlin]
+----
+repositories {
+    mavenCentral()
+
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+        mavenContent { snapshotsOnly() }
+    }
+}
+----
+
+--
+Gradle (Groovy)::
++
+--
+.`*build.gradle*`
+
+[source,groovy]
+----
+repositories {
+    mavenCentral()
+
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+        mavenContent { snapshotsOnly() }
+    }
+}
+----
+
+--
+Maven::
++
+--
+.`*pom.xml*`
+[source,xml]
+----
+<repositories>
+  <repository>
+    <id>sonatype-snapshots</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    <releases><enabled>false</enabled></releases>
+    <snapshots><enabled>true</enabled></snapshots>
+  </repository>
+</repositories>
+----
+--
+====
+
+== Hello Couchbase
+
+Here's an example that shows how to execute a N1QL query and get a document from the Key Value (KV) service.
+
+[{tabs}]
+====
+Couchbase Capella::
++
+--
+This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] trial cluster, which has the `travel-sample` bucket installed by default.
+
+(If you're not using Couchbase Capella, click the **Local Couchbase Server** tab above.)
+
+Before running the example:
+
+* Replace the `address` variable with the address of your Capella cluster.
+
+* Replace the `username` and `password` arguments with credentials for a database user that can read the `travel-sample` bucket.
+
+[source,kotlin]
+----
+include::example$HelloCloud.kt[]
+----
+<1> For Capella, the connection string starts with `couchbases://` (note the final 's') to enable a secure connection with TLS.
+
+--
+Local Couchbase Server::
++
+--
+
+This version of the example assumes you are connecting to a single-node Couchbase Server cluster running on your local computer.
+
+Before running the example:
+
+* Install the `travel-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample bucket].
+
+* Replace the `username` and `password` arguments with credentials for a database user that can read the `travel-sample` bucket.
+You can use the administrator credentials you chose when setting up the cluster.
+
+[source,kotlin]
+----
+include::example$HelloWorld.kt[]
+----
+--
+
+====
+
+
+[#additional-resources]
+== Additional Resources
+
+To see more documentation, select a chapter from the navigation sidebar on the left.
+
+Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum].
+
+The https://couchbase.live[Couchbase Playground] has Kotlin examples you can edit and run in your web browser.
+
+There are more https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
+
+The API reference is {kotlin-api-link}[here].
+
+Couchbase welcomes community contributions to the Kotlin SDK.
+The source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
