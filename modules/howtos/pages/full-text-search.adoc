@@ -1,8 +1,9 @@
-= Full Text Search
+= Search
 :description: You can use the Full Text Search (FTS) service to find JSON documents that have certain words, phrases, or geographic coordinates.
-:navtitle: Full Text Search
 :page-topic-type: howto
 :page-toclevels: 2
+:page-pagination: prev
+
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]

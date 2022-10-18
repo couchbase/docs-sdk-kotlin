@@ -1,8 +1,8 @@
 = Working with JSON
 :description: The SDK makes it easy to turn Kotlin objects into JSON, and JSON into Kotlin objects.
-:navtitle: Working with JSON
 :page-topic-type: howto
 :page-toclevels: 2
+
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]

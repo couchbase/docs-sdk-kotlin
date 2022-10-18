@@ -3,8 +3,10 @@
 :navtitle: Concepts
 :page-topic-type: landing-page
 
+include::project-docs:partial$attributes.adoc[]
+
 [abstract]
 {description}
 
-include::7.1@sdk:shared:partial$concepts.adoc[tag=concepts]
+include::{version-common}@sdk:shared:partial$concepts.adoc[tag=concepts]
 

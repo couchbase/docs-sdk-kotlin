@@ -1,110 +1,112 @@
 = Couchbase Kotlin SDK 1.1
-:page-type: landing-page
 :page-layout: landing-page-top-level-sdk
 :page-role: tiles
 :!sectids:
 
+= Couchbase Kotlin SDK 1.1
 
-++++
-<div class="card-row two-column-row">
-++++
+The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK. +
+It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
 
+{empty} +
 
-[.column]
-====== {empty}
-[.content]
-The Couchbase Kotlin client allows Kotlin applications to access a Couchbase cluster.
-It offers synchronous APIs as well as reactive and asynchronous equivalents to maximize flexibility and performance.
+== icon:database[] Using Your Database
 
-[.column]
-[.content]
-[source,java]
-----
-include::hello-world:example$Overview.java[tag=overview,indent=0]
-----
-
-++++
-</div>
-++++
-
-
-
-[.column]
-====== {empty}
-
-== Couchbase Kotlin SDK 1.1
+How-to guides to help you start your development journey with Couchbase and the Kotlin SDK.
 
 ++++
 <div class="card-row three-column-row">
 ++++
 
-
 [.column]
-====== {empty}
 .Getting Started
+* xref:hello-world:start-using-sdk.adoc[]
+* xref:howtos:connecting.adoc[]
+* xref:howtos:kv-operations.adoc[]
+* xref:howtos:n1ql-queries.adoc[]
+* xref:howtos:full-text-search.adoc[]
+// * xref:hello-world:sample-application.adoc[]
 
-[.content]
-* Dive right in with a xref:start-using-sdk.adoc[quick install and Hello World].
-* Try out our xref:sample-application.adoc[Travel Sample Application].
-* Compare and contrast with our xref:spring-data-sample-application.adoc[Spring Data sample App].
-
-[.column]
-====== {empty}
-.Practical Howto Docs
-
-[.content]
-Connect to our services -- xref:howtos:kv-operations.adoc[data (KV)]; 
-xref:howtos:n1ql-queries-with-sdk.adoc[Query]; 
-xref:howtos:full-text-searching-with-sdk.adoc[Search]; 
-xref:howtos:analytics-using-sdk.adoc[Analytics]; 
-xref:howtos:view-queries-with-sdk.adoc[Views] -- 
-and the xref:howtos:subdocument-operations.adoc[Sub-Document] and xref:howtos:distributed-acid-transactions-from-the-sdk.adoc[transaction] APIs.
+// [.column]
+// .Transactions
+// * xref:howtos:distributed-acid-transactions-from-the-sdk.adoc[]
+// * xref:concept-docs:transactions.adoc[]
 
 [.column]
-====== {empty}
-.Reference Guides
+.Working with Data
+* xref:howtos:organizing-documents.adoc[]
+* xref:howtos:document-expiry.adoc[]
+* xref:howtos:json.adoc[]
+// * xref:howtos:subdocument-operations.adoc[]
+// * xref:howtos:analytics-using-sdk.adoc[]
+// * xref:howtos:encrypting-using-sdk.adoc[]
+// * xref:howtos:working-with-collections.adoc[Working with Collections]
 
-[.content]
-The documentation supplements the practical Howto docs with references and xref:concept-docs:concepts.adoc[concept guides], for those who prefer a broader understanding before diving in and coding.
+// [.column]
+// .Managing Couchbase
+// * xref:howtos:managing-connections.adoc[]
+// * xref:howtos:sdk-authentication.adoc[]
+// * xref:howtos:provisioning-cluster-resources.adoc[]
+// * xref:howtos:sdk-user-management-example.adoc[]
 
-https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/[API Docs^]
-
-
-[.column]
-====== {empty}
-.What's Hot?
-
-[.content]
-Leverage the new Couchbase Server Scopes and Collection features to build multi-tenant micro-service application.
-Integrate with Open Telemetry API to instrument telemetry data for your mission critical workloads that will make troubleshooting and debugging of your applications easier than ever.
-Add an additional layer of security and protect your sensitive workloads using our Client Side Field Level Encryption capability. 
-
-// Our xref:howtos:distributed-acid-transactions-from-the-sdk.adoc[Distributed ACID Transactions] library is now integrated into the Kotlin SDK.
-
-[.column]
-====== {empty}
-.About
-
-[.content]
-Those useful nuts-and-bolts guides to 
-xref:project-docs:compatibility.adoc[compatibility tables]; 
-xref:project-docs:sdk-release-notes.adoc[release notes]; and the 
-xref:project-docs:get-involved.adoc[contribution guide].
-
-[.column]
-====== {empty}
-.Community
-
-[.content]
-For community help, visit the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase forums^].
-The Kotlin SDK can be combined with many other projects in the broader Kotlin and JVM ecosystem and beyond.
-This includes xref:project-docs:compatibility.adoc#spring-compat[Spring Data] and xref:spark-connector::getting-started.adoc[Spark].
-//  -- in the https://blog.couchbase.com/[Couchbase Blog^] there are examples covering everything from ????
-[]
-xref:project-docs:third-party-integrations.adoc[Integrations & Ecosystem]; 
+// [.column]
+// .Errors & Diagnostics
+// * xref:howtos:error-handling.adoc[]
+// * xref:howtos:collecting-information-and-logging.adoc[]
+// * xref:howtos:slow-operations-logging.adoc[]
 
 ++++
 </div>
 ++++
 
-include::7.1@sdk:shared:partial$archive.adoc[tag=link]
+// == icon:graduation-cap[] Learn
+
+// Take a deep-dive into the SDK concept material and learn more about Couchbase.
+
+// ++++
+// <div class="card-row three-column-row">
+// ++++
+
+// [.column]
+// .Data Concepts
+// * xref:concept-docs:data-model.adoc[]
+// * xref:concept-docs:data-services.adoc[Service Selection]
+// * xref:concept-docs:encryption.adoc[Field Level Encryption]
+
+// [.column]
+// .Errors & Diagnostics Concepts
+// * xref:concept-docs:errors.adoc[]
+// * xref:concept-docs:response-time-observability.adoc[]
+// * xref:concept-docs:durability-replication-failure-considerations.adoc[]
+
+// ++++
+// </div>
+// ++++
+
+== icon:book[] Resources
+
+Useful resources to help support your development experience with Couchbase and the Kotlin SDK.
+
+++++
+<div class="card-row three-column-row">
+++++
+
+[.column]
+.Reference
+* https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/index.html[API Reference]
+// * xref:ref:client-settings.adoc[]
+// * xref:ref:error-codes.adoc[]
+// * xref:ref:glossary.adoc[Glossary]
+// * xref:ref:travel-app-data-model.adoc[]
+
+[.column]
+.Project Docs
+* xref:project-docs:sdk-release-notes.adoc[SDK Release Notes]
+* xref:project-docs:compatibility.adoc[Compatibility]
+* https://docs-archive.couchbase.com/home/index.html[Older Versions Archive]
+// * xref:project-docs:third-party-integrations.adoc[]
+// * xref:project-docs:sdk-full-installation.adoc[]
+
+++++
+</div>
+++++

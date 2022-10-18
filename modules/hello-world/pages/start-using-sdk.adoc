@@ -1,9 +1,13 @@
-= Install and Start Using the Kotlin SDK with Couchbase Server
-:navtitle: Start Using the SDK
+= Start Using the Kotlin SDK
+:description: A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to access a Couchbase cluster.
+:page-toc-levels: 2
+:page-topic-type: tutorial
+:page-pagination: next
+
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]
-A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to access a Couchbase cluster.
+{description}
 
 The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK.
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.

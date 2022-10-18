@@ -1,8 +1,9 @@
-= Connection Basics
+= Connecting
 :description: Connecting to a Couchbase Server cluster and configuring client settings.
-:navtitle: Connecting
 :page-topic-type: howto
 :page-toclevels: 2
+:page-pagination: full 
+
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]

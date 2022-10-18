@@ -1,8 +1,8 @@
 = Organizing Documents
 :description: Couchbase documents are organized into buckets, scopes, and collections.
-:navtitle: Organizing Documents
 :page-topic-type: howto
 :page-toclevels: 2
+
 include::project-docs:partial$attributes.adoc[]
 
 [abstract]

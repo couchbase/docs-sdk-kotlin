@@ -1,18 +1,19 @@
-= Querying with N1QL
+= Query
 :description: Parallel data management for complex queries over many records, using a familiar SQL-like syntax.
-:nav-title: Querying with N1QL
-:page-topic-type: concept
+:page-topic-type: howto
 :page-aliases: ROOT:n1ql-query,ROOT:prepared-statements,ROOT:querying
+
+include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
 
 
-include::7.1@sdk:shared:partial$n1ql-queries.adoc[tag=intro]
+include::{version-common}@sdk:shared:partial$n1ql-queries.adoc[tag=intro]
 
 
 // Prepared Statements for Query Optimization
-include::7.1@sdk:shared:partial$n1ql-queries.adoc[tag=prepared]
+include::{version-common}@sdk:shared:partial$n1ql-queries.adoc[tag=prepared]
 The maximum client-side query cache size is 5000 entries.
 
 [source,java]
@@ -96,7 +97,7 @@ include::example$N1qlQueryExample.java[tag=n1ql_query_3,indent=0]
 
 
 // Index Consistency
-include::7.1@sdk:shared:partial$n1ql-queries.adoc[tag=index-consistency]
+include::{version-common}@sdk:shared:partial$n1ql-queries.adoc[tag=index-consistency]
 
 The following options are available:
 
