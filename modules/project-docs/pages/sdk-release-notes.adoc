@@ -45,7 +45,7 @@ Changed `AuthenticationFailureException` error message to indicate that bucket h
 Bucket hibernation is a feature coming in a future Couchbase release.
 
 * https://issues.couchbase.com/browse/JVMCBC-1154[JVMCBC-1154]:
-Bump dependencies.
+Bumped dependencies.
 
 === Bug Fixes
 * https://issues.couchbase.com/browse/JVMCBC-1141[JVMCBC-1141]:
