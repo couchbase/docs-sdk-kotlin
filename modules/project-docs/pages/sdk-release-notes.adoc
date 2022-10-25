@@ -8,6 +8,51 @@
 [abstract]
 {description}
 
+[[v1.1.0]]
+== Version 1.1.0 (24 October 2022)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.0/index.html[API Reference]
+
+=== Improvements
+
+* https://issues.couchbase.com/browse/JVMCBC-1102[JVMCBC-1102]:
+Added support for serverless execution environments including AWS Lambda.
+
+* https://issues.couchbase.com/browse/KCBC-101[KCBC-101]:
+Added an experimental JSON serializer backed by `kotlinx.serialization`.
+See this https://github.com/couchbase/couchbase-jvm-clients/blob/c9ffa30f56294a0b82721bfa42f91e7bc7021bae/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples/KotlinxSerializationSamples.kt#L30-L43[sample code] for usage and caveats.
+
+* https://issues.couchbase.com/browse/KCBC-102[KCBC-102]:
+Added support for configuration profiles, which allow you to quickly configure an environment for common use-cases.
+In particular, this makes it easy to apply timeouts appropriate for WAN (Internet) development, such as developing against a remote Couchbase Capella instance.
+Example usage:
++
+[source,kotlin]
+----
+val cluster = Cluster.connect(
+    connectionString, username, password
+) {
+    applyProfile("wan-development")
+}
+----
+
+* https://issues.couchbase.com/browse/KCBC-105[KCBC-105],
+https://issues.couchbase.com/browse/JVMCBC-1144[JVMCBC-1144]:
+If your Couchbase Server cluster's root certificate is signed by a well-known certificate authority whose certificate is included in the JVM's trust store, it's no longer necessary to configure the certificate in the securityConfig settings.
+
+* https://issues.couchbase.com/browse/KCBC-104[KCBC-104]:
+Changed `AuthenticationFailureException` error message to indicate that bucket hibernation is now a potential cause.
+Bucket hibernation is a feature coming in a future Couchbase release.
+
+* https://issues.couchbase.com/browse/JVMCBC-1154[JVMCBC-1154]:
+Bumped dependencies.
+
+=== Bug Fixes
+* https://issues.couchbase.com/browse/JVMCBC-1141[JVMCBC-1141]:
+Provide required OpenTelemetry span attributes.
+
+* https://issues.couchbase.com/browse/JVMCBC-1155[JVMCBC-1155]:
+Make sure targeted round-robin request keeps retrying if no config is available.
 
 [[v1.0.4]]
 == Version 1.0.4 (9 September 2022)
