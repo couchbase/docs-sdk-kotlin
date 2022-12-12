@@ -8,6 +8,36 @@
 [abstract]
 {description}
 
+[[v1.1.1]]
+== Version 1.1.1 (7 December 2022)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.1/index.html[API Reference]
+
+=== Improvements
+
+* https://issues.couchbase.com/browse/JVMCBC-1163[JVMCBC-1163]:
+Dependencies have been updated.
+
+* https://issues.couchbase.com/browse/JVMCBC-1156[JVMCBC-1156]:
+The traffic tracing functionality has been enhanced to perform Wireshark-style dissection of portions of the KV protocol.
+
+* https://issues.couchbase.com/browse/JCBC-2021[JCBC-2021]:
+Diagnostics for an endpoint now include the state of the endpoint's circuit breaker.
+
+=== Bug Fixes
+
+* https://issues.couchbase.com/browse/KCBC-107[KCBC-107]:
+The logging configuration DSL property `enableDiagnosticContext` is now mutable.
+
+* https://issues.couchbase.com/browse/JVMCBC-1157[JVMCBC-1157]:
+The SDK no longer rejects a `PersistTo` requirement in a bucket using the Magma storage engine. Before this change, the SDK would refuse the request because it misidentified Magma buckets as ephemeral (unable to persist documents).
+
+* https://issues.couchbase.com/browse/JVMCBC-1167[JVMCBC-1167]:
+If you call `CancellationErrorContext.getWaitUntilReadyContext()` on an error context that didn't come from a "wait until ready" request, the method is now guaranteed to return null instead of sometimes throwing a `ClassCastException`.
+
+* https://issues.couchbase.com/browse/JVMCBC-1178[JVMCBC-1178]:
+Fixed a memory leak in `ManagerMessageHandler`.
+
 [[v1.1.0]]
 == Version 1.1.0 (24 October 2022)
 
