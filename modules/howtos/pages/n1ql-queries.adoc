@@ -1,5 +1,5 @@
 = Query
-:description: You can query for documents in Couchbase using the N1QL query language.
+:description: You can query for documents in Couchbase using the {sqlpp} query language.
 :page-topic-type: howto
 :page-toclevels: 2
 :page-pagination: full
@@ -8,12 +8,12 @@ include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
-N1QL is based on SQL, but designed for structured and flexible JSON documents.
+{sqlpp} (formerly N1QL) is based on SQL, but designed for structured and flexible JSON documents.
 
 [#prerequisites]
 == Before You Start
 
-You should know http://query.pub.couchbase.com/tutorial/#1[how to write a N1QL query].
+You should know http://query.pub.couchbase.com/tutorial/#1[how to write a {sqlpp} query].
 
 You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluster].
 
@@ -24,7 +24,7 @@ The examples on this page use the `travel-sample` xref:{version-server}@server:m
 [#search-default-collection]
 == Searching the Default Collection
 
-This example uses a N1QL query to get 10 documents from the default collection in the `travel-sample` bucket.
+This example uses a {sqlpp} query to get 10 documents from the default collection in the `travel-sample` bucket.
 
 [source,kotlin]
 ----
@@ -83,13 +83,13 @@ include::example$Query.kt[tag=simpleQueryScope,indent=0]
 [#parameters]
 == Query Parameters
 
-A "query parameter" is like a variable in a N1QL statement.
+A "query parameter" is like a variable in a {sqlpp} statement.
 Query parameters protect you from SQL injection.
 They also help the server parse and plan the query.
 
 You can give parameters names, or refer to them by position.
 
-NOTE: Some parts of a N1QL statement cannot be parameters.
+NOTE: Some parts of a {sqlpp} statement cannot be parameters.
 If you use a parameter where it is not allowed, the SDK throws an exception.
 
 [#named-parameters]
