@@ -124,7 +124,7 @@ Maven::
 
 == Hello Couchbase
 
-Here's an example that shows how to execute a N1QL query and get a document from the Key Value (KV) service.
+Here's an example that shows how to execute a {sqlpp} (formerly N1QL) query and get a document from the Key Value (KV) service.
 
 [{tabs}]
 ====

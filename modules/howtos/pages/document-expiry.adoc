@@ -119,7 +119,7 @@ This function has a `preserveExpiry` parameter that works with any version of Co
 --
 ====
 
-TIP: A N1QL query that changes a document also removes the document expiry.
+TIP: A query that changes a document also removes the document expiry.
 If you use Couchbase Server 7.1 or later, you can change this behavior by passing `preserveExpiry = true` when calling the `query` method.
 
 == Bucket and Collection Maximum Time-To-Live (TTL)
