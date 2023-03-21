@@ -8,6 +8,46 @@
 [abstract]
 {description}
 
+[[v1.1.4]]
+== Version 1.1.4 (8 March 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.4/index.html[API Reference]
+
+This is a regular maintenance release.
+
+=== Improvements
+
+* https://issues.couchbase.com/browse/JVMCBC-1237[JVMCBC-1237]:
+Added "network" as an alias for the "io.networkResolution" connection string parameter.
+For example, the connection string "couchbase://example.com?network=external" is now equivalent to "couchbase://example.com?io.networkResolution=external".
+This was done for compatibility with other Couchbase SDKs that use "network" as the name of this parameter.
+
+=== Bug Fixes
+
+* https://issues.couchbase.com/browse/JVMCBC-1232[JVMCBC-1232]:
+`Cluster.connect()` now rejects connection strings that have no addresses (like "couchbase://").
+Before this change, it would accept the invalid connection string, and subsequent operations would fail with a misleading error message: "The cluster does not support cluster-level queries".
+
+[[v1.1.3]]
+== Version 1.1.3 (9 February 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.3/index.html[API Reference]
+
+This is a regular maintenance release.
+
+=== Improvements
+
+* https://issues.couchbase.com/browse/JVMCBC-1181[JVMCBC-1181]:
+It is now possible to authenticate over secure connections even if the JVM does not support the SASL PLAIN authentication mechanism.
+* https://issues.couchbase.com/browse/JVMCBC-1184[JVMCBC-1184]:
+Updated dependencies.
+
+=== Bug Fixes
+
+* https://issues.couchbase.com/browse/JVMCBC-1160[JVMCBC-1160]:
+When a sub-document path has a syntax error or is inappropriate for an operation, the SDK now throws `PathInvalidException`.
+Prior to this change, it would throw a generic `CouchbaseException` with the message "Unexpected SubDocument response code".
+
 [[v1.1.2]]
 == Version 1.1.2 (16 January 2023)
 
