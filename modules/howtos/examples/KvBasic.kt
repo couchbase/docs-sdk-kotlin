@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused", "RemoveRedundantQualifierName")
+
 import com.couchbase.client.core.error.CasMismatchException
 import com.couchbase.client.core.error.DocumentExistsException
 import com.couchbase.client.core.error.DocumentNotFoundException
@@ -24,6 +26,11 @@ import com.couchbase.client.kotlin.kv.Durability
 import com.couchbase.client.kotlin.kv.Expiry
 import com.couchbase.client.kotlin.kv.GetResult
 import com.couchbase.client.kotlin.kv.MutationResult
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 
@@ -253,4 +260,45 @@ private suspend fun pessimisticLocking(collection: Collection) {
         cas = result.cas,
     )
 // end::pessimisticLocking[]
+}
+
+
+// tag::bulkGet[]
+/**
+ * Gets many documents at the same time.
+ *
+ * @param ids The IDs of the documents to get.
+ * @param maxConcurrency Limits how many operations happen
+ * at the same time.
+ * @return A map where the key is a document ID, and the value
+ * is a [kotlin.Result] indicating success or failure.
+ */
+suspend fun com.couchbase.client.kotlin.Collection.bulkGet(
+    ids: Iterable<String>,
+    maxConcurrency: Int = 128,
+): Map<String, Result<GetResult>> {
+    val result = ConcurrentHashMap<String, Result<GetResult>>()
+    val semaphore = kotlinx.coroutines.sync.Semaphore(maxConcurrency)
+
+    coroutineScope { // <1>
+        ids.forEach { id ->
+            launch { // <2>
+                semaphore.withPermit { // <3>
+                    result[id] = runCatching { get(id) }
+                }
+            }
+        }
+    }
+    return result
+}
+// end::bulkGet[]
+
+suspend fun callBulkGet(collection: Collection)  {
+// tag::callBulkGet[]
+    val ids = listOf("airline_10", "airline_10123", "airline_10226")
+
+    collection.bulkGet(ids).forEach { (id, result) ->
+        println("$id = $result")
+    }
+// end::callBulkGet[]
 }
