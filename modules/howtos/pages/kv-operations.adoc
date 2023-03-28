@@ -138,6 +138,36 @@ include::example$KvBasic.kt[tag=upsert,indent=0]
 You can run this example many times.
 It should succeed each time, because the `upsert` method does not care if the document already exists.
 
+[#bulk]
+== Bulk Operations
+
+The Couchbase Kotlin SDK does not have bulk operations.
+However, coroutines make it easy to do many things at the same time.
+
+Here is an example `bulkGet` function you can add to your project.
+This function can get many documents at the same time.
+
+.Extension function `Collection.bulkGet`
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=bulkGet,indent=0]
+----
+<1> Starting a new coroutine scope ensures the `bulkGet` method does not return until all coroutines launched inside the scope finish.
+<2> Start a new coroutine for each `get` operation, so all the gets happen at the same time.
+<3> The semaphore prevents sending too many requests at once.
+You can change the function to take the semaphore as a parameter, and pass the same semaphore whenever calling the method.
+If you do that, the concurrency limit will be shared by all bulk requests.
+
+After adding the `Collection.bulkGet` extension function to your project, call it like this:
+
+.Calling the `Collection.bulkGet` extension function
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=callBulkGet,indent=0]
+----
+
+TIP: You can copy the `bulkGet` extension function and change it to do other operations, like upsert.
+
 [#locking]
 == Locking
 
