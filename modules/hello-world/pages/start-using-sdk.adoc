@@ -23,7 +23,7 @@ We recommend running the latest Java LTS version with the highest patch version 
 
 == Installing the SDK
 
-All stable versions of the SDK are https://search.maven.org/artifact/com.couchbase.client/kotlin-client[available on Maven Central].
+All stable versions of the SDK are https://central.sonatype.com/artifact/com.couchbase.client/kotlin-client/{kotlin-current-version}[available on Maven Central].
 
 You can use your favorite dependency management tool to include the SDK in your project.
 
