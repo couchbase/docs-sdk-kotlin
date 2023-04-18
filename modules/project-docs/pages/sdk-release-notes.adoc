@@ -8,6 +8,31 @@
 [abstract]
 {description}
 
+[[v1.1.5]]
+== Version 1.1.5 (12 April 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.5/index.html[API Reference]
+
+This is a regular maintenance release.
+
+=== Improvements
+* https://issues.couchbase.com/browse/JVMCBC-1223[JVMCBC-1223]:
+Adds a `RetryReason.AUTHENTICATION_ERROR` at `Uncommitted` API stability level.
+A custom `RetryStrategy` can use this new, more granular information to distinguish if a connection problem is down to an authentication issue.
+
+=== Bug Fixes
+
+* https://issues.couchbase.com/browse/KCBC-118[KCBC-118]:
+Accessing the result of a sub-document lookupIn `exists` command now throws an appropriate exception (instead of returning false) in more cases where it's not possible to determine whether the field exists:
+** If the document is not JSON, `DocumentNotJsonException` is thrown.
+** If a user without the `SystemXattrRead` permission attempts to check the existence of a system XATTR, `XattrNoAccessException` is thrown.
+
+* https://issues.couchbase.com/browse/JVMCBC-1252[JVMCBC-1252]:
+Orphaned "observe" operations will no longer occasionally contain a `total_duration_us` field equal to 0.
+* https://issues.couchbase.com/browse/JVMCBC-1255[JVMCBC-1255]:
+If you were subscribing to the event bus and printing all the events, you may have noticed `Event.toString()` throwing a `NullPointerException` if the event context is null.
+`Event.toString()` now handles null contexts more gracefully, and no longer throws this exception.
+
 [[v1.1.4]]
 == Version 1.1.4 (8 March 2023)
 
