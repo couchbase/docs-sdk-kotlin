@@ -8,6 +8,13 @@
 [abstract]
 {description}
 
+[[v1.1.6]]
+== Version 1.1.6 (4 May 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.6/index.html[API Reference]
+
+This is a regular maintenance release, with no notable changes apart from depedency version bumps.
+
 [[v1.1.5]]
 == Version 1.1.5 (12 April 2023)
 
