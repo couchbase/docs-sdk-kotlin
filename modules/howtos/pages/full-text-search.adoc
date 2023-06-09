@@ -362,9 +362,10 @@ Keyset pagination is less expensive than offset pagination when the offset is la
 Keyset pagination is stable if you are careful about sorting.
 See the cautions below.
 
-CAUTION: For stable keyset pagination, the `sort` argument must not let any two rows be equal.
-It's good to always use a <<multi-level-sorting,multi-level sort>> that ends with `<<sorting-by-id,SearchSort.byId()>>`, so no two rows are equal.
+CAUTION: For stable keyset pagination, the `sort` argument must not let any two rows have the same keyset.
+It's good to always use a <<multi-level-sorting,multi-level sort>> that ends with `<<sorting-by-id,SearchSort.byId()>>`, so no two rows have the same keyset.
 Be careful when searching a multi-collection index, since document IDs are only guaranteed to be unique within a single collection.
+Also be aware that including score in the sort might cause unstable pagination, since a document's score can change when other documents are added or removed.
 
 CAUTION: Changing the sort invalidates a keyset (unless the new sort is the total opposite of the old sort).
 If you use a keyset to search with a different sort, you get bad results.
@@ -418,7 +419,7 @@ For each document matching the search query, the server inspects a field of the 
 The FTS service supports three kinds of facets: `numeric`, `date`, and `term`.
 
 For `numeric` and `date` facets, you specify the categories up front as value ranges.
-Common use cases include counting the number of documents in certain price ranges, like: $1 to $5, $5 to $20, $20+, or time ranges like: "today", "yesterday", or "more than a week ago".
+Common use cases include counting the number of documents in certain price ranges, like: $1 to $5, $5 to $20, and $20+, or time ranges like: "today", "yesterday", and "before yesterday".
 
 TIP: Unlike a histogram, it's okay if the ranges overlap.
 If a field value matches more than one range, each matching range has its count incremented.
@@ -430,7 +431,7 @@ The result of a `term` facet on the "color" field tells you the number of times 
 
 Facets have a `size` parameter, which is an upper bound on the number of categories reported in the facet result.
 For example, if you request a `size` of 3, the server does its best to return the 3 largest categories.
-To be more precise, it selects the top 3 categories from each partition executing the query, and then merge each partition's result into the final result.
+To be more precise, it selects the top 3 categories from each partition executing the query, and then merges each partition's result into the final result.
 
 NOTE: If you are using multiple partitions and require an exact result, the size must be >= the number of categories; otherwise the result should be considered an estimate.
 
