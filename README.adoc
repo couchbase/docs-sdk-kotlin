@@ -1,4 +1,4 @@
-= Couchbase Java SDK Documentation
+= Couchbase Kotlin SDK Documentation
 // Settings:
 ifdef::env-github[]
 :warning-caption: :warning:
@@ -11,7 +11,6 @@ endif::[]
 
 This repository hosts the documentation source for the Couchbase Kotlin SDK.
 
-This branch is experimental docs - if you are reading this after this branch is released, please file a PR to remove this line!
 
 == Contributing
 
@@ -24,6 +23,7 @@ Check out our {url-contribute}[contributing guide] to learn how to:
 
 Thank you for helping to make the documentation better.
 
+
 == Docs Component Configuration
 
 This repository contains an Antora docs component.
@@ -33,6 +33,7 @@ Keep in mind these key repository features:
 * The navigation for all of the modules is stored in the ROOT module's _nav.adoc_ file.
 * Production branches use the *release/X.Y* naming pattern (e.g., release/1.0, release/1.1).
  ** The {url-playbook}[docs site playbook] instructs Antora to automatically aggregate any branch names that start with *release/*.
+
 
 == Documentation Site Toolchain
 
