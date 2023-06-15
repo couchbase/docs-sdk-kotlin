@@ -1,0 +1,38 @@
+= Distributed Transactions from the Kotlin SDK
+:description: Distributed ACID Transactions with JVM SDKs
+:navtitle: ACID Transactions
+:page-topic-type: howto
+
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+
+
+Distributed ACID Transactions are implemented in the Java SDK, and simple to integrate into your Kotlin client code.
+
+
+== Java Transactions from the Scala SDK
+
+Just create a `com.couchbase.client.java.Cluster` in your Kotlin app with the xref:java-sdk:howtos:managing-connections.adoc[normal Java calls] `(Cluster.connect(...))`, and then do transactions on it as normal, e.g.:
+
+[source,java]
+----
+javaCluster.transactions().run(ctx => { /* your transaction logic here */ })
+----
+
+So in your app you have both a `com.couchbase.client.java.Cluster` and a `com.couchbase.client.kotlin.Cluster`, which are independent connections.
+
+Note, you will need to include the Couchbase Java SDK in your project.
+
+
+== Additional Information
+
+For more information on Java transactions, read our guide in the Java documentation:
+
+* xref:java-sdk:howtos:distributed-acid-transactions-from-the-sdk.adoc[]
+** xref:java-sdk:howtos:transactions-single-query.adoc[]
+** xref:java-sdk:howtos:transactions-tracing.adoc[]
+* xref:java-sdk:concept-docs:transactions.adoc[]
+** xref:java-sdk:concept-docs:transactions-cleanup.adoc[]
+** xref:java-sdk:concept-docs:transactions-error-handling.adoc[]

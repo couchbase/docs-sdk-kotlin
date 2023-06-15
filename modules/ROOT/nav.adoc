@@ -6,8 +6,8 @@
 * xref:howtos:n1ql-queries.adoc[]
 * xref:howtos:full-text-search.adoc[]
 
-// .Transactions
-// * xref:howtos:distributed-acid-transactions-from-the-sdk.adoc[Distributed ACID Transactions]
+.Transactions
+* xref:howtos:distributed-acid-transactions-from-the-sdk.adoc[Distributed ACID Transactions]
 
 .Working with Data
 * xref:howtos:organizing-documents.adoc[]
