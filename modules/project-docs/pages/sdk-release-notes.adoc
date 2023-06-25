@@ -8,6 +8,32 @@
 [abstract]
 {description}
 
+[[v1.1.7]]
+== Version 1.1.7 (12 June 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.7/index.html[API Reference]
+
+This release refines the sub-document counter methods, and adds a new connection string parameter for disabling TLS certificate verification.
+
+=== Improvements
+
+* https://issues.couchbase.com/browse/KCBC-123[KCBC-123]:
+Added new versions of `MutateInSpec.incrementAndGet` and `decrementAndGet` without a `delta` parameter ("increment/decrement" implies the delta is 1).
+Added a `MutateInSpec.addAndGet` method that takes a delta.
+Deprecated the old increment/decrement methods that take a delta, in favor of the new `addAndGet` method.
+
+* https://issues.couchbase.com/browse/JVMCBC-1290[JVMCBC-1290]:
+Added a new client setting, `security.enableCertificateVerification`, which defaults to true.
+This setting allows disabling TLS certificate verification in development environments where configuring the CA certificate to trust is not practical.
+Setting this to false is equivalent to configuring the environment to use `InsecureTrustManager.INSTANCE`.
+For compatibility with other modern Couchbase SDKs, certificate verification can now be disabled using the connection string parameter `tls_verify=none`.
+This feature is introduced at stability level `Volatile`, meaning it may change in a patch release without notice.
+
+* https://issues.couchbase.com/browse/JVMCBC-1278[JVMCBC-1278],
+https://issues.couchbase.com/browse/JVMCBC-1310[JVMCBC-1310],
+https://issues.couchbase.com/browse/JVMCBC-1313[JVMCBC-1313]:
+Dependencies updated.
+
 [[v1.1.6]]
 == Version 1.1.6 (4 May 2023)
 
