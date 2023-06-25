@@ -13,13 +13,13 @@
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.7/index.html[API Reference]
 
-This version refines the sub-document counter methods, and adds a new connection string parameter for disabling TLS certificate verification.
+This release refines the sub-document counter methods, and adds a new connection string parameter for disabling TLS certificate verification.
 
 === Improvements
 
 * https://issues.couchbase.com/browse/KCBC-123[KCBC-123]:
 Added new versions of `MutateInSpec.incrementAndGet` and `decrementAndGet` without a `delta` parameter ("increment/decrement" implies the delta is 1).
-Added an `MutateInSpec.addAndGet` method that takes a delta.
+Added a `MutateInSpec.addAndGet` method that takes a delta.
 Deprecated the old increment/decrement methods that take a delta, in favor of the new `addAndGet` method.
 
 * https://issues.couchbase.com/browse/JVMCBC-1290[JVMCBC-1290]:
