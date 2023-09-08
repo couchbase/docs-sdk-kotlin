@@ -1,6 +1,7 @@
 = Couchbase Kotlin SDK Release Notes and Archives
 :description: Release notes for the Couchbase Kotlin Client.
 :navtitle: Release Notes
+:page-toclevels: 2
 :page-topic-type: project-doc
 :page-partial:
 
