@@ -28,10 +28,6 @@ This is a regular maintenance release.
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.11/index.html[API Reference]
 | http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.11/[Core API Reference]
 
-The supported and tested dependencies for this release are:
-
-* io.projectreactor:**reactor-core:3.5.8**
-* org.reactivestreams:**reactive-streams:1.0.4**
 
 ==== Improvements
 * https://issues.couchbase.com/browse/JCBC-2046[JCBC-2046]:
