@@ -1,6 +1,7 @@
 = Couchbase Kotlin SDK Release Notes and Archives
 :description: Release notes for the Couchbase Kotlin Client.
 :navtitle: Release Notes
+:page-toclevels: 2
 :page-topic-type: project-doc
 :page-partial:
 
@@ -8,14 +9,119 @@
 [abstract]
 {description}
 
+
+
+[#latest-release]
+== Kotlin SDK 1.2 Releases
+
+We always recommend using the latest version of the SDK -- it contains all of the latest security patches and support for new and upcoming features.
+All patch releases for each dot minor release should be API compatible, and safe to upgrade;
+any changes to expected behavior are noted in the release notes that follow.
+
+
+
+
+
+=== Version 1.2.0 (21 November 2023)
+
+
+
+
+
+== Kotlin SDK 1.1 Releases
+
+[[v1.1.11]]
+=== Version 1.1.11 (4 October 2023)
+
+This is a regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.11/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.11/[Core API Reference]
+
+
+==== Improvements
+* https://issues.couchbase.com/browse/JCBC-2046[JCBC-2046]:
+With thanks to community member https://github.com/marcingrzejszczak[Marcin Grzejszczak] for the contribution, support for Micrometer Observation has been added to all JVM SDKs via the new `tracing-micrometer-observation` module.
+* https://issues.couchbase.com/browse/JVMCBC-1327[JVMCBC-1327]:
+Internal improvements to support upcoming faster failover and config push features.
+
+==== Bugfixes
+* https://issues.couchbase.com/browse/JVMCBC-1364[JVMCBC-1364]:
+Fixed decoding of certain niche sub-document errors, so they no longer raise a `DecodingFailureException`.
+
+
+
+[[v1.1.10]]
+=== Version 1.1.10 (6 September 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.10/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.10/[Core API Reference]
+
+==== Improvements
+* https://issues.couchbase.com/browse/JVMCBC-1367[JVMCBC-1367]:
+The `db.couchbase.operations` metric now has `db.name` (bucket), `db.couchbase.scope`, `db.couchbase.collection` and `outcome` labels (tags).
+This new feature is at Stability.Volatile, and may change before it is promoted to Stability.Committed in a future release.
+* https://issues.couchbase.com/browse/JVMCBC-1311[JVMCBC-1311],
+https://issues.couchbase.com/browse/JVMCBC-1352[JVMCBC-1352]:
+Upgraded dependencies.
+
+==== Bugfixes
+* https://issues.couchbase.com/browse/JVMCBC-1350[JVMCBC-1350]:
+`lookupInAnyReplica` now throws `FeatureNotAvailableException` if the server does not support the feature.
+* https://issues.couchbase.com/browse/JVMCBC-1351[JVMCBC-1351]:
+`lookupInAnyReplica` no longer hangs when too many operations are specified.
+* https://issues.couchbase.com/browse/JVMCBC-1353[JVMCBC-1353]:
+Removed the unrelocated `io.opentracing` classes that accidentally slipped into version 2.4.9 of the Couchbase `core-io` library.
+* https://issues.couchbase.com/browse/JVMCBC-1361[JVMCBC-1361]:
+When the SDK receives multiple cluster map versions at the same time, it is now more careful about applying only the most recent version.
+Before this change, there was a brief window where the SDK could apply an obsolete cluster map.
+If this happened, the SDK would temporarily dispatch requests to incorrect or non-existent nodes.
+This condition was typically short-lived, and healed the next time the SDK polled for an updated cluster map, or dispatched a KV request to the wrong node.
+* https://issues.couchbase.com/browse/JVMCBC-1368[JVMCBC-1368]:
+Fixed a rare `java.lang.ArithmeticException: / by zero` exception in `RoundRobinSelectionStrategy.select` that could occur during rebalance.
+
+
+
+
+
+
+[[v1.1.9]]
+=== Version 1.1.9 (2 August 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.9/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.9/[Core API Reference]
+
+==== Improvements
+* https://issues.couchbase.com/browse/JVMCBC-1339[JVMCBC-1339]:
+When KV traffic capture is enabled, each `ReadTrafficCapturedEvent` now contains a single protocol frame, and the human-readable frame description is more accurate.
+* https://issues.couchbase.com/browse/JVMCBC-1320[JVMCBC-1320]:
+The `waitUntilReady` method is now more aggressive about retrying failed pings.
+Also, waiting for a desired state of `DEGRADED` no longer fails when the client is fully connected to the cluster.
+* https://issues.couchbase.com/browse/JVMCBC-1343[JVMCBC-1343]:
+Reduced the default value for the `io.idleHttpConnectionTimeout` client setting to 1 second.
+The previous default (4.5 seconds) was too close to the 5-second server-side timeout, and could lead to spurious request failures.
+
+
+[[v1.1.8]]
+=== Version 1.1.8 (19 July 2023)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.8/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.8/[Core API Reference]
+
+==== Improvements
+* https://issues.couchbase.com/browse/JVMCBC-1322[JVMCBC-1322]:
+The `waitUntilReady()` method now logs additional diagnostic information to the `com.couchbase.core.WaitUntilReady` logging category at `DEBUG` level.
+
+
 [[v1.1.7]]
-== Version 1.1.7 (12 June 2023)
+=== Version 1.1.7 (12 June 2023)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.7/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.7/[Core API Reference]
 
 This release refines the sub-document counter methods, and adds a new connection string parameter for disabling TLS certificate verification.
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/KCBC-123[KCBC-123]:
 Added new versions of `MutateInSpec.incrementAndGet` and `decrementAndGet` without a `delta` parameter ("increment/decrement" implies the delta is 1).
@@ -34,26 +140,30 @@ https://issues.couchbase.com/browse/JVMCBC-1310[JVMCBC-1310],
 https://issues.couchbase.com/browse/JVMCBC-1313[JVMCBC-1313]:
 Dependencies updated.
 
+
 [[v1.1.6]]
-== Version 1.1.6 (4 May 2023)
+=== Version 1.1.6 (4 May 2023)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.6/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.6/[Core API Reference]
 
 This is a regular maintenance release, with no notable changes apart from depedency version bumps.
 
+
 [[v1.1.5]]
-== Version 1.1.5 (12 April 2023)
+=== Version 1.1.5 (12 April 2023)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.5/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.5/[Core API Reference]
 
 This is a regular maintenance release.
 
-=== Improvements
+==== Improvements
 * https://issues.couchbase.com/browse/JVMCBC-1223[JVMCBC-1223]:
 Adds a `RetryReason.AUTHENTICATION_ERROR` at `Uncommitted` API stability level.
 A custom `RetryStrategy` can use this new, more granular information to distinguish if a connection problem is down to an authentication issue.
 
-=== Bug Fixes
+==== Bug Fixes
 
 * https://issues.couchbase.com/browse/KCBC-118[KCBC-118]:
 Accessing the result of a sub-document lookupIn `exists` command now throws an appropriate exception (instead of returning false) in more cases where it's not possible to determine whether the field exists:
@@ -66,54 +176,60 @@ Orphaned "observe" operations will no longer occasionally contain a `total_durat
 If you were subscribing to the event bus and printing all the events, you may have noticed `Event.toString()` throwing a `NullPointerException` if the event context is null.
 `Event.toString()` now handles null contexts more gracefully, and no longer throws this exception.
 
+
 [[v1.1.4]]
-== Version 1.1.4 (8 March 2023)
+=== Version 1.1.4 (8 March 2023)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.4/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.4/[Core API Reference]
 
 This is a regular maintenance release.
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/JVMCBC-1237[JVMCBC-1237]:
 Added "network" as an alias for the "io.networkResolution" connection string parameter.
 For example, the connection string "couchbase://example.com?network=external" is now equivalent to "couchbase://example.com?io.networkResolution=external".
 This was done for compatibility with other Couchbase SDKs that use "network" as the name of this parameter.
 
-=== Bug Fixes
+==== Bug Fixes
 
 * https://issues.couchbase.com/browse/JVMCBC-1232[JVMCBC-1232]:
 `Cluster.connect()` now rejects connection strings that have no addresses (like "couchbase://").
 Before this change, it would accept the invalid connection string, and subsequent operations would fail with a misleading error message: "The cluster does not support cluster-level queries".
 
+
 [[v1.1.3]]
-== Version 1.1.3 (9 February 2023)
+=== Version 1.1.3 (9 February 2023)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.3/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.3/[Core API Reference]
 
 This is a regular maintenance release.
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/JVMCBC-1181[JVMCBC-1181]:
 It is now possible to authenticate over secure connections even if the JVM does not support the SASL PLAIN authentication mechanism.
 * https://issues.couchbase.com/browse/JVMCBC-1184[JVMCBC-1184]:
 Updated dependencies.
 
-=== Bug Fixes
+==== Bug Fixes
 
 * https://issues.couchbase.com/browse/JVMCBC-1160[JVMCBC-1160]:
 When a sub-document path has a syntax error or is inappropriate for an operation, the SDK now throws `PathInvalidException`.
 Prior to this change, it would throw a generic `CouchbaseException` with the message "Unexpected SubDocument response code".
 
+
 [[v1.1.2]]
-== Version 1.1.2 (16 January 2023)
+=== Version 1.1.2 (16 January 2023)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.2/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.2/[Core API Reference]
 
 This is a regular maintenance release.
 
-=== Improvements
+==== Improvements
 * https://issues.couchbase.com/browse/JVMCBC-1175[JVMCBC-1175]:
 The SDK now includes native libraries for IO and TLS that can enhance performance on `aarch_64` architectures like Graviton and Apple Silicon.
 Previously, native libraries were included only for `x86_64` architectures.
@@ -121,7 +237,7 @@ Native libraries for IO and TLS are enabled by default.
 If you need to disable native IO, set the `ioEnvironment.enableNativeIo` client setting to false.
 To disable native TLS, set the `security.enableNativeTls` client setting to false.
 
-=== Bug Fixes
+==== Bug Fixes
 * https://issues.couchbase.com/browse/JVMCBC-1161[JVMCBC-1161]:
 Fixed a minor issue where `cluster.disconnect()` could occasionally time out due to a race condition.
 
@@ -133,12 +249,14 @@ In addition to saving a bit of memory, this prevents the JVM from segfaulting on
 * https://issues.couchbase.com/browse/JVMCBC-1174[JVMCBC-1174]:
 Fixed a regression that prevented native TLS from being used regardless of whether the `security.enableNativeTls` client setting was set to true.
 
+
 [[v1.1.1]]
-== Version 1.1.1 (7 December 2022)
+=== Version 1.1.1 (7 December 2022)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.1/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.1/[Core API Reference]
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/JVMCBC-1163[JVMCBC-1163]:
 Dependencies have been updated.
@@ -149,7 +267,7 @@ The traffic tracing functionality has been enhanced to perform Wireshark-style d
 * https://issues.couchbase.com/browse/JCBC-2021[JCBC-2021]:
 Diagnostics for an endpoint now include the state of the endpoint's circuit breaker.
 
-=== Bug Fixes
+==== Bug Fixes
 
 * https://issues.couchbase.com/browse/KCBC-107[KCBC-107]:
 The logging configuration DSL property `enableDiagnosticContext` is now mutable.
@@ -163,12 +281,14 @@ If you call `CancellationErrorContext.getWaitUntilReadyContext()` on an error co
 * https://issues.couchbase.com/browse/JVMCBC-1178[JVMCBC-1178]:
 Fixed a memory leak in `ManagerMessageHandler`.
 
+
 [[v1.1.0]]
-== Version 1.1.0 (24 October 2022)
+=== Version 1.1.0 (24 October 2022)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.1.0/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.4.0/[Core API Reference]
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/JVMCBC-1102[JVMCBC-1102]:
 Added support for serverless execution environments including AWS Lambda.
@@ -202,21 +322,25 @@ Bucket hibernation is a feature coming in a future Couchbase release.
 * https://issues.couchbase.com/browse/JVMCBC-1154[JVMCBC-1154]:
 Bumped dependencies.
 
-=== Bug Fixes
+==== Bug Fixes
 * https://issues.couchbase.com/browse/JVMCBC-1141[JVMCBC-1141]:
 Provide required OpenTelemetry span attributes.
 
 * https://issues.couchbase.com/browse/JVMCBC-1155[JVMCBC-1155]:
 Make sure targeted round-robin request keeps retrying if no config is available.
 
+
+== Kotlin SDK 1.0 Releases
+
+
 [[v1.0.4]]
-== Version 1.0.4 (9 September 2022)
+=== Version 1.0.4 (9 September 2022)
 
 This maintenance release adds more cluster management APIs, and updates dependency versions.
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.4/index.html[API Reference]
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/KCBC-94[KCBC-94]:
 `UserManager` has a new `changePassword` function that lets you change the password of the currently authenticated user.
@@ -246,18 +370,18 @@ Updated maintenance dependencies.
 
 
 [[v1.0.3]]
-== Version 1.0.3 (2 August 2022)
+=== Version 1.0.3 (2 August 2022)
 
 Maintenance release.
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.3/index.html[API Reference]
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/JVMCBC-1116[JVMCBC-1116]:
 Dependency versions have been increased.
 
-=== Bug Fixes
+==== Bug Fixes
 
 * https://issues.couchbase.com/browse/JVMCBC-1119[JVMCBC-1119]:
 The num (kv) nodesExt to equal number of nodes check can lead to otherwise healthy clusters being flagged as not ready.
@@ -271,13 +395,13 @@ The SDK now allows for configurations with _only_ TLS ports.
 
 
 [[v1.0.2]]
-== Version 1.0.2 (6 July 2022)
+=== Version 1.0.2 (6 July 2022)
 
 Maintenance release.
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.2/index.html[API Reference]
 
-=== Bug Fixes
+==== Bug Fixes
 
 * https://issues.couchbase.com/browse/JVMCBC-1103[JVMCBC-1103]:
 To reduce overhead, the `MAX_PARALLEL_FETCH` value in `KeyValueBucketRefresher` has been updated to only fetch one config per poll interval.
@@ -287,13 +411,13 @@ Fixed issue where the global refresher did not honor the config poll interval.
 
 
 [[v1.0.1]]
-== Version 1.0.1 (8 June 2022)
+=== Version 1.0.1 (8 June 2022)
 
 Maintenance release.
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.0.1/index.html[API Reference]
 
-=== Improvements
+==== Improvements
 
 * https://issues.couchbase.com/browse/KCBC-79[KCBC-79]:
 `JacksonJsonSerializer` now accepts the jackson `ObjectMapper` which for example makes it easier to use out of the box with Spring Boot.
@@ -307,11 +431,12 @@ Updated Netty to version `4.1.77.Final`.
 
 
 [[v1.0.0]]
-== Version 1.0.0 (3 May 2022)
+=== Version 1.0.0 (3 May 2022)
 
 Initial GA release.
 
 //== Older Releases
 //
 //Although https://www.couchbase.com/support-policy/enterprise-software[no longer supported], documentation for older releases continues to be available in our https://docs-archive.couchbase.com/home/index.html[docs archive].
+
 // end::all[]
