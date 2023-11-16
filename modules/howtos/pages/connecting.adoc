@@ -255,7 +255,7 @@ Programmatic configuration has the lowest precedence.
 
 
 
-== Cloud Native Gateway
+=== Cloud Native Gateway Settings
 ////
 Using the xref:howtos:managing-connections.adoc#cloud-native-gateway[Cloud Native Gateway] protocol (to connect to Couchbase Server running on xref:operator::overview.adoc[Couchbase Autonomous Operator] 2.6.1 or newer) should not need any changes to config.
 ////
