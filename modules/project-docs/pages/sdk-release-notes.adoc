@@ -21,11 +21,65 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
-
+[[v1.2.0]]
 === Version 1.2.0 (21 November 2023)
 
+The SDK now supports the new couchbase2 protocol, which is upcoming in future Couchbase Server versions.
+It can be enabled through using a connection string starting with `couchbase2://`.
+Please see xref:howtos:connecting.adoc#cloud-native-gateway[Cloud Native Gateway] for more information.
 
+The SDK now directly depends on SLF4J, which may impact some users -- see below for details.
 
+==== API Impacting
+
+When upgrading from a previous version of the SDK, please be aware of this behavioral change:
+
+[CAUTION]
+====
+https://issues.couchbase.com/browse/JVMCBC-1319[JVMCBC-1319]:
+As https://www.couchbase.com/forums/t/embracing-slf4j-in-couchbase-java-sdk-3-5/36474[previously announced], the SLF4J API is now a required dependency, and the SDK does all logging through SLF4J.
+The following client settings for customizing logging behavior are deprecated, and no longer have any effect:
+
+** `logger.disableSlf4J`
+** `logger.fallbackToConsole`
+** `logger.consoleLoggerFormatter`
+
+If your project does not already use SLF4J, please follow the announcement link for details and a mini-migration guide.
+====
+
+==== Improvements
+
+* https://issues.couchbase.com/browse/KCBC-132[KCBC-132]:
+`BucketManager` and `CollectionManager` now know about the history preservation settings added in Couchbase Server 7.2.
++
+`CollectionManager` has a new `updateCollection` method for changing the settings of an existing collection.
+Note that updating a collection's `maxExpiry` setting requires Couchbase Server 7.6.
+
+* https://issues.couchbase.com/browse/JVMCBC-1402[JVMCBC-1402],
+https://issues.couchbase.com/browse/JVMCBC-1410[JVMCBC-1410]:
+Upgraded Netty from 4.1.96 to 4.1.100, and upgraded `OpenTelemetry` dependency.
+
+* https://issues.couchbase.com/browse/JVMCBC-1430[JVMCBC-1430]:
+Optimisation: removed creation of unnecessary metrics labels when default `LoggingMeter` is used.
+
+* https://issues.couchbase.com/browse/JVMCBC-1391[JVMCBC-1391]:
+The Bucket Manager API is now forward-compatible with future versions of Couchbase Server that might support storage engine types other than "magma" and "couchstore".
+
+* https://issues.couchbase.com/browse/JVMCBC-1327[JVMCBC-1327]:
+Improved support for failover handling in future server versions.
+
+==== Bugfixes
+
+* https://issues.couchbase.com/browse/KCBC-139[KCBC-139]:
+When using `BucketManager` with Couchbase Server Community Edition, specifying a bucket creation argument not supported by Community Edition now always results in a `FeatureNotAvailableException`.
+Previously, this exception was thrown only if the argument differed from the default.
+
+* https://issues.couchbase.com/browse/JVMCBC-1264[JVMCBC-1264]:
+DNS SRV lookups now honor the DNS search path.
+This enables DNS SRV resolution in Kubernetes environments where the `*-srv` hostname advertised by the Couchbase Operator is a partial name that must be resolved using a suffix from the DNS search path.
+
+* https://issues.couchbase.com/browse/JVMCBC-1426[JVMCBC-1426]:
+When Couchbase Server is too busy to start a new KV range scan, the SDK now retries instead of throwing a `CouchbaseException`.
 
 
 == Kotlin SDK 1.1 Releases
