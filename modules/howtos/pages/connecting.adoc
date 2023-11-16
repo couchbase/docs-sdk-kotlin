@@ -141,8 +141,8 @@ Omitting the scheme is equivalent to specifying the `couchbase://` prefix.
 === Cloud Native Gateway
 
 
-Couchbase's next generation connection protocol, introduced in Go SDK 2.7 and a future release of Couchbase Autonomous Operator, can be enabled simply by changing the connection string to `couchbase2://` but there are a few differences to be aware of, described <<#limitations,below>>.
-// Couchbase's next generation connection protocol, introduced in Go SDK 2.7 and Couchbase Autonomous Operator 2.6.1, can be enabled simply by changing the connection string to `couchbase2://` but there are a few differences to be aware of, described <<#limitations,below>>.
+Couchbase's next generation connection protocol, introduced in Kotlin SDK 1.2 and a future release of Couchbase Autonomous Operator, can be enabled simply by changing the connection string to `couchbase2://` but there are a few differences to be aware of, described <<#limitations,below>>.
+// Couchbase's next generation connection protocol, introduced in Kotlin SDK 1.2 and Couchbase Autonomous Operator 2.6.1, can be enabled simply by changing the connection string to `couchbase2://` but there are a few differences to be aware of, described <<#limitations,below>>.
 
 The protocol implements a gRPC-style interface between the SDK and Couchbase Server (in this case, only available in the Server running on Kubernetes or OpenShift, with a forthcoming release of xref:operator::overview.adoc[Couchbase Autonomous Operator].
 
@@ -150,7 +150,7 @@ The protocol implements a gRPC-style interface between the SDK and Couchbase Ser
 
 ==== Limitations
 
-The protostellar protocol will not work with certain legacy features: MapReduce Views (a deprecated Service -- 
+The underlying protocol will not work with certain legacy features: MapReduce Views (a deprecated Service -- 
 use xref:howtos:n1ql-queries.adoc[Query] instead) and 
 Memcached buckets (superseded by the improved xref:{server_version}@server:learn:buckets-memory-and-storage/buckets.adoc#bucket-types[Ephemeral Buckets]).
 
@@ -259,7 +259,7 @@ Programmatic configuration has the lowest precedence.
 ////
 Using the xref:howtos:managing-connections.adoc#cloud-native-gateway[Cloud Native Gateway] protocol (to connect to Couchbase Server running on xref:operator::overview.adoc[Couchbase Autonomous Operator] 2.6.1 or newer) should not need any changes to config.
 ////
-Some settings will be ignored when using the `couchbase2://` protocol -- and this will be logged at `WARNING` level.
+Some settings will be ignored when using the `couchbase2://` protocol.
 Currently, these include:
 
 * Compression
