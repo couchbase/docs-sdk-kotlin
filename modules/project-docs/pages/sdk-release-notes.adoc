@@ -19,6 +19,36 @@ All patch releases for each dot minor release should be API compatible, and safe
 any changes to expected behavior are noted in the release notes that follow.
 
 
+[[v1.2.1]]
+=== Version 1.2.1 (7 December 2023)
+
+This is a regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.1/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.5.1/[Core API Reference]
+
+
+==== Improvements
+
+* https://issues.couchbase.com/browse/JVMCBC-1435[JVMCBC-1435],
+https://issues.couchbase.com/browse/JVMCBC-1436[JVMCBC-1436]:
+Upgraded Netty and Jackson dependencies.
+* https://issues.couchbase.com/browse/JVMCBC-1440[JVMCBC-1440]:
+Adding `DocumentNotLockedException` supporting future Couchbase Server versions that will return an error code when unlocking a document that is not locked.
+
+==== Bugfixes
+
+* https://issues.couchbase.com/browse/JVMCBC-1433[JVMCBC-1433]:
+The SDK can now connect to Memcached buckets whose names contain the percent (`%`) character.
+(We'd like to take this opportunity to remind everyone that Memcached buckets are deprecated in favor of Ephemeral buckets.)
+* https://issues.couchbase.com/browse/JVMCBC-1437[JVMCBC-1437]:
+With Couchbase Server versions that support updating a collection's max expiry, it's now possible to clear the expiry by passing `Duration.ZERO` for the new value.
+* https://issues.couchbase.com/browse/JVMCBC-1441[JVMCBC-1441]:
+The SDK now handles an additional error case for `IndexNotFoundException`.
+* https://issues.couchbase.com/browse/JVMCBC-1442[JVMCBC-1442]:
+Fixed a dependency issue with `tracing-opentelemetry` module.
+
+
 
 
 [[v1.2.0]]
