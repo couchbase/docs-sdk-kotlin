@@ -54,11 +54,16 @@ Fixed a dependency issue with `tracing-opentelemetry` module.
 [[v1.2.0]]
 === Version 1.2.0 (21 November 2023)
 
+Version 1.2.0 is the first release of the 1.2 series.
+
 The SDK now supports the new couchbase2 protocol, which is upcoming in future Couchbase Server versions.
 It can be enabled through using a connection string starting with `couchbase2://`.
 Please see xref:howtos:connecting.adoc#cloud-native-gateway[Cloud Native Gateway] for more information.
 
 The SDK now directly depends on SLF4J, which may impact some users -- see below for details.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.0/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.5.0/[Core API Reference]
 
 ==== API Impacting
 
