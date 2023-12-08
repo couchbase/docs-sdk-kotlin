@@ -20,7 +20,7 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 [[v1.2.1]]
-=== Version 1.2.1 (7 December 2023)
+=== Version 1.2.1 (8 December 2023)
 
 This is a regular maintenance release.
 
