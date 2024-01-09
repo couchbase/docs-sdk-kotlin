@@ -20,6 +20,34 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 [[v1.2.1]]
+=== Version 1.2.2 (5 January 2024)
+
+This is a regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.2/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.5.2/[Core API Reference]
+
+
+==== Improvements
+
+
+==== Bugfixes
+
+* https://issues.couchbase.com/browse/JVMCBC-1455[JVMCBC-1455]:
+Fixed compatibility with `couchbase2://` endpoints by upgrading internal GRPC dependency. 
+All couchbase2 protocol users should upgrade to this release.
+* https://issues.couchbase.com/browse/JVMCBC-1463[JVMCBC-1463]:
+Fixed compatibility between `couchbase2://` endpoints and the `tracing-opentelemetry` module.
+
+* https://issues.couchbase.com/browse/KCBC-141[KCBC-141]: 
+Added new `QueryMetadata.signatureBytes` property. 
+The value is a byte array containing the signature encoded as JSON
+(`QueryMetadata.signature` failed if the signature was not a JSON Object).
+Deprecated `QueryMetadata.signature` in favor of `signatureBytes`.
+
+
+
+[[v1.2.1]]
 === Version 1.2.1 (8 December 2023)
 
 This is a regular maintenance release.
