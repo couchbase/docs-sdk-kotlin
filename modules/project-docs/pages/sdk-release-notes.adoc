@@ -30,6 +30,11 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.2/index.html[API 
 
 ==== Improvements
 
+* https://issues.couchbase.com/browse/KCBC-141[KCBC-141]: 
+Added new `QueryMetadata.signatureBytes` property. 
+The value is a byte array containing the signature encoded as JSON
+(`QueryMetadata.signature` failed if the signature was not a JSON Object).
+Deprecated `QueryMetadata.signature` in favor of `signatureBytes`.
 
 ==== Bugfixes
 
@@ -38,12 +43,6 @@ Fixed compatibility with `couchbase2://` endpoints by upgrading internal GRPC de
 All couchbase2 protocol users should upgrade to this release.
 * https://issues.couchbase.com/browse/JVMCBC-1463[JVMCBC-1463]:
 Fixed compatibility between `couchbase2://` endpoints and the `tracing-opentelemetry` module.
-
-* https://issues.couchbase.com/browse/KCBC-141[KCBC-141]: 
-Added new `QueryMetadata.signatureBytes` property. 
-The value is a byte array containing the signature encoded as JSON
-(`QueryMetadata.signature` failed if the signature was not a JSON Object).
-Deprecated `QueryMetadata.signature` in favor of `signatureBytes`.
 
 
 
