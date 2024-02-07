@@ -19,7 +19,40 @@ All patch releases for each dot minor release should be API compatible, and safe
 any changes to expected behavior are noted in the release notes that follow.
 
 
-[[v1.2.1]]
+[[v1.2.3]]
+=== Version 1.2.3 (6 February 2024)
+
+This is a regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.3/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.5.3/[Core API Reference]
+
+==== Improvements
+
+* https://issues.couchbase.com/browse/KCBC-146[KCBC-146] Collection manager improvements:
+** Added a special max expiry duration, `CollectionSpec.NEVER_EXPIRE` (equal to -1 seconds), that can be used with Couchbase Server 7.6 and later to indicate documents in a collection should never expire, regardless of the bucket's max expiry.
+** Updated the API reference documentation to clarify that a collection max expiry of `0.seconds` (or null, depending on context) means the collection's actual max expiry is always the same as the bucket's max expiry.
+
+
+* https://issues.couchbase.com/browse/JVMCBC-1460[JVMCBC-1460]
+`couchbase2` now supports compressing data between the SDK and the server.
+* https://issues.couchbase.com/browse/JVMCBC-1464[JVMCBC-1464]
+The `metrics-opentelemetry` package is now aligned with the same `OpenTelemetry` version as `tracing-opentelemetry`.
+* https://issues.couchbase.com/browse/JVMCBC-1468[JVMCBC-1468]
+`Cluster.connect` now validates that connection strings using the `couchbase2` scheme have exactly one host.
+(Previously, hosts after the first were silently ignored.).
+* https://issues.couchbase.com/browse/JVMCBC-1470[JVMCBC-1470]
+Improved support for Full Text Search in `couchbase2` mode.
+* https://issues.couchbase.com/browse/JVMCBC-1472[JVMCBC-1472]
+`couchbase2` errors will now include diagnostic information when CNG is running with the `--debug` flag.
+
+==== Bugfixes
+
+* https://issues.couchbase.com/browse/JVMCBC-1475[JVMCBC-1475]
+Accessing the terms of a `TermFacet` result no longer throws `NullPointerException` if the target field is absent from all documents.
+
+
+[[v1.2.2]]
 === Version 1.2.2 (5 January 2024)
 
 This is a regular maintenance release.
@@ -39,7 +72,7 @@ Deprecated `QueryMetadata.signature` in favor of `signatureBytes`.
 ==== Bugfixes
 
 * https://issues.couchbase.com/browse/JVMCBC-1455[JVMCBC-1455]:
-Fixed compatibility with `couchbase2://` endpoints by upgrading internal GRPC dependency. 
+Fixed compatibility with `couchbase2://` endpoints by upgrading internal GRPC dependency.
 All couchbase2 protocol users should upgrade to this release.
 * https://issues.couchbase.com/browse/JVMCBC-1463[JVMCBC-1463]:
 Fixed compatibility between `couchbase2://` endpoints and the `tracing-opentelemetry` module.
