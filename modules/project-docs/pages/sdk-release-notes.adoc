@@ -30,7 +30,7 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.3/index.html[API 
 ==== Improvements
 
 * https://issues.couchbase.com/browse/KCBC-146[KCBC-146] Collection manager improvements:
-** Added a special duration, `CollectionSpec.NEVER_EXPIRE` (equal to -1 seconds), that can be used with Couchbase Server 7.6 and later to indicate documents in a collection should never expire, regardless of the bucket's max expiry.
+** Added a special max expiry duration, `CollectionSpec.NEVER_EXPIRE` (equal to -1 seconds), that can be used with Couchbase Server 7.6 and later to indicate documents in a collection should never expire, regardless of the bucket's max expiry.
 ** Updated the API reference documentation to clarify that a collection max expiry of `0.seconds` (or null, depending on context) means the collection's actual max expiry is always the same as the bucket's max expiry.
 
 
