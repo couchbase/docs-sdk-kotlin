@@ -29,14 +29,6 @@ You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluste
 
 The examples on this page use the `travel-sample` and `beer-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample buckets].
 
-There are two APIs for querying search: `cluster.searchQuery()`, and `cluster.search()`.
-Both are also available at the Scope level.
-
-The former API supports FTS queries (`SearchQuery`), while the latter additionally supports the `VectorSearch` added in 7.6.
-Most of this documentation will focus on the former API, as the latter is in @Stability.Volatile status.
-
-We will perform an FTS query here - see the <<vector search>> section for examples of that.
-
 [#simple-example]
 == A Simple FTS Search
 
@@ -469,79 +461,74 @@ The FTS APIs exist at both the `Cluster` and `Scope` levels.
 
 This is because FTS supports, as of Couchbase Server 7.6, a new form of "scoped index" in addition to the traditional "global index".
 
-It's important to use the `Cluster.searchQuery()` / `Cluster.search()` for global indexes, and `Scope.searchQuery()` / `Scope.search()` for scoped indexes.
+It's important to use the `Cluster.searchQuery()` or `Cluster.search()`  methods for global indexes, and `Scope.search()` for scoped indexes.
 
 == Vector Search
 As of Couchbase Server 7.6, the FTS service supports vector search in additional to traditional full text search queries.
 // todo link to the server docs when available
 
+Suppose you have a scoped index called `vector-index`, and this index says the document field named `vector_field` contains a vector (an array of numbers).
+The following examples show different ways to do vector searches on this field.
+
+CAUTION: The following examples use `cluster/scope.search()` and `SearchSpec`.
+These bits of the SDK are currently experimental and may change without notice.
+
 === Examples
-==== Single vector query
-In this first example we are performing a single vector query:
-[source,java]
+==== Single vector search
+
+This first example shows how to find documents whose `vector_field` value is near a single target vector:
+
+.Single vector query
+[source,kotlin]
 ----
-SearchRequest request = SearchRequest
-        .create(VectorSearch.create(VectorQuery.create("vector_field", vectorQuery)));
-
-SearchResult result = scope.search("vector-index", request);
+include::example$FullTextSearch.kt[tag=singleVector,indent=0]
 ----
+<1> This happens to be a scoped index, so we are using `scope.search()`.
+If it was a global index we would use `cluster.search()` instead.
+See <<Scoped vs Global Indexes>>.
+<2> Couchbase itself is not involved in generating the float array; it typically comes from an external source such as an embeddings API.
+<3> The `numCandidates` parameter affects how many results are returned.
+It is optional, and defaults to 3.
+<4> The `search` method returns the same `Flow<SearchFlowItem>` described earlier.
+Nothing happens until you collect the flow.
+Calling `execute` is an easy way to collect the flow and turn it into a `SearchResult`.
 
-Let's break this down.
-We create a `SearchRequest`, which can contain a traditional FTS query `SearchQuery` and/or the new `VectorSearch`.
-Here we are just using the latter.
+==== Compound vector search
 
-The `VectorSearch` allows us to perform one or more `VectorQuery` s.
+You can build compound vector queries using `SearchSpec.allOf` or `SearchSpec.anyOf`.
 
-The `VectorQuery` itself takes the name of the document field that contains embedded vectors ("vector_field" here), plus actual vector query in the form of a `float[]`.
-
-(Note that Couchbase itself is not involved in generating the vectors, and these will come from an external source such as an embeddings API.)
-
-Finally we execute the `SearchRequest` against the FTS index "travel-sample-index", which has previously been setup to vector index the "vector_field" field.
-
-This happens to be a scoped index so we are using `scope.search()`.
-If it was a global index we would use `cluster.search()` instead - see <<Scoped vs Global Indexes>>.
-
-It returns the same `SearchResult` detailed earlier.
-
-==== Multiple vector queries
-You can run multiple vector queries together:
-
-[source,java]
+.Compound vector search
+[source,kotlin]
 ----
-SearchRequest request = SearchRequest
-        .create(VectorSearch.create(List.of(
-                        VectorQuery.create("vector_field", vectorQuery).numCandidates(2).boost(0.3),
-                        VectorQuery.create("vector_field", anotherVectorQuery).numCandidates(5).boost(0.7)));
-
-SearchResult result = scope.search("vector-index", request);
+include::example$FullTextSearch.kt[tag=vectorAnyOf,indent=0]
 ----
+<1> `SearchSpec.anyOf` combines the child queries using a logical `OR` operator.
+For logical `AND`, use `SearchSpec.allOf` instead.
+<2> Vector queries can be boosted just like non-vector queries.
+Boost is optional, and defaults to `1.0`.
 
-How the results are combined (ANDed or ORed) can be controlled with `vectorSearchOptions().vectorQueryCombination()`.
+==== Combining vector and non-vector search
+You can use `SearchSpec.mixedMode` to combine a traditional FTS search query with vector search.
 
-==== Combining FTS and vector queries
-You can combine a traditional FTS query with vector queries:
-
-[source,java]
+.Mixed mode search
+[source,kotlin]
 ----
-SearchRequest request = SearchRequest.create(SearchQuery.matchAll())
-        .vectorSearch(VectorSearch.create(VectorQuery.create("vector_field", vectorQuery)));
-
-SearchResult result = scope.search("vector-and-fts-index", request);
+include::example$FullTextSearch.kt[tag=mixedMode,indent=0]
 ----
+<1> A traditional textual search query.
 
-How the results are combined (ANDed or ORed) can be controlled with `vectorSearchOptions().vectorQueryCombination()`.
+A mixed mode search always uses logical `OR` to combine the vector and non-vector results.
 
-==== FTS queries
-And note that traditional FTS queries, without vector search, are also supported with the new `cluster.search()` / `scope.search()` APIs:
+==== Textual search
 
-[source,java]
+Note that `cluster.search()` and `scope.search()` also work with traditional FTS queries, without vector search.
+
+.Traditional textual search
+[source,kotlin]
 ----
-SearchRequest request = SearchRequest.create(SearchQuery.matchAll());
-
-SearchResult result = scope.search("travel-sample-index", request);
+include::example$FullTextSearch.kt[tag=traditionalTextual,indent=0]
 ----
-
-The `SearchQuery` is created in the same way as detailed earlier.
+<1> A traditional textual search query.
 
 [#scan-consistency]
 == Scan Consistency
