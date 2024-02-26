@@ -26,7 +26,10 @@ import com.couchbase.client.kotlin.kv.Durability
 import com.couchbase.client.kotlin.kv.Expiry
 import com.couchbase.client.kotlin.kv.GetResult
 import com.couchbase.client.kotlin.kv.MutationResult
+import com.couchbase.client.kotlin.kv.ScanType
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -301,4 +304,41 @@ suspend fun callBulkGet(collection: Collection)  {
         println("$id = $result")
     }
 // end::callBulkGet[]
+}
+
+suspend fun rangeScanAllDocuments(collection: Collection)  {
+// tag::rangeScanAllDocuments[]
+    val results: Flow<GetResult> = collection.scanDocuments(
+        type = ScanType.range() // <1>
+    )
+    results.collect { println(it) }
+// end::rangeScanAllDocuments[]
+}
+
+suspend fun rangeScanAllDocumentIds(collection: Collection)  {
+// tag::rangeScanAllDocumentIds[]
+    val ids: Flow<String> = collection.scanIds( // <1>
+        type = ScanType.range()
+    )
+    ids.collect { println(it) }
+// end::rangeScanAllDocumentIds[]
+}
+
+
+suspend fun rangeScanPrefix(collection: Collection)  {
+// tag::rangeScanPrefix[]
+    val results: Flow<GetResult> = collection.scanDocuments(
+        type = ScanType.prefix("alice::") // <1>
+    )
+    results.collect { println(it) }
+// end::rangeScanPrefix[]
+}
+
+suspend fun rangeScanSample(collection: Collection)  {
+// tag::rangeScanSample[]
+    val results: Flow<GetResult> = collection.scanDocuments(
+        type = ScanType.sample(limit = 100)
+    )
+    results.collect { println(it) }
+// end::rangeScanSample[]
 }

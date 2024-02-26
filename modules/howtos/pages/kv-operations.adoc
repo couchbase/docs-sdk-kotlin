@@ -171,8 +171,6 @@ TIP: You can copy the `bulkGet` extension function and change it to do other ope
 [#locking]
 == Locking
 
-A Key Value operation is atomic.
-
 [NOTE]
 .What is an "atomic" operation?
 ====
@@ -183,6 +181,7 @@ A failed atomic operation never changes a document.
 If two or more atomic operations use the same document, Couchbase Server works on only one of the operations at a time.
 ====
 
+A KV operation is atomic.
 However, a _sequence_ of KV operations is _not_ atomic.
 
 You can use a locking strategy to make a sequence of KV operations on the same document succeed or fail together.
@@ -282,6 +281,75 @@ The `project()` feature allows you to select a couple of fields -- specify a pat
 This feature is implemented by internally using our subdocument API, which you can access directly -- for more sophisticated selection of portions of a document -- xref:subdocument-operations.adoc[].
 
 
+[#kv-range-scan]
+== KV Range Scan
+
+A range scan gives you documents from a collection, even if you don't know the document IDs.
+This feature requires Couchbase Server 7.6 or newer.
+
+TIP: KV range scan is suitable for use cases that require relatively low concurrency and tolerate relatively high latency.
+If your application does many scans at once, or requires low latency results, we recommend using {sqlpp} (with a primary index on the collection) instead of KV range scan.
+
+
+[#kv-range-scan-range]
+=== Range scan
+
+Here's an example of a KV range scan that gets all documents in a collection:
+
+.KV Range Scan for all documents in a collection
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=rangeScanAllDocuments,indent=0]
+----
+<1> The `ScanType.range()` method has two optional parameters: `from` and `to`.
+If you omit them like in this example, you'll get all documents in the collection.
+These parameters are for advanced use cases; you probably won't need to specify them.
+Instead, it's more common to use the "prefix" scan type shown in the next example.
+
+
+[#kv-range-scan-prefix]
+=== Prefix scan
+
+KV range scan can also give you all documents whose IDs start with the same prefix.
+
+Imagine you have a collection where documents are named like this: `<username>::<uuid>`.
+In other words, the document ID starts with the name of the user associated with the document, followed by a delimiter, and then a UUID.
+If you use this document naming scheme, you can use a prefix range scan to get all documents associated with a user.
+
+For example, to get all documents associated with user "alice", you would write:
+
+.KV Range Scan for all documents in a collection whose IDs start with `alice::`
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=rangeScanPrefix,indent=0]
+----
+<1> Note the scan type is *prefix*.
+
+[#kv-range-scan-sample]
+=== Sample scan
+
+If you want to get random documents from a collection, use a sample scan.
+
+.KV Range Scan for 100 random documents
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=rangeScanSample,indent=0]
+----
+
+[#kv-range-scan-only-ids]
+=== Get IDs instead of full document
+
+If you only want the document IDs, call `scanIds()` instead of `scanDocuments()`, like this:
+
+.KV Range Scan for all document IDs in a collection
+[source,kotlin]
+----
+include::example$KvBasic.kt[tag=rangeScanAllDocumentIds,indent=0]
+----
+<1> Note the call to `scanIds()` instead of `scanDocuments()`.
+
+The `scanIds()` methods also works with the other scan types described above.
+
 [#summary]
 == Summary
 
@@ -291,3 +359,6 @@ The `insert`, `get`, `replace`, `remove`, and `upsert` methods of the `Collectio
 
 When changing a document, use a <<locking,locking strategy>> if the new content depends on the old content.
 <<optimistic-locking,Optimistic locking>> usually performs better than <<pessimistic-locking,pessimistic locking>>.
+
+You can do a KV range scan to get documents even if you don't know their IDs.
+However, it's faster to use {sqlpp} for this.
