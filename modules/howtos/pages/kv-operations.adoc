@@ -318,7 +318,7 @@ If you use this document naming scheme, you can use a prefix range scan to get a
 
 For example, to get all documents associated with user "alice", you would write:
 
-.KV Range Scan for all documents in a collection whose IDs start with "alice::"
+.KV Range Scan for all documents in a collection whose IDs start with `alice::`
 [source,kotlin]
 ----
 include::example$KvBasic.kt[tag=rangeScanPrefix,indent=0]
