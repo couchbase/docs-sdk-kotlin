@@ -15,18 +15,26 @@
  */
 
 import com.couchbase.client.kotlin.Cluster
-import com.couchbase.client.kotlin.codec.JsonSerializer
-import com.couchbase.client.kotlin.codec.typeRef
+import com.couchbase.client.kotlin.Scope
 import com.couchbase.client.kotlin.http.CouchbaseHttpResponse
 import com.couchbase.client.kotlin.http.HttpBody
 import com.couchbase.client.kotlin.http.HttpTarget
 import com.couchbase.client.kotlin.http.formatPath
 import com.couchbase.client.kotlin.kv.MutationResult
 import com.couchbase.client.kotlin.kv.MutationState
-import com.couchbase.client.kotlin.query.QueryResult
-import com.couchbase.client.kotlin.query.QueryScanConsistency
-import com.couchbase.client.kotlin.query.execute
-import com.couchbase.client.kotlin.search.*
+import com.couchbase.client.kotlin.search.Highlight
+import com.couchbase.client.kotlin.search.NumericRange
+import com.couchbase.client.kotlin.search.Score
+import com.couchbase.client.kotlin.search.SearchFacet
+import com.couchbase.client.kotlin.search.SearchMetadata
+import com.couchbase.client.kotlin.search.SearchPage
+import com.couchbase.client.kotlin.search.SearchQuery
+import com.couchbase.client.kotlin.search.SearchResult
+import com.couchbase.client.kotlin.search.SearchRow
+import com.couchbase.client.kotlin.search.SearchScanConsistency
+import com.couchbase.client.kotlin.search.SearchSort
+import com.couchbase.client.kotlin.search.SearchSpec
+import com.couchbase.client.kotlin.search.execute
 import kotlinx.coroutines.runBlocking
 
 private suspend fun simpleQuery(cluster: Cluster) {
@@ -203,10 +211,12 @@ private suspend fun multiSortThen(cluster: Cluster) {
 
 private suspend fun multiSortList(cluster: Cluster) {
 // tag::multiSortList[]
-    val multiLevelSort: SearchSort = SearchSort.of(listOf(
-        SearchSort.byField("country"),
-        SearchSort.byId(),
-    ))
+    val multiLevelSort: SearchSort = SearchSort.of(
+        listOf(
+            SearchSort.byField("country"),
+            SearchSort.byId(),
+        )
+    )
 // end::multiSortList[]
 }
 
@@ -348,6 +358,53 @@ private suspend fun partialFailure(cluster: Cluster) {
 }
 
 
+private suspend fun singleVector(scope: Scope, floatArray: FloatArray) {
+// tag::singleVector[]
+    val searchResult: SearchResult = scope.search( // <1>
+        indexName = "vector-index",
+        spec = SearchSpec.vector(
+            "vector_field",
+            floatArray, // <2>
+            numCandidates = 5, // <3>
+        ),
+    ).execute() // <4>
+// end::singleVector[]
+}
+
+private suspend fun vectorAnyOf(scope: Scope, floatArray: FloatArray, anotherFloatArray: FloatArray) {
+// tag::vectorAnyOf[]
+    val searchResult: SearchResult = scope.search(
+        indexName = "vector-index",
+        spec = SearchSpec.anyOf( // <1>
+            SearchSpec.vector("vector_field", floatArray) boost 1.5, // <2>
+            SearchSpec.vector("vector_field", anotherFloatArray),
+        )
+    ).execute()
+// end::vectorAnyOf[]
+}
+
+private suspend fun mixedMode(scope: Scope, floatArray: FloatArray) {
+// tag::mixedMode[]
+    val searchResult: SearchResult = scope.search(
+        indexName = "vector-and-non-vector-index",
+        spec = SearchSpec.mixedMode(
+            SearchSpec.match("beautiful"), // <1>
+            SearchSpec.vector("vector_field", floatArray),
+        )
+    ).execute()
+// end::mixedMode[]
+}
+
+private suspend fun traditionalTextualWithNewApi(scope: Scope) {
+// tag::traditionalTextual[]
+    val searchResult: SearchResult = scope.search(
+        indexName = "travel-sample-index",
+        spec = SearchSpec.match("beautiful"), // <1>
+    ).execute()
+// end::traditionalTextual[]
+}
+
+
 private suspend fun installIndex(cluster: Cluster) {
     val indexName = "demoIndex"
     val index = """
@@ -405,7 +462,8 @@ private suspend fun installIndex(cluster: Cluster) {
 
 private fun CouchbaseHttpResponse.checkSuccess() {
     if (!success) throw RuntimeException(
-        "HTTP request failed with status $statusCode and body: $contentAsString")
+        "HTTP request failed with status $statusCode and body: $contentAsString"
+    )
 }
 
 public fun main() {
