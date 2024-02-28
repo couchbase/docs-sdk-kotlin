@@ -75,7 +75,7 @@
 // * xref:ref:travel-app-data-model.adoc[Travel Sample Data Model]
 
 .Project Docs
-* xref:project-docs:sdk-release-notes.adoc[SDK Release Notes]
+* xref:project-docs:sdk-release-notes.adoc#kotlin-sdk-1-1-releases[SDK Release Notes]
 * xref:project-docs:compatibility.adoc[Compatibility]
 // ** xref:project-docs:third-party-integrations.adoc[3rd Party Integrations]
 // * xref:project-docs:sdk-full-installation.adoc[Full Installation]
