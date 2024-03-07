@@ -92,13 +92,21 @@ If that is not a option, then a possible workaround that can be applied is as fo
 
 * Disable the native IO:
 +
-[source,toml]
-====
-ClusterEnvironment env = ClusterEnvironment.builder().ioEnvironment(IoEnvironment.enableNativeIo(false)).build();
-====
+[source]
+----
+val cluster = Cluster.connect(...) {
+    ioEnvironment {
+        enableNativeIo = false
+    }
+}
+----
 
 * Disable it in Netty itself via the following system property:
-`-Dcom.couchbase.client.core.deps.io.netty.transport.noNative=true`
++
+[source]
+----
+-Dcom.couchbase.client.core.deps.io.netty.transport.noNative=true
+----
 
 The downside of these workarounds is potentially reduced performance, which can be determined through benchmarking and profiling.
 
