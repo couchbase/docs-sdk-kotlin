@@ -31,39 +31,74 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.3.0/index.html[API 
 
 ==== Improvements
 
-* https://issues.couchbase.com/browse/KCBC-145[KCBC-145]
+* https://issues.couchbase.com/browse/KCBC-145[KCBC-145]:
 Added support for vector search, a new feature in Couchbase Server 7.6.
 This API is currently at `@Stability.Uncommitted` level.
-* https://issues.couchbase.com/browse/JVMCBC-1491[JVMCBC-1491]
+* https://issues.couchbase.com/browse/JVMCBC-1491[JVMCBC-1491]:
 Added support for KV range scan, a new feature in Couchbase Server 7.6.
 The `Collection.scanDocuments()` and `Collection.scanIds()` methods are now part of the SDK's committed public API.
-* https://issues.couchbase.com/browse/JVMCBC-1493[JVMCBC-1493]
-Added support for sub-document read from replica, a new feature in Couchbase Server 7.6.
+* https://issues.couchbase.com/browse/JVMCBC-1493[JVMCBC-1493]:
+Added support for Sub-Document read from replica, a new feature in Couchbase Server 7.6.
 The `Collection.lookupInAnyReplica()` and `Collection.lookupInAllReplicas()` methods are now part of the SDK’s committed public API.
-* https://issues.couchbase.com/browse/KCBC-147[KCBC-147]
+* https://issues.couchbase.com/browse/KCBC-147[KCBC-147]:
 `Scope.searchIndexes()` is now part of the committed public API.
-* https://issues.couchbase.com/browse/KCBC-157[KCBC-157]
+* https://issues.couchbase.com/browse/KCBC-157[KCBC-157]:
 `UserManager.changePassword()` is now part of the committed public API.
-* https://issues.couchbase.com/browse/KCBC-158[KCBC-158]
+* https://issues.couchbase.com/browse/KCBC-158[KCBC-158]:
 `SearchIndexManager` is now part of the committed public API.
-* https://issues.couchbase.com/browse/JVMCBC-1487[JVMCBC-1487]
+* https://issues.couchbase.com/browse/JVMCBC-1487[JVMCBC-1487]:
 Upgraded reactor-core from 3.5.8 to 3.6.3.
-* https://issues.couchbase.com/browse/JVMCBC-1488[JVMCBC-1488]
+* https://issues.couchbase.com/browse/JVMCBC-1488[JVMCBC-1488]:
 Upgraded Jackson from 2.16.0 to 2.16.1.
-* https://issues.couchbase.com/browse/JVMCBC-1489[JVMCBC-1489]
+* https://issues.couchbase.com/browse/JVMCBC-1489[JVMCBC-1489]:
 Upgraded Netty from 4.1.101 to 4.1.107.
 
 ==== Bugfixes
 
-* https://issues.couchbase.com/browse/JVMCBC-1480[JVMCBC-1480]
+* https://issues.couchbase.com/browse/JVMCBC-1480[JVMCBC-1480]:
 `couchbase2:` should do exponential backoff when `BestEffortRetryStrategy` is used.
-* https://issues.couchbase.com/browse/JVMCBC-1494[JVMCBC-1494]
+* https://issues.couchbase.com/browse/JVMCBC-1494[JVMCBC-1494]:
 If you specify `min=1` for a Full-Text Search disjunction query, the SDK now always sends the value to the server.
 Previously, the SDK assumed `1` was the default value, and omitted the parameter in that case.
 
+
+
 == Kotlin SDK 1.2 Releases
 
-[[v1.2.1]]
+[[v1.2.3]]
+=== Version 1.2.3 (6 February 2024)
+
+This is a regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.2.3/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.5.3/[Core API Reference]
+
+==== Improvements
+
+* https://issues.couchbase.com/browse/KCBC-146[KCBC-146] Collection manager improvements:
+** Added a special max expiry duration, `CollectionSpec.NEVER_EXPIRE` (equal to -1 seconds), that can be used with Couchbase Server 7.6 and later to indicate documents in a collection should never expire, regardless of the bucket's max expiry.
+** Updated the API reference documentation to clarify that a collection max expiry of `0.seconds` (or null, depending on context) means the collection's actual max expiry is always the same as the bucket's max expiry.
+
+
+* https://issues.couchbase.com/browse/JVMCBC-1460[JVMCBC-1460]
+`couchbase2` now supports compressing data between the SDK and the server.
+* https://issues.couchbase.com/browse/JVMCBC-1464[JVMCBC-1464]
+The `metrics-opentelemetry` package is now aligned with the same `OpenTelemetry` version as `tracing-opentelemetry`.
+* https://issues.couchbase.com/browse/JVMCBC-1468[JVMCBC-1468]
+`Cluster.connect` now validates that connection strings using the `couchbase2` scheme have exactly one host.
+(Previously, hosts after the first were silently ignored.).
+* https://issues.couchbase.com/browse/JVMCBC-1470[JVMCBC-1470]
+Improved support for Full Text Search in `couchbase2` mode.
+* https://issues.couchbase.com/browse/JVMCBC-1472[JVMCBC-1472]
+`couchbase2` errors will now include diagnostic information when CNG is running with the `--debug` flag.
+
+==== Bugfixes
+
+* https://issues.couchbase.com/browse/JVMCBC-1475[JVMCBC-1475]
+Accessing the terms of a `TermFacet` result no longer throws `NullPointerException` if the target field is absent from all documents.
+
+
+[[v1.2.2]]
 === Version 1.2.2 (5 January 2024)
 
 This is a regular maintenance release.
@@ -83,7 +118,7 @@ Deprecated `QueryMetadata.signature` in favor of `signatureBytes`.
 ==== Bugfixes
 
 * https://issues.couchbase.com/browse/JVMCBC-1455[JVMCBC-1455]:
-Fixed compatibility with `couchbase2://` endpoints by upgrading internal GRPC dependency. 
+Fixed compatibility with `couchbase2://` endpoints by upgrading internal GRPC dependency.
 All couchbase2 protocol users should upgrade to this release.
 * https://issues.couchbase.com/browse/JVMCBC-1463[JVMCBC-1463]:
 Fixed compatibility between `couchbase2://` endpoints and the `tracing-opentelemetry` module.
@@ -186,6 +221,8 @@ This enables DNS SRV resolution in Kubernetes environments where the `*-srv` hos
 
 * https://issues.couchbase.com/browse/JVMCBC-1426[JVMCBC-1426]:
 When Couchbase Server is too busy to start a new KV range scan, the SDK now retries instead of throwing a `CouchbaseException`.
+
+
 
 
 == Kotlin SDK 1.1 Releases
