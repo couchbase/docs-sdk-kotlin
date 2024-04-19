@@ -6,4 +6,4 @@
 :page-partial:
 
 
-include::1.2@kotlin-sdk:project-docs:page$sdk-release-notes.adoc[tag=all]
+include::1.3@kotlin-sdk:project-docs:page$sdk-release-notes.adoc[tag=all]
