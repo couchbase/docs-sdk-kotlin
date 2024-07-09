@@ -23,19 +23,17 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
-[[v1.3.0]]
-=== Version 1.3.0 (12 June 2024)
+[[v1.4.0]]
+=== Version 1.4.0 (15 June 2024)
 
-// This version adds support for new features in Couchbase Server 7.6: vector search, KV range scan, and sub-document read from replica.
-
-// Additionally, several methods that were previously "volatile" or "uncommitted" are now part of the SDK's "committed" (stable) public API.
+This version promotes vector search to the committed API, and adds support for specifying a vector as a Base64-encoded sequence of little-endian IEEE 754 floats.
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.0/index.html[API Reference]
 | http://docs.couchbase.com/sdk-api/couchbase-core-io-2.7.0/[Core API Reference]
 
 ==== Improvements
-
-
+* https://issues.couchbase.com/browse/KCBC-165[KCBC-165]:
+Adds support for base64-encoded vectors in `VectorQuery`.
 
 
 == Kotlin SDK 1.3 Releases
