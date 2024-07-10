@@ -1,9 +1,9 @@
-= Couchbase Kotlin SDK 1.3
+= Couchbase Kotlin SDK 1.4
 :page-layout: landing-page-top-level-sdk
 :page-role: tiles
 :!sectids:
 
-= Couchbase Kotlin SDK 1.3
+= Couchbase Kotlin SDK 1.4
 
 The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK. +
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
