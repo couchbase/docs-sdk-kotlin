@@ -23,6 +23,19 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
+[[v1.4.1]]
+=== Version 1.4.1 (23 July 2024)
+
+This regular maintenance release updates dependency versions.
+
+==== Improvements
+* https://issues.couchbase.com/browse/JVMCBC-1523[JVMCBC-1523]:
+Upgraded `org.iq80.snappy` from 0.4 to 0.5.
+* https://issues.couchbase.com/browse/JVMCBC-1532[JVMCBC-1532]:
+Upgraded Jackson from 2.17.0 to 2.17.2.
+* https://issues.couchbase.com/browse/JVMCBC-1544[JVMCBC-1544]:
+`SearchIndexManager.upsertIndex()` now prevents vector indexes from being created on server versions before version 7.6.0, which do not support these index types.
+
 [[v1.4.0]]
 === Version 1.4.0 (15 June 2024)
 
