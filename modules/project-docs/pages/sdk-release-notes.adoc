@@ -30,7 +30,7 @@ any changes to expected behavior are noted in the release notes that follow.
 This regular maintenance release updates dependency versions.
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.2/index.html[API Reference]
-| http://docs.couchbase.com/sdk-api/couchbase-core-io-2.7.2/[Core API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.2/[Core API Reference]
 
 ==== Improvements
 
