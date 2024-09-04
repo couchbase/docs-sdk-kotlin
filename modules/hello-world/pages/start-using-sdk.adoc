@@ -139,7 +139,7 @@ Before running the example:
 
 * Replace the `address` variable with the address of your Capella cluster.
 
-* Replace the `username` and `password` arguments with credentials for a database user that can read the `travel-sample` bucket.
+* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
 
 [source,kotlin]
 ----
@@ -158,7 +158,7 @@ Before running the example:
 
 * Install the `travel-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample bucket].
 
-* Replace the `username` and `password` arguments with credentials for a database user that can read the `travel-sample` bucket.
+* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
 You can use the administrator credentials you chose when setting up the cluster.
 
 [source,kotlin]
