@@ -127,7 +127,7 @@ Here's an example that shows how to execute a N1QL query and get a document from
 Couchbase Capella::
 +
 --
-This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] trial cluster, which has the `travel-sample` bucket installed by default.
+This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] free tier operational cluster, which has the `travel-sample` bucket installed by default.
 
 (If you're not using Couchbase Capella, click the **Local Couchbase Server** tab above.)
 
