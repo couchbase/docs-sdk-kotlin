@@ -23,7 +23,7 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 [[v1.4.3]]
-=== Version 1.4.3 (13 August 2024)
+=== Version 1.4.3 (23 September 2024)
 
 This regular maintenance release updates dependency versions.
 
