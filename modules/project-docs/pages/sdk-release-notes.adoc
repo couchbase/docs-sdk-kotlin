@@ -22,6 +22,28 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
+
+[[v1.4.4]]
+=== Version 1.4.4 (08 October 2024)
+
+This regular maintenance release updates dependency versions.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.4/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.4/[Core API Reference]
+
+
+==== Bug Fixes
+* https://jira.issues.couchbase.com/browse/JVMCBC-1570[JVMCBC-1570]:
+The SDK was producing an incorrect partition map in `CouchbaseBucketConfig`, for buckets with >= 2 replicas.
+This has now been fixed.
+
+==== Improvements
+* https://jira.issues.couchbase.com/browse/JVMCBC-1573[JVMCBC-1573]:
+`ExtParallelUnstaging` was producing more threads than required, leading to OOM when many concurrent transactions were executed.
+This has been rewritten to produce only the necessary number of threads are produced for each transaction.
+
+
+
 [[v1.4.3]]
 === Version 1.4.3 (23 September 2024)
 
