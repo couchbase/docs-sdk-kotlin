@@ -9,6 +9,12 @@ include::project-docs:partial$attributes.adoc[]
 {description}
 
 
+// Arrived with volatile API in 1.4.4
+// will need documenting from 1.5.0
+// for now, point people to 
+// https://www.couchbase.com/forums/t/kotlin-sdk-1-4-4-adds-experimental-support-for-couchbase-transactions/39307
+// ?
+
 Distributed ACID Transactions are implemented in the Java SDK, and simple to integrate into your Kotlin client code.
 
 
