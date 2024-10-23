@@ -1,5 +1,5 @@
 = Distributed Transactions from the Kotlin SDK
-:description: Distributed ACID Transactions with JVM SDKs
+:description: Distributed ACID Transactions with JVM SDKs.
 :navtitle: ACID Transactions
 :page-topic-type: howto
 
@@ -7,20 +7,31 @@ include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
-
+Kotlin transactions are available as a developer preview,
+or use Java ACID transactions within the Kotlin SDK
 
 // Arrived with volatile API in 1.4.4
 // will need documenting from 1.5.0
-// for now, point people to 
-// https://www.couchbase.com/forums/t/kotlin-sdk-1-4-4-adds-experimental-support-for-couchbase-transactions/39307
-// ?
 
-Distributed ACID Transactions are implemented in the Java SDK, and simple to integrate into your Kotlin client code.
+With Kotlin SDK 1.4.4, multi-document ACID transactions is available as a developer preview --
+the Kotlin transactions API is still "volatile", meaning it could change without notice as we refine it.
+
+
+== Kotlin Transactions -- Developer Preview
+
+If you are interested in trying out the developer preview of Kotlin multi-document ACID transactions,
+introduced with SDK 1.4.4, the following resources will help you to get started:
+
+* Kotlin https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.4/kotlin-client/com.couchbase.client.kotlin.transactions/index.html[API Reference].
+* Intro guide in https://www.couchbase.com/forums/t/kotlin-sdk-1-4-4-adds-experimental-support-for-couchbase-transactions/39307[Couchbase Forum post].
+
+WARNING: The Kotlin transactions API is still "volatile", meaning it could change without notice as we refine it based on your feedback.
 
 
 == Java Transactions from the Kotlin SDK
 
-You will need to include the Couchbase Java SDK in your project.
+To implement the Java SDK implementation of distributed ACID transactions into your Kotlin client code,
+you will need to include the Couchbase Java SDK in your project.
 
 Create a `com.couchbase.client.java.Cluster` in your Kotlin app with the xref:java-sdk:howtos:managing-connections.adoc[normal Java calls] `(Cluster.connect(...))`, and then do transactions on it as normal, e.g.:
 
