@@ -22,6 +22,29 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
+
+[[v1.4.4]]
+=== Version 1.4.4 (08 October 2024)
+
+This regular maintenance release adds an experimental API for Couchbase transactions, and updates dependency versions.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.4/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.4/[Core API Reference]
+
+
+==== Bug Fixes
+* https://jira.issues.couchbase.com/browse/JVMCBC-1570[JVMCBC-1570]:
+The SDK was producing an incorrect partition map in `CouchbaseBucketConfig`, for buckets with >= 2 replicas.
+This has now been fixed.
+
+==== Improvements
+* https://jira.issues.couchbase.com/browse/KCBC-96[KCBC-96]:
+Added experimental API for Couchbase transactions.
+This is a new https://www.couchbase.com/forums/t/kotlin-sdk-1-4-4-adds-experimental-support-for-couchbase-transactions/39307[Kotlin-flavored candy shell] on the same  Couchbase transactions engine used by the Java SDK.
++
+WARNING: The Kotlin transactions API is still "volatile", meaning it could change without notice as we refine it based on your feedback.
+
+
 [[v1.4.3]]
 === Version 1.4.3 (23 September 2024)
 
