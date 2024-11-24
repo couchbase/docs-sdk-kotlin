@@ -20,7 +20,24 @@ any changes to expected behavior are noted in the release notes that follow.
 
 // TODO - add missing colons after JIRA links to bring consistency.
 
+[[v1.4.5]]
+=== Version 1.4.5 (06 November 2024)
 
+This regular maintenance release updates dependency versions, and picks up bug fixes from the Couchbase `core-io` library.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.5/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.5/[Core API Reference]
+
+==== Bug Fixes
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1572[JVMCBC-1572]:
+Due to a regression in Kotlin SDK `1.4.1`, using a secure connection would cause `waitUntilReady()` to not wait, and would cause `ping()` to report failures even when nothing was wrong.
+The issue that caused these problems is now fixed.
+* https://jira.issues.couchbase.com/browse/JVMCBC-1577[JVMCBC-1577]:
+Due to a regression in Kotlin SDK `1.4.1`, sometimes a request made shortly after calling `Cluster.connect()` would fail with a message that said the service is not available in the cluster, even if the service was actually available.
+This no longer happens.
+* https://jira.issues.couchbase.com/browse/JVMCBC-1579[JVMCBC-1579]:
+Deprecated `com.couchbase.client.core.node.NodeIdentifier` in favor of `com.couchbase.client.core.topology.NodeIdentifier`.
 
 
 [[v1.4.4]]
