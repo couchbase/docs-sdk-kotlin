@@ -20,6 +20,31 @@ any changes to expected behavior are noted in the release notes that follow.
 
 // TODO - add missing colons after JIRA links to bring consistency.
 
+
+
+
+[[v1.4.6]]
+=== Version 1.4.6 (04 December 2024)
+
+This regular maintenance release updates dependency versions.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.6/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.6/[Core API Reference]
+
+==== Bug Fixes
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1783[JVMCBC-1783]:
+Fixed a race condition that could cause the SDK to continuously attempt to reconnect to a node, even after the node is rebalanced out of the cluster.
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1560[JVMCBC-1560]:
+Added cluster UUID and name to metrics and spans.
+* https://jira.issues.couchbase.com/browse/JVMCBC-1582[JVMCBC-1582]:
+Upgraded `Netty` from `4.1.112` to `4.1.115`.
+
+
+
 [[v1.4.5]]
 === Version 1.4.5 (06 November 2024)
 
