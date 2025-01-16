@@ -103,10 +103,11 @@ Using named parameters often make it easier to read complex queries.
 include::example$Query.kt[tag=namedParameters,indent=0]
 ----
 
-<1> In this example, the `WHERE` condition is `country = $country`.
-Unfortunately, Kotlin doesn't have a nice way to escape a dollar sign (`$`) in multi-line strings.
+<1> As a courtesy to Kotlin users, Couchbase Server 7.2.0 and later let you use either `@` or `$` when referencing named parameters in SQL++ statements.
++
+If you use an older version of Couchbase Server, use `$` instead of `@`.
 
-WARNING: When using named parameters, always escape the dollar sign (`$`) in the placeholder name.
+WARNING: When using `$` to reference a named parameter, always escape the `$`.
 Otherwise, Kotlin does string interpolation, which does not prevent SQL injection.
 
 [#positional-parameters]

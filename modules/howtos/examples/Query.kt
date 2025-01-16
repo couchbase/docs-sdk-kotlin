@@ -90,7 +90,7 @@ private suspend fun namedParameters(cluster: Cluster) {
             statement = """
                 SELECT *
                 FROM `travel-sample`.inventory.airline
-                WHERE country = ${"\$country"} // <1>
+                WHERE country = @country // <1>
             """,
             parameters = QueryParameters.named(
                 "country" to "France"
