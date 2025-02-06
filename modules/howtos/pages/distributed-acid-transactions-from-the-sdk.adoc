@@ -1,4 +1,5 @@
 = Distributed Transactions from the Kotlin SDK
+:reftext: Distributed ACID Transactions from the Kotlin SDK
 :description: Distributed ACID Transactions with JVM SDKs.
 :navtitle: ACID Transactions
 :page-topic-type: howto
