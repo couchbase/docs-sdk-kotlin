@@ -21,6 +21,30 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
+[[v1.4.8]]
+=== Version 1.4.8 (11 February 2025)
+
+Regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.8/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.8/[Core API Reference]
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1609[JVMCBC-1609]:
+Added experimental client settings for tuning socket send/receive buffer size and channel outbound buffer high/low-water marks.
+** `io.sendBuffer`
+** `io.receiveBuffer`
+** `io.lowWaterMark`
+** `io.highWaterMark`
++
+NOTE: We do not currently recommend configuring these settings unless you are working with Couchbase technical support to diagnose a network performance issue.
+
+* https://jira.issues.couchbase.com/browse/KCBC-178[KCBC-178]:
+`CouchbaseHttpClient` can now send `PATCH` requests.
+
+
+
 [[v1.4.7]]
 === Version 1.4.7 (08 January 2025)
 
