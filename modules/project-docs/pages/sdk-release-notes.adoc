@@ -21,6 +21,113 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
+[[v1.4.9]]
+=== Version 1.4.9 (11 March 2025)
+
+Regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.9/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.9/[Core API Reference]
+
+==== Improvements
+
+* https://couchbasecloud.atlassian.net/browse/JVMCBC-1616[JVMCBC-1616]
+Upgraded Netty from `4.1.15` to `4.1.118`.
+
+
+[[v1.4.8]]
+=== Version 1.4.8 (11 February 2025)
+
+Regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.4.8/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.7.8/[Core API Reference]
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/KCBC-163[KCBC-163]:
+When using Couchbase Server 7.6.2 or later, you can now specify a “preferred server group” for replica reads.
+To use this feature, configure the cluster environment with a `preferredServerGroup` name.
+The following `Collection` methods now have an optional `readPreference` parameter:
+
+  ** `getAnyReplica`
+  ** `getAllReplicas`
+  ** `lookupInAnyReplica`
+  ** `lookupInAllReplicas`
+
++
+When calling these methods, pass `readPreference = ReadPreference.preferredServerGroup()` to limit the results to replicas in the configured server group.
++
+Example usage:
++
+[source,kotlin]
+----
+val cluster = Cluster.connect(connectionString, username, password) {
+    preferredServerGroup = "Group 1"
+}
+
+val collection = cluster.bucket("myBucket").defaultCollection()
+
+runBlocking {
+    val result = collection.getAnyReplica(
+        "myDocumentId",
+        readPreference = ReadPreference.preferredServerGroup()
+    )
+    println(result)
+}
+----
+
+* https://jira.issues.couchbase.com/browse/KCBC-178[KCBC-178]:
+`CouchbaseHttpClient` can now send `PATCH` requests.
+
+* https://jira.issues.couchbase.com/browse/KCBC-180[KCBC-180]:
+The experimental `KotlinxSerializationJsonSerilaizer` can now serialize and deserialize documents, query parameters, and query result rows that have a JSON null at the root.
+
+* https://jira.issues.couchbase.com/browse/KCBC-179[KCBC-179]:
+Deprecated the existing methods for specifying SQL++ query parameters, and added new methods that preserve parameter type information required by some `JsonSerializer` implementations.
+This will be increasingly important as we add better support for `kotlinx.serialization` in the future.
++
+Prior to this change, using the experimental `KotlinxSerializationJsonSerializer` as the serializer for a parameterized SQL++ query resulted in `kotlinx.serialization.SerializationException: Serializer for class 'Object' is not found.`
++
+Here are some examples of the old (deprecated) and new way of specifying query parameters:
++
+*Named parameters*
++
+[source,kotlin]
+----
+// DEPRECATED
+parameters = QueryParameters.named(
+    "name" to "Fido",
+    "data" to MyDataClass(),
+)
+
+// REPLACEMENT
+parameters = QueryParameters.named {
+    param("name", "Fido")
+    param("data", MyDataClass())
+}
+----
++
+*Positional parameters*
++
+[source,kotlin]
+----
+// DEPRECATED
+parameters = QueryParameters.positional(
+    listOf(
+        "Fido",
+        MyDataClass(),
+    )
+)
+
+// REPLACEMENT
+parameters = QueryParameters.positional {
+    param("Fido")
+    param(MyDataClass())
+}
+----
+
+
 [[v1.4.7]]
 === Version 1.4.7 (08 January 2025)
 
