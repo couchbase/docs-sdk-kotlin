@@ -54,7 +54,6 @@ The following `Collection` methods now have an optional `readPreference` paramet
   ** `getAllReplicas`
   ** `lookupInAnyReplica`
   ** `lookupInAllReplicas`
-
 +
 When calling these methods, pass `readPreference = ReadPreference.preferredServerGroup()` to limit the results to replicas in the configured server group.
 +
