@@ -23,7 +23,7 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
-[[v1.4.9]]
+[[v1.5.0]]
 === Version 1.5.0 (9 April 2025)
 
 // This version...
