@@ -32,12 +32,6 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.5.0/index.html[API 
 | http://docs.couchbase.com/sdk-api/couchbase-core-io-3.8.0/[Core API Reference]
 
 
-==== Bugfixes
-
-* https://couchbasecloud.atlassian.net/browse/JVMCBC-1628[JVMCBC-1628]:
-Specifying `DISABLE_READ_SKEW_DETECTION` was causing transactional `getMulti` to fail.
-This has now been fixed.
-
 ==== New Features
 
 * https://jira.issues.couchbase.com/browse/KCBC-190[KCBC-190]:
