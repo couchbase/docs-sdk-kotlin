@@ -56,11 +56,11 @@ Application Telemetry improvements.
 
 ==== Improvements
 
-https://jira.issues.couchbase.com/browse/KCBC-187[KCBC-187]:
+* https://jira.issues.couchbase.com/browse/KCBC-187[KCBC-187]:
 The bucket management API now supports specifying the number of VBuckets for a Magma bucket (requires Couchbase Server 8.0 or later).
 
-https://jira.issues.couchbase.com/browse/KCBC-184[KCBC-184]:
-Added transaction methods getMulti and getMultiReplicasFromPreferredServerGroup for getting a batch of documents with minimal read skew.
+* https://jira.issues.couchbase.com/browse/KCBC-184[KCBC-184]:
+Added transaction methods `getMulti` and `getMultiReplicasFromPreferredServerGroup` for getting a batch of documents with minimal read skew.
 
 
 
