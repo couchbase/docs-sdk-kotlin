@@ -64,7 +64,7 @@ Maven::
 [snapshots]
 == Using a Snapshot Version (optional)
 
-Couchbase publishes pre-release snapshot artifacts to the Sonatype OSS Snapshot Repository.
+Couchbase publishes pre-release snapshot artifacts to the Central Portal Snapshots Repository.
 If you wish to use a snapshot version, you'll need to tell your build tool about this repository.
 
 [{tabs}]
@@ -79,7 +79,7 @@ repositories {
     mavenCentral()
 
     maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
         mavenContent { snapshotsOnly() }
     }
 }
@@ -97,7 +97,7 @@ repositories {
     mavenCentral()
 
     maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots"
+        url "https://central.sonatype.com/repository/maven-snapshots/"
         mavenContent { snapshotsOnly() }
     }
 }
@@ -111,12 +111,17 @@ Maven::
 [source,xml]
 ----
 <repositories>
-  <repository>
-    <id>sonatype-snapshots</id>
-    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    <releases><enabled>false</enabled></releases>
-    <snapshots><enabled>true</enabled></snapshots>
-  </repository>
+    <repository>
+        <name>Central Portal Snapshots</name>
+        <id>central-portal-snapshots</id>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
 </repositories>
 ----
 --
