@@ -26,6 +26,18 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
+[[v1.5.3]]
+=== Version 1.5.3 (11 July 2025)
+
+Regular maintenance release.
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-1.5.3/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.8.3/[Core API Reference]
+
+==== Bug Fixes
+
+* https://couchbasecloud.atlassian.net/browse/JVMCBC-1654[JVMCBC-1654]:
+FIxed a bug that prevented `Collection.getAnyReplica()`, `getAllReplicas()`, `lookupInAnyReplica()`, `lookupInAllReplicas()`, `scan()`, `[Reactive]BatchHelper.exists()`, and `getIfExists()` from timing out if the bucket does not exist or is not accessible.
 
 
 [[v1.5.2]]
