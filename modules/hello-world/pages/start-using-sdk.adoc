@@ -1,31 +1,149 @@
-= Start Using the Kotlin SDK
-:description: A Kotlin application running on the JVM can use the Couchbase Kotlin SDK to access a Couchbase cluster.
-:page-toc-levels: 2
-:page-topic-type: tutorial
-:page-pagination: next
+= Hello World
+:page-toclevels: 3
+:description: Install, connect, try. A quick start guide to get you up and running with Couchbase and the {name-sdk}.
+:forum-link: https://www.couchbase.com/forums/c/kotlin-sdk/40
+:page-partial:
 
-include::project-docs:partial$attributes.adoc[]
+// Note to editors
+// 
+// This page pulls in content from
+// https://github.com/couchbase/docs-sdk-common/blob/release/8.0/modules/shared/partials/start-using-sdk.adoc
+//
+// and code samples from
+// https://github.com/couchbase/docs-sdk-kotlin/tree/release/3.9/modules/devguide/examples/java
+// 
+// It can be seen built at
+// https://docs.couchbase.com/kotlin-sdk/3.9/hello-world/start-using-sdk.html
+
 
 [abstract]
 {description}
 
-The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK.
-It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
 
-[#prerequisites]
+
+Couchbase has a simple interface for creating and modifying records in a document, 
+based upon the *collection* into which the documents are organized.
+You can read more about data modeling <<data-modeling,below>>, 
+but first let's look at those data operations, and installing the {name-sdk}.
+
+// remember to add a nomenclature note to the next version of this page for LCB.
+
+.Upsert with Replication set to xref:concept-docs:data-durability-acid-transactions.adoc#durable-writes[Majority Durablity].
+[source,kotlin]
+----
+collection.upsert(
+    id = "alice",
+    content = mapOf("favoriteColor" to "blue"),
+)
+----
+
+`upsert` inserts (creates) the document if it does not exist, or replaces it if it does.
+We'll explore creating and retrieving data records in more detail <<create-read-update-delete,below>>
+// (and touch lightly upon a little of Java's functional programming approach as we go), 
+after walking through a quick installation.
+
+TIP: This page walks you through a quick installation, and CRUD examples against the Data Service.
+Elsewhere in this section you can find a fully worked-through xref:hello-world:sample-application.adoc[] and,
+for those new to document (NoSQL) databases, our xref:hello-world:student-record-developer-tutorial.adoc[Student Record Tutorial].
+
+
 == Before You Start
 
-* You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
-The SDK requires Kotlin 1.6.20 or later.
+Couchbase Capella, our Database-as-a-Service, lets you get on with what matters, while we take care of the administration for you.
+Alternately, if you need to control every aspect of deployment -- 
+or just want to run the Server in a VM on your laptop -- 
+there are several self-managed options available:
 
-* You will need Java 8 or later.
-We recommend running the latest Java LTS version with the highest patch version available.
+[tabs]
+==== 
+Couchbase Capella::
++
+--
+If you haven't already got a cluster set up, the easiest route is to https://cloud.couchbase.com/sign-up[sign up to Couchbase Capella and deploy a free tier cluster^], 
+then come back to this page.
+Make a note of the xref:cloud:get-started:connect.adoc[endpoint] to connect to, 
+and remember the credentials for the user that you set up.
+--
 
-== Installing the SDK
+Self-Managed Couchbase Server::
++
+--
+Install Couchbase Server locally, or in your private Cloud:
 
-All stable versions of the SDK are https://central.sonatype.com/artifact/com.couchbase.client/kotlin-client/{kotlin-current-version}[available on Maven Central].
+* xref:{version-server}@server:install:get-started.adoc[Deployment overview]
+* xref:{version-server}@server:install:getting-started-docker.adoc[Docker Install]
+* xref:operator::overview.adoc[Couchbase Autonomous Operator]
+** xref:operator::install-kubernetes.adoc[Kubernetes]
+** xref:operator::install-openshift.adoc[Openshift]
+* xref:{version-server}server:cloud:couchbase-cloud-deployment.adoc[Cloud Marketplace]:
+** xref:{version-server}@server:cloud:couchbase-aws-marketplace.adoc[AWS Marketplace]
+** xref:{version-server}@server:cloud:couchbase-azure-marketplace.adoc[Azure Marketplace]
+** xref:{version-server}@server:cloud:couchbase-gcp-cloud-launcher.adoc[GCP Marketplace]
 
-You can use your favorite dependency management tool to include the SDK in your project.
+For the example code below to run, you'll need the username and password of the Administrator user that you create, and the IP address of at least one of the nodes of the cluster.
+--
+====
+
+
+// Script the docs!
+// Can any of the SDK installations be scripted?
+
+=== Prerequisites
+
+* The Kotlin SDK is tested against LTS versions of Oracle JDK and OpenJDK -- 
+see the xref:project-docs:compatibility.adoc#jdk-compat[compatibility docs].
++
+https://adoptium.net/[OpenJDK 21 with HotSpot JVM] is recommended.
+
+The code examples also assume:
+
+[tabs]
+====
+Couchbase Capella::
++
+--
+* You have signed up to https://cloud.couchbase.com/sign-up[Couchbase Capella].
+
+* You have created your own bucket, or loaded the Travel Sample dataset.
+Note, the Travel Sample dataset is installed automatically when deploying a Capella free tier cluster.
+
+* A user is created with permissions to access the cluster (at least Application Access permissions).
+See the xref:cloud:get-started:cluster-and-data.adoc#credentials[Capella connection page] for more details.
+
+IMPORTANT: Couchbase Capella uses xref:cloud:organizations:organization-projects-overview.adoc[Roles] to control user access to cluster resources.
+For the purposes of this guide, you can use the *Organization Owner* role automatically assigned to your account during installation of the Capella cluster.
+In production, Couchbase strongly recommends setting up users with more granular access roles as a best practice for data security.
+--
+
+Self-Managed Couchbase Server::
++
+--
+* xref:{version-server}@server:getting-started/do-a-quick-install.adoc[Couchbase Server] is installed and accessible locally.
+
+* You have created your own bucket, or loaded the Travel Sample dataset using the xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc#install-sample-buckets-with-the-ui[Web interface].
+
+* A user is created with permissions to access your cluster (at least Application Access permissions).
+See xref:{version-server}@server:manage:manage-security/manage-users-and-roles.adoc[Manage Users, Groups and Roles] for more details.
+
+IMPORTANT: Couchbase Server uses xref:{version-server}@server:learn:security/roles.adoc[Role-Based Access Control (RBAC)] to control access to cluster resources.
+In this guide we suggest using the *Full Admin* role created during setup of your local Couchbase Server cluster.
+In production, Couchbase strongly recommends setting up users with more granular access roles as a best practice for data security.
+--
+====
+
+
+== Installation
+
+We recommend running the latest Java LTS version (at the time of writing, JDK 21) with the highest patch version available.
+// Other supported Java versions will work, too.
+Couchbase publishes all stable artifacts to https://central.sonatype.com/namespace/com.couchbase.client[Maven Central].
+
+The latest version of {sdk_dot_minor}.x is https://central.sonatype.com/artifact/com.couchbase.client/java-client/{sdk_current_version}/jar[{sdk_current_version}].
+
+// tag::quick-install[]
+More details of the installation process are in the 
+xref:project-docs:sdk-full-installation.adoc[full installation guide].
+In most cases, given the above prerequisites, use your favorite dependency management tool to install the SDK.
 
 [{tabs}]
 ====
@@ -60,119 +178,641 @@ Maven::
 ----
 --
 ====
+// end::quick-install[]
 
-[snapshots]
-== Using a Snapshot Version (optional)
+=== IDE Plugins
 
-Couchbase publishes pre-release snapshot artifacts to the Central Portal Snapshots Repository.
-If you wish to use a snapshot version, you'll need to tell your build tool about this repository.
+To make development easier, Couchbase plugins are available for VSCode and the IntelliJ family of IDEs and editors.
+For links and more information on these and other integrations across the {name_platform} ecosystem, 
+check out the xref:project-docs:third-party-integrations.adoc[] page.
 
-[{tabs}]
+
+=== Grab the Code
+
+If you're all set up and in a real hurry, just grab this code sample and add in your Capella details.
+
+.Complete Hello World code sample [*Click to open or collapse the listing*]
+[%collapsible]
 ====
-Gradle (Kotlin)::
+....
+include::devguide:example$StartUsingCapella.kt[]
+....
+====
+
+Otherwise, read on as we introduce the CRUD API and connection to Capella or self-managed Couchbase Server.
+
+TIP: There's a *View* link to the complete sample code on GitHub above each of the snippets on these SDK pages, and a *Copy* icon to grab just the snippet shown.
+
+
+== Connect to your Database
+
+Connect to your Couchbase Capella operational cluster (or your local Couchbase Cluster, if you are trying out self-managed Couchbase).
+
+
+[tabs,sync-group-id="Couchbase Capella|Self-Managed Couchbase Server"]
+==== 
+Couchbase Capella::
 +
 --
-.`*build.gradle.kts*`
 [source,kotlin]
 ----
-repositories {
-    mavenCentral()
-
-    maven {
-        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-        mavenContent { snapshotsOnly() }
-    }
-}
+include::devguide:example$StartUsingCapella.kt[tags=connect,indent=0]
 ----
-
 --
-Gradle (Groovy)::
+
+Self-Managed Couchbase Server::
 +
 --
-.`*build.gradle*`
 
-[source,groovy]
+[source,kotlin]
 ----
-repositories {
-    mavenCentral()
-
-    maven {
-        url "https://central.sonatype.com/repository/maven-snapshots/"
-        mavenContent { snapshotsOnly() }
-    }
-}
+include::devguide:example$StartUsing.kt[tags="connect-info",indent=0]
 ----
-
+[source,kotlin]
+----
+include::devguide:example$StartUsing.kt[tags="connect-env",indent=0]
+----
 --
-Maven::
+
+Cloud Native Gateway (CNG)::
 +
 --
-.`*pom.xml*`
-[source,xml]
+Couchbase's large number of ports across the URLs of many services can be proxied by using a `couchbase2://` endpoint as the connection string --
+currently only compatible with recent versions of xref:operator:ROOT:concept-cloud-native-gateway.adoc[Couchbase Autonomous Operator]:
+
+[source,scala]
 ----
-<repositories>
-    <repository>
-        <name>Central Portal Snapshots</name>
-        <id>central-portal-snapshots</id>
-        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
+Cluster cluster = Cluster.connect(
+  "couchbase2://10.12.14.16",
+  ClusterOptions
+    .create(username, password)
+    .environment(env)
+)
+----
+
+Read more on the xref:howtos:managing-connections.adoc#cloud-native-gateway[Connections] page.
+--
+
+Quarkus::
++
+--
+Our  xref:quarkus-extension:ROOT:overview.adoc[Couchbase Quarkus Java Extension docs] cover installing and connecting with the Quarkus extension in detail,
+but if you already have Quarkus installed and a project ready (with `quarkus-couchbase` in your `pom.xml` or `build.gradle`),
+then your `src/main/resources/application.properties` file needs to contain:
+
+[source,properties]
+----
+quarkus.couchbase.connection-string=localhost
+quarkus.couchbase.username=username
+quarkus.couchbase.password=password
 ----
 --
 ====
+
+
+For a deeper look at connection options, read xref:howtos:managing-connections.adoc[].
+
+TIP: The connection code for getting started uses the Administrator password that you were given during set up.
+In any production app you should create a role restricted to the permissions needed for your app -- 
+more on this in xref:concept-docs:best-practices.adoc#roles-and-rbac[the Security documentation].
+
+
+The `ClusterEnvironment.Builder` is covered more fully on the xref:ref:client-settings.adoc#the-environment-builder[Client Settings] page.
+
+[TIP]
+.Simpler Connection
+====
+There's also a simpler version of `Cluster.connect()` for when you don't need to customize the cluster environment:
+[source,kotlin]
+----
+include::devguide:example$SimpleConnect.kt[tags=connect-string,indent=0]
+----
+====
+
+
+=== Opening a Bucket
+
+Following successful authentication, open the bucket with:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=bucket,indent=0]
+----
+
+
+
+////
+client has not yet completed bootstrapping (connecting to the cluster, getting the configuration, connecting to the nodes).
+////
+
+
+`waitUntilReady` is an optional call,
+but it is good practice to use it.
+Opening resources such as buckets is asynchronous --
+that is, the `cluster.bucket` call returns immediately and proceeds in the background.
+`waitUntilReady` ensures that the bucket resource is fully loaded before proceeding.
+If not present, then the first key-value (KV) operation on the bucket will wait for it to be ready.
+As with the earlier `Cluster.connect`, we use `.get` on the result here for simplicity.
+
+*Collections* allow documents to be grouped by purpose or theme, according to a specified *scope* -- see data modeling, <<data-modeling,below>>.
+Here we will use the `airport` collection within the `inventory` scope from `travel-sample` bucket as an example.
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=collection,indent=0]
+----
+
+
+== Create, Read, Update, Delete
+
+Couchbase documents are organized into buckets, scopes, and collections.
+https://en.wikipedia.org/wiki/CRUD[CRUD operations^] -- Create, Read, Update, Delete -- can be performed upon documents in a collection.
+
+=== JSON
+
+We'll create a snippet of JSON to work with, using the client's own JSON library,
+but you can read about the Scala SDK's support for other JSON libraries on the
+xref:howtos:json.adoc[] page.
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=json,indent=0]
+----
+
+=== Insert (Create) and Upsert
+
+`insert` and `upsert` will both create a new document.
+The difference between the two is that if a document with that key already exists, the `insert` operation will fail,
+// throwing `DocumentExistsException` --
+while the `upsert` operation will succeed, replacing the content.
+
+We need to provide a unique ID as the key, and we'll use a UUID here:
+
+.Creating a new document
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=upsert,indent=0]
+----
+
+=== Get (Read)
+
+The `get` method reads a document from a collection.
+// If the collection does not have a document with this ID, the `get` method also throws `DocumentNotFoundException`.
+
+Wrapping the method in a `Try` / `Catch` is a good way to handle exceptions:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=get,indent=0]
+----
+
+////
+Here we're fetching the value for the key `docId`,
+converting that value to a `JsonObjectSafe`
+(a simple wrapper around `JsonObject` that returns `Try` results -- see
+xref:howtos:json.adoc#error-handling-and-jsonobjectsafe[JsonObjectSafe] for details),
+and then accessing the value of the *status* key as a String.
+////
+
+////
+==== Better Error Handling
+
+All three of these operations could fail, so there's quite a lot of error handling code here to do something quite simple.
+One way to improve on this is by using `flatMap`, like this:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=get-map,indent=0]
+----
+
+Alternatively, you can use a for-comprehension, like so:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=get-for,indent=0]
+----
+
+Either of these methods will stop on the first failed operation.  So the final returned `Try` contains either 
+a) `Success` and the result of the final operation, indicating that everything was successful, or 
+b) `Failure` with the error returned by the first failing operation.
+////
+
+=== Replace (Update) and Overloads
+
+////
+You'll notice that most operations in the Scala SDK have two overloads.
+One will take an Options builder, which provides all possible options that operation takes.
+For instance:
+////
+
+.The replace method updates the value of an existing document
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=replace-options,indent=0]
+----
+
+////
+These options blocks are implemented as Scala case classes:
+they are immutable data objects that return a copy of themselves on each change.
+
+The other overload is provided purely for convenience.
+It takes named arguments instead of an Options object, and provides only the most commonly used options:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=replace-named,indent=0]
+----
+////
+
+CAUTION: When you replace a document, it's usually good practice to use xref:howtos:kv-operations.adoc#optimistic-locking[optimistic locking].
+Otherwise, changes might get lost if two people change the same document at the same time.
+
+=== Remove (Delete)
+
+The remove method deletes a document from a collection:
+
+[source,kotlin]
+----
+try {
+  collection.remove("my-document");
+} catch (DocumentNotFoundException ex) {
+  System.out.println("Document did not exist when trying to remove");
+}
+----
+
+Like `replace`, `remove` also optionally takes the CAS value if you want to make sure you are only removing the document if it hasn’t changed since you last fetched it.
+
+
+== Data Modeling
+
+Documents are organized into collections -- collections of documents that belong together.
+You get to decide what it means to "belong." 
+Developers usually put documents of the same type in the same collection.
+
+For example, imagine you have two types of documents: customers and invoices. 
+You could put the customer documents in a collection called `customers`, and the invoice documents in a collection called `invoices`.
+
+Each document belongs to exactly one collection. 
+A document's ID is unique _within_ the collection.
+
+Different scopes can hold collections with different names. 
+There is no relationship between collections in different scopes.
+Each collection belongs to just one scope and
+a collection's name is unique within the scope.
+
+
+More details can be found on the xref:concept-docs:data-model.adoc[Data Model page].
+// The xref:student-record-developer-tutorial.adoc[Student Records Tutorial] gives an introduction to data modeling in a document database alongside using the {name-sdk}.
+
+
+== What Next?
+
+////
+Query and KV -
+both
+- but different emphasis on modelling objects....
+////
+
+
+
+=== Help and Troubleshooting
+
+* xref:howtos:troubleshooting-cloud-connections.adoc[Troubleshooting common network problems].
+* {forum-link}[Help forum].
+* https://discord.com/channels/915294689681362954/1217642561645318194[Discord channel].
+* Read the xref:howtos:error-handling.adoc[error handling page].
+* xref:cloud:get-started:capella-iq/get-started-with-iq.adoc#generate-sdk-code-preview[Get help from Couchbase iQ].
+
+=== Next Steps
+
+// * Take a look at the xref:hello-world:sample-application.adoc[].
+* xref:concept-docs:data-durability-acid-transactions.adoc[Learn more about the Data Service].
+* xref:concept-docs:querying-your-data.adoc[Discover SQL++] -- our SQL-family querying language.
+* Explore some of the xref:project-docs:third-party-integrations.adoc[third party integrations] with Couchbase and the {name_platform} SDK, across the {name_platform} ecosystem.
+
+
+
+== Next Steps
+
+Now you're up and running, try one of the following:
+
+* Our xref:hello-world:sample-application.adoc[Travel Sample Application] demonstrates all the basics you need to know;
+* Explore xref:howtos:kv-operations.adoc[Key Value Operations] (CRUD) against a document database;
+* Or xref:howtos:sqlpp-queries-with-sdk.adoc[Query] with our SQL-based {sqlpp} query language;
+* Try longer-running queries with our xref:howtos:analytics-using-sdk.adoc[Analytics Service];
+* A xref:howtos:full-text-searching-with-sdk.adoc[Full Text Search];
+* Or read up on xref:concept-docs:data-services.adoc[which service fits your use case].
+
+=== Additional Resources
+
+////
+The Scala SDK includes three APIs.  
+The examples above show the simple blocking API, for simplicity, but you can also perform all operations in an async style using Scala `Future`, and a reactive style using Project Reactor `SMono` and `SFlux`.
+Please see xref:howtos:concurrent-async-apis.adoc[Choosing an API] for more details.
+////
+
+The API reference is generated for each release and the latest can be found https://docs.couchbase.com/sdk-api/couchbase-scala-client/com/couchbase/client/scala/index.html[here].
+
+Couchbase welcomes community contributions to the Kotlin SDK.
+The SDK source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
+
+=== Troubleshooting
+
+* Couchbase Server is designed to work in the same WAN or availability zone as the client application.
+If you're running the SDK on your laptop against a Capella cluster, see further information on:
+** Notes on xref:ref:client-settings.adoc#constrained-network-environments[Constrained Network Environments].
+** xref:project-docs:compatibility.adoc#network-requirements[Network Requirements].
+** If you have a consumer-grade router which has problems with DNS-SRV records review our xref:howtos:troubleshooting-cloud-connections.adoc#troubleshooting-host-not-found[Troubleshooting Guide].
+* Our https://www.couchbase.com/forums/c/java-sdk/5[community forum] is a great source of help.
+////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+= Start Using the Java SDK
+:description: A quick start guide to get you up and running with Couchbase and the Java SDK.
+:page-partial:
+:page-aliases: ROOT:getting-started,ROOT:start-using,ROOT:hello-couchbase,ROOT:start-using-sdk,ROOT:java-intro,ROOT:tutorial
+:page-toclevels: 2
+:page-pagination: next
+:page-topic-type: tutorial
+
+include::project-docs:partial$attributes.adoc[]
+
+[abstract]
+{description}
+
+The Couchbase Java client allows applications to access a Couchbase cluster.
+It offers synchronous APIs as well as reactive and asynchronous equivalents to maximize flexibility and performance.
+
+In this guide, you will learn:
+
+* How to xref:connect[connect to Couchbase Capella or Couchbase Server].
+
+* How to xref:add-and-retrieve-documents[add and retrieve Documents].
+
+* How to xref:sql-lookup[lookup documents] with the {sqlpp_url}[{sqlpp} (formerly N1QL)] query language.
 
 == Hello Couchbase
 
-Here's an example that shows how to execute a {sqlpp} (formerly N1QL) query and get a document from the Key Value (KV) service.
+We will go through the code sample step by step, but for those in a hurry, here's the complete code:
+
+[{tabs}]
+==== 
+Couchbase Capella Sample::
++
+--
+If you are connecting to https://docs.couchbase.com/cloud/index.html[Couchbase Capella], you'll need to know the endpoint address, as well as a username and password.
+
+This example requires the Travel Sample Bucket.
+The Couchbase Capella free tier version comes with this bucket, and its Query indexes, loaded and ready.
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=cloud-connect,indent=0]
+----
+--
+
+Local Couchbase Server::
++
+--
+Before running this example, you will need to install the Travel Sample Bucket
+using either the xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc#install-sample-buckets-with-the-ui[Web interface]
+or the xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc#install-sample-buckets-with-the-cli[command line].
+
+[source.try-it,java]
+----
+include:devguide::example$StartUsing.kt[tags=start-using,indent=0]
+----
+--
+====
+
+== Quick Installation
+
+We recommend running the latest Java LTS version (i.e. at the time of writing JDK 21) with the highest patch version available.
+// Other supported Java versions will work, too.
+Couchbase publishes all stable artifacts to https://central.sonatype.com/namespace/com.couchbase.client[Maven Central].
+
+The latest version (as of June 2024) is https://central.sonatype.com/artifact/com.couchbase.client/java-client/{sdk_current_version}/jar[{sdk_current_version}].
+
+You can use your favorite dependency management tool to install the SDK.
+
+[{tabs}] 
+==== 
+Maven::
++
+--
+[source,xml,subs="+attributes"]
+----
+<dependencies>
+    <dependency>
+        <groupId>com.couchbase.client</groupId>
+        <artifactId>java-client</artifactId>
+        <version>{sdk_current_version}</version>
+    </dependency>
+</dependencies>
+----
+--
+
+Gradle::
++
+--
+[source,groovy,subs="+attributes"]
+----
+implementation 'com.couchbase.client:java-client:{sdk_current_version}'
+----
+--
+====
+
+See the xref:project-docs:sdk-full-installation.adoc[installation page] for more detailed instructions.
+
+
+== Prerequisites
+
+The following code samples assume:
 
 [{tabs}]
 ====
 Couchbase Capella::
 +
 --
-This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] free tier operational cluster, which has the `travel-sample` bucket installed by default.
+* You have signed up to https://cloud.couchbase.com/sign-up[Couchbase Capella].
 
-(If you're not using Couchbase Capella, click the **Local Couchbase Server** tab above.)
+* You have created your own bucket, or loaded the Travel Sample dataset.
+Note, the Travel Sample dataset is installed automatically when deploying a Capella free tier cluster.
 
-Before running the example:
+* A user is created with permissions to access the cluster (at least Application Access permissions).
+See the xref:cloud:get-started:cluster-and-data.adoc#credentials[Capella connection page] for more details.
 
-* Replace the `address` variable with the address of your Capella cluster.
+IMPORTANT: Couchbase Capella uses xref:cloud:organizations:organization-projects-overview.adoc[Roles] to control user access to cluster resources.
+For the purposes of this guide, you can use the *Organization Owner* role automatically assigned to your account during installation of the Capella cluster.
+In a production scenario, we strongly recommend setting up users with more granular access roles as a best practice.
+--
 
-* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
+Local Couchbase Server::
++
+--
+* xref:{version-server}@server:getting-started/do-a-quick-install.adoc[Couchbase Server] is installed and accessible locally.
+
+* You have created your own bucket, or loaded the Travel Sample dataset using the xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc#install-sample-buckets-with-the-ui[Web interface].
+
+* A user is created with permissions to access your cluster (at least Application Access permissions).
+See xref:{version-server}@server:manage:manage-security/manage-users-and-roles.adoc[Manage Users, Groups and Roles] for more details.
+
+IMPORTANT: Couchbase Server uses xref:{version-server}@server:learn:security/roles.adoc[Role Based Access Control (RBAC)] to control access to resources.
+In this guide we suggest using the *Full Admin* role created during setup of your local Couchbase Server cluster.
+For production client code, you will want to use more appropriate, restrictive settings.
+--
+====
+
+== Step by Step
+
+Here are all the imports needed to run the sample code:
 
 [source,kotlin]
 ----
-include::example$HelloCloud.kt[]
+include::devguide:example$StartUsingCapella.kt[tags=imports,indent=0]
 ----
-<1> For Capella, the connection string starts with `couchbases://` (note the final 's') to enable a secure connection with TLS.
 
+If you haven't already, create an empty class and add a `main()` method.
+
+[source, java]
+----
+public class YourClassName {
+    public static void main(String... args) {}
+}
+----
+
+Make sure to replace `YourClassName` with your own class name.
+
+Above the `main()` method, add the following variables and update them accordingly:
+
+[{tabs}]
+====
+Couchbase Capella::
++
 --
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tags=connect-info,indent=0]
+----
+--
+
 Local Couchbase Server::
 +
 --
 
-This version of the example assumes you are connecting to a single-node Couchbase Server cluster running on your local computer.
+[source,kotlin]
+----
+include::devguide:example$StartUsing.kt[tags=connect-info,indent=0]
+----
+--
+====
 
-Before running the example:
+In the following sections we will populate the `main()` method.
 
-* Install the `travel-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample bucket].
+=== Connect
 
-* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
-You can use the administrator credentials you chose when setting up the cluster.
+Connect to your cluster by calling the `Cluster.connect()` method and pass it your connection details.
+The basic connection details that you’ll need are given below -- for more background information, see xref:howtos:managing-connections.adoc[].
+
+[{tabs}]
+==== 
+Couchbase Capella::
++
+--
+All current GA versions of the Kotlin SDK includes Capella’s standard Certificate Authority (CA) certificates by default, so you don't need any additional configuration.
+Capella requires TLS, which you can enable by using a connection string that starts with `couchbases://` (note the final 's').
+
+This example shows how to connect and customize the xref:howtos:managing-connections.adoc#cluster-environment[Cluster Environment] settings.
 
 [source,kotlin]
 ----
-include::example$HelloWorld.kt[]
+include::devguide:example$StartUsingCapella.kt[tags=connect-env,indent=0]
 ----
+
+When accessing Capella from a different Wide Area Network or Availability Zone, you may experience latency issues with the default connection settings.
+SDK 1.4 introduces a `wan-development` Configuration Profile, which provides pre-configured timeout settings suitable for working in high latency environments.
+Basic usage is shown in the example above, but if you want to learn more see xref:ref:client-settings.adoc#constrained-network-environments[Constrained Network Environments].
+
+CAUTION: The Configuration Profiles feature is currently a xref:java-sdk:project-docs:compatibility.adoc#interface-stability[Volatile API] and may be subject to change.
 --
 
+Local Couchbase Server::
++
+--
+For developing locally on the same machine as Couchbase Server, your connection string can be `couchbase://127.0.0.1` as shown here.
+For production deployments, you will want to enable TLS by using `couchbases://` (note the final 's') instead of `couchbase://`.
+
+This example shows how to connect and customize the xref:howtos:managing-connections.adoc#cluster-environment[Cluster Environment] settings.
+
+[source,kotlin]
+----
+include::devguide:example$StartUsing.kt[tags=connect-env,indent=0]
+----
+--
 ====
+
+[TIP]
+.Simpler Connection
+====
+There's also a simpler version of `Cluster.connect()` for when you don't need to customize the cluster environment:
+
+[source,kotlin]
+----
+include::devguide:example$SimpleConnect.kt[tags=connect-string,indent=0]
+----
+====
+
+Now that you have a `Cluster`, add this code snippet to access your `Bucket`:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=bucket,indent=0]
+----
 
 
 
@@ -185,18 +825,87 @@ Couchbase's large number of ports across the URLs of many services can be proxie
 ////
 
 
-[#additional-resources]
-== Additional Resources
+
+
+=== Add and Retrieve Documents
+
+The Kotlin SDK supports full integration with the xref:{version-server}@server:learn:data/scopes-and-collections.adoc[Collections] feature introduced in Couchbase Server 7.0.
+*Collections* allow documents to be grouped by purpose or theme, according to a specified *Scope*.
+
+Here we refer to the `users` collection within the `tenant_agent_00` scope from the Travel Sample bucket as an example, but you may replace this with your own data.
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=collection,indent=0]
+----
+
+xref:howtos:kv-operations.adoc[Data operations], like storing and retrieving documents, can be done using simple methods on the `Collection` class such as `Collection.get()` and `Collection.upsert()`.
+
+Add the following code to create a new document and retrieve it:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=upsert-get,indent=0]
+----
+
+=== {sqlpp} Lookup
+
+Couchbase {sqlpp} queries can be performed at the `Cluster` or `Scope` level by invoking `Cluster.query()` or `Scope.query()`.
+
+Cluster level queries require you to specify the fully qualified keyspace each time (e.g. `travel-sample.inventory.airline`).
+However, with a Scope level query you only need to specify the Collection name -- which in this case is `airline`:
+
+[source,kotlin]
+----
+include::devguide:example$StartUsingCapella.kt[tag=n1ql-query,indent=0]
+----
+
+You can learn more about {sqlpp} queries on the xref:howtos:n1ql-queries-with-sdk.adoc[] page.
+
+=== Execute!
+
+Now that you've completed all the steps, run the example via your IDE or through the command line.
+You should expect to see the following output:
+
+[source, console]
+----
+mike
+[{"airline":{"country":"United States","iata":"Q5","name":"40-Mile Air","callsign":"MILE-AIR","icao":"MLA","id":10,"type":"airline"}}]
+----
+
+== Next Steps
+
+Now you're up and running, try one of the following:
+
+* Our xref:hello-world:sample-application.adoc[Travel Sample Application] demonstrates all the basics you need to know;
+* Explore xref:howtos:kv-operations.adoc[] against a document database;
+* Or xref:howtos:n1ql-queries-with-sdk.adoc[] with our {sqlpp} query language;
+// * Try longer-running queries with our xref:howtos:analytics-using-sdk.adoc[Analytics Service];
+// * A xref:howtos:full-text-searching-with-sdk.adoc[Full Text Search];
+* Or read up on xref:concept-docs:data-services.adoc[which service fits your use case].
+* There are more https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
+
+
+=== Additional Resources
 
 To see more documentation, select a chapter from the navigation sidebar on the left.
 
-Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum].
-
-The https://couchbase.live[Couchbase Playground] has Kotlin examples you can edit and run in your web browser.
-
-There are more https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
-
-The API reference is {kotlin-api-link}[here].
+The API reference is generated for each release and the latest can be found {kotlin-api-link}[here].
+Older API references are linked from their respective sections in the xref:project-docs:sdk-release-notes.adoc[Release Notes].
 
 Couchbase welcomes community contributions to the Kotlin SDK.
 The source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
+
+
+// If you are planning to use Spring Data Couchbase, see the xref:project-docs:compatibility.adoc#spring-compat[notes on version compatibility].
+
+=== Troubleshooting
+
+* Couchbase Server is designed to work in the same WAN or availability zone as the client application.
+If you're running the SDK on your laptop against a Capella cluster, see further information on:
+** Notes on xref:ref:client-settings.adoc#constrained-network-environments[Constrained Network Environments].
+** xref:project-docs:compatibility.adoc#network-requirements[Network Requirements].
+** If you have a consumer-grade router which has problems with DNS-SRV records review our xref:howtos:troubleshooting-cloud-connections.adoc#troubleshooting-host-not-found[Troubleshooting Guide].
+* Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum] for community help and support.
+
+
