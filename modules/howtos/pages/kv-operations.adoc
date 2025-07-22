@@ -1,14 +1,20 @@
 = Data Operations
-:description: The Key Value (KV) service, sometimes called the "data service", is often the best way to get or change a document when you know its ID.
-:page-topic-type: howto
-:page-toclevels: 2
+:description: Data service offers the simplest way to retrieve or mutate data where the key is known.
+:page-toclevels: 3
 :page-pagination: full
 
-include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
-Here we cover CRUD operations and locking strategies.
+
+Here we cover CRUD operations, document expiration, and optimistic locking with CAS -- 
+as well as KV Range scan, for querying without an index.
+
+
+
+
+
+
 
 [#prerequisites]
 == Before You Start
