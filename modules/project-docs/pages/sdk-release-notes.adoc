@@ -10,7 +10,6 @@
 
 include::{version-common}@sdk:pages:partial$signed.adoc[tag=signed]
 
-(3.8.2 is the JVM core of Kotlin SDK 1.5.2.)
 
 
 [#latest-release]
