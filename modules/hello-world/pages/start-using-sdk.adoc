@@ -185,7 +185,7 @@ If you're all set up and in a real hurry, just grab this code sample and add in 
 [%collapsible]
 ====
 ....
-include::devguide:exampleCloud.kt[]
+include::devguide:example$HelloCloud.kt[]
 ....
 ====
 
@@ -206,6 +206,8 @@ Couchbase Capella::
 --
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=connect,indent=0]
 ----
 
@@ -217,6 +219,8 @@ Self-Managed Couchbase Server::
 -- 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/StartUsing.scala[tag=connect,indent=0]
 ----
 --
@@ -261,6 +265,8 @@ Following successful authentication, open the bucket with:
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=bucket,indent=0]
 ----
 
@@ -284,6 +290,8 @@ Here we will use the `airport` collection within the `inventory` scope from `tra
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=collection,indent=0]
 ----
 
@@ -301,6 +309,8 @@ xref:howtos:json.adoc[] page.
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=json,indent=0]
 ----
 
@@ -333,6 +343,8 @@ Now let's get the data back (this example will look a little messy due the neste
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=get,indent=0]
 ----
 
@@ -349,6 +361,8 @@ One way to improve on this is by using `flatMap`, like this:
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=get-map,indent=0]
 ----
 
@@ -356,6 +370,8 @@ Alternatively, you can use a for-comprehension, like so:
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=get-for,indent=0]
 ----
 
@@ -372,6 +388,8 @@ For instance:
 .The replace method updates the value of an existing document
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=replace-options,indent=0]
 ----
 
@@ -383,6 +401,8 @@ It takes named arguments instead of an Options object, and provides only the mos
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/Cloud.scala[tag=replace-named,indent=0]
 ----
 
@@ -395,6 +415,8 @@ The remove method deletes a document from a collection:
 
 [source,scala]
 ----
+include::devguide:example$HelloCloud.kt[]
+
 include::devguide:example$scala/KvOperations.scala[indent=0,tag=remove]
 ----
 
