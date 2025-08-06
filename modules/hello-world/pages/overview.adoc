@@ -1,12 +1,15 @@
-= Couchbase Kotlin SDK 1.4
+= Couchbase Kotlin SDK 3.9
 :page-layout: landing-page-top-level-sdk
 :page-role: tiles
 :!sectids:
 
-= Couchbase Kotlin SDK 1.4
+= Couchbase Kotlin SDK 3.9
 
 The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK. +
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
+
+NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to make it easier to users to track changes. So the version has jumped from 1.5.x to 3.9.x.
+
 
 {empty} +
 
