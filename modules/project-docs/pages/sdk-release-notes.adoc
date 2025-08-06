@@ -14,7 +14,10 @@ include::{version-common}@sdk:pages:partial$signed.adoc[tag=signed]
 
 
 [#latest-release]
-== Kotlin SDK 1.5 Releases
+== Kotlin SDK 3.9 Releases
+
+
+NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to make it easier to users to track changes. So the version has jumped from 1.5.x to 3.9.x.
 
 We always recommend using the latest version of the SDK -- it contains all of the latest security patches and support for new and upcoming features.
 All patch releases for each dot minor release should be API compatible, and safe to upgrade;
@@ -24,6 +27,7 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
+== Kotlin SDK 1.5 Releases
 
 
 [[v1.5.3]]
