@@ -26,7 +26,7 @@ any changes to expected behavior are noted in the release notes that follow.
 
 // TODO - add missing colons after JIRA links to bring consistency.
 
-=== Version 1.9.0 (05 August 2025)
+=== Version 3.9.0 (05 August 2025)
 
 
 
