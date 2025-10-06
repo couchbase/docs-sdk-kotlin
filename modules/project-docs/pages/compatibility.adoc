@@ -159,7 +159,7 @@ NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to ma
 
 
 
-Note the https://www.couchbase.com/support-policy[End of Life dates^] for Couchbase Server and SDK versions.
+Note the https://www.couchbase.com/support-policy/EOL/[End of Life dates^] for Couchbase Server and SDK versions.
 See the notes there for Support details.
 
 === Capella Compatibility
