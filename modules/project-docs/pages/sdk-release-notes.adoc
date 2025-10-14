@@ -24,6 +24,19 @@ any changes to expected behavior are noted in the release notes that follow.
 
 // TODO - add missing colons after JIRA links to bring consistency.
 
+=== Version 3.9.2 (10 October 2025)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.9.2/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.9.2/[Core API Reference]
+
+This is the second maintenance release of the 3.9 series.
+
+==== Improvements
+
+* https://couchbasecloud.atlassian.net/browse/JVMCBC-1694[JVMCBC-1694]:
+Updated `Netty` to `4.1.127`.
+
+
 === Version 3.9.1 (05 September 2025)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.9.1/index.html[API Reference]
@@ -32,9 +45,6 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.9.1/index.html[API 
 This is the first maintenance release of the 3.9 series.
 
 ==== Improvements
-
-// * https://couchbasecloud.atlassian.net/browse/JVMCBC-1677[JVMCBC-1677]:
-// The BOM (`couchbase-client-bom`) now includes the `scala-client_3` artifact.
 
 * https://couchbasecloud.atlassian.net/browse/JVMCBC-1678[JVMCBC-1678]:
 Upgraded `Netty` to `4.1.124`.
