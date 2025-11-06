@@ -1,5 +1,5 @@
 name: kotlin-sdk
-version: '3.9'
+version: '3.10'
 title: Kotlin SDK
 start_page: hello-world:overview.adoc
 nav:
@@ -7,10 +7,10 @@ nav:
 asciidoc:
   attributes:
     server_version: '8.0.0'
-    sdk_current_version: '3.9.2'
-    sdk_dot_minor: 3.9
+    sdk_current_version: '3.10.0'
+    sdk_dot_minor: 3.10
     sdk_dot_major: 3.x
-    version-server: '7.6'
+    version-server: '8.0'
     version-common: '8.0'
     name_platform: 'Kotlin'
     name-sdk: Kotlin SDK
