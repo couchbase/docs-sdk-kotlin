@@ -11,6 +11,19 @@
 include::{version-common}@sdk:pages:partial$signed.adoc[tag=signed]
 
 
+
+
+=== Version 3.10.0 (?? November 2025)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.10.0/index.html[API Reference]
+| http://docs.couchbase.com/sdk-api/couchbase-core-io-3.10.0/[Core API Reference]
+
+==== Behavioral Changes
+
+
+
+
+
 [#latest-release]
 == Kotlin SDK 3.9 Releases
 
@@ -23,6 +36,11 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 // TODO - add missing colons after JIRA links to bring consistency.
+
+
+
+== Kotlin SDK 3.9 Releases
+
 
 === Version 3.9.2 (10 October 2025)
 
