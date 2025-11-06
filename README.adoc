@@ -2,12 +2,12 @@
 
 This repository hosts the documentation source for the https://docs.couchbase.com/kotlin-sdk/3.9/hello-world/overview.html[Couchbase Kotlin SDK].
 
-This branch documents the 3.9 release of the SDK.
-It follows the https://docs.couchbase.com/java-sdk/3.9/project-docs/compatibility.html#api-version[SDK 3.8 API].
+This branch documents the 3.10 release of the SDK.
+It follows the https://docs.couchbase.com/java-sdk/3.10/project-docs/compatibility.html#api-version[SDK 3.8 API].
 
 This branch reflects the new Information Architecture for the SDK docs -- this release was previously documented with the old structure (those old docs can be found under the `temp/1.5` branch), and docs with this structure can be seen on the Couchbase docs site for releases 1.5 and earlier.
 
-IMPORTANT: The leap from 1.5 to 3.9 is part of the effort to align all of the Couchbase JVM monorepo,
+IMPORTANT: The leap from 1.5 to 3.9 was part of the effort to align all of the Couchbase JVM monorepo,
 You can see how the versions line up in the table at https://docs.couchbase.com/kotlin-sdk/current/project-docs/compatibility.html#api-version[https://docs.couchbase.com/kotlin-sdk/current/project-docs/compatibility.html#api-version].
 
 
@@ -122,7 +122,7 @@ Update the following files:
 
 === New Branches
 
-Production branches use the *release/x.y* naming pattern (e.g. `release/3.8`, `release/3.9`).
+Production branches use the *release/x.y* naming pattern (e.g. `release/3.10`, `release/3.9`).
 Antora uses the branch names in the playbook, but also uses the `version` given in the antor.yml file, to create the version navigation -- so this version number must be unique within the repo for any branches included in the playbook.
 When creating a new branch for a new release, remember to update the antora.yml file before trying to build.
 
