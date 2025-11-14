@@ -36,8 +36,6 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.10.0/index.html[API
 
 ===== Bug Fixes
 
-* https://couchbasecloud.atlassian.net/browse/JVMCBC-1687[JVMCBC-1687]:
-Fixed `DelegatingAuthenticator` to work with Protostellar.
 * https://couchbasecloud.atlassian.net/browse/JVMCBC-1696[JVMCBC-1696]:
 The client no longer makes bucketful KV connections to nodes that aren't hosting the bucket, ensuring that unconnected endpoints don't cause SDC health check to fail.
 * https://couchbasecloud.atlassian.net/browse/JVMCBC-1697[JVMCBC-1697]:
@@ -58,7 +56,7 @@ Upgraded `Netty` from `4.1.127` to `4.1.128`.
 
 * https://couchbasecloud.atlassian.net/browse/JVMCBC-1679[JVMCBC-1679]:
 Support for short lived mTLS certs refresh without application restart.
-Added new `cluster.authenticator(Authenticator)` method for updating the authenticator used by a cluster.
+Added new `cluster.authenticator` property for updating the authenticator used by a cluster.
 Useful for scenarios where you want to refresh credentials without restarting your app.
 * https://couchbasecloud.atlassian.net/browse/JVMCBC-1689[JVMCBC-1689]:
 Added `JwtAuthenticator`.
