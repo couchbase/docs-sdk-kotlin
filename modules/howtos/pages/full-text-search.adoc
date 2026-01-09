@@ -1,6 +1,7 @@
 = Search
 :description: You can use the Full Text Search (FTS) service to find JSON documents that have certain words, phrases, or geographic coordinates -- and for vector searches against Server 7.6.
 :page-topic-type: howto
+:page-aliases: full-text-searching-with-sdk.adoc
 :page-toclevels: 2
 :page-pagination: prev
 
