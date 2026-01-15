@@ -76,10 +76,6 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
-
-== Kotlin SDK 3.9 Releases
-
-
 === Version 3.9.2 (10 October 2025)
 
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.9.2/index.html[API Reference]
