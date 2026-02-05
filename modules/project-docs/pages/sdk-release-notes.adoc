@@ -50,10 +50,10 @@ Fixed an issue that could cause the transaction cleanup task to terminate unexpe
 The Couchbase Kotlin SDK now requires Kotlin 2.1 or later.
 
 * https://jira.issues.couchbase.com/browse/JVMCBC-1708[JVMCBC-1708]:
-Upgraded OpenTelemetry from `1.31.0` to `1.57.0`.
+Upgraded `OpenTelemetry` from `1.31.0` to `1.57.0`.
 
 * https://jira.issues.couchbase.com/browse/JVMCBC-1692[JVMCBC-1692]:
-SQL++ statements are now excluded from tracing spans unless the query has parameters.
+{sqlpp} statements are now excluded from tracing spans unless the query has parameters.
 
 * https://jira.issues.couchbase.com/browse/JCBC-2207[JCBC-2207]:
 Developers who want to use the latest https://opentelemetry.io/docs/specs/semconv/db/database-spans/[OpenTelemetry semantic conventions for database client spans] can now opt in by setting the `OTEL_SEMCONV_STABILITY_OPT_IN` environment variable to `database` (or `database/dup` to create duplicate spans using both old and new conventions).
