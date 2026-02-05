@@ -20,7 +20,7 @@ NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to ma
 == Before You Start
 
 * You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
-The SDK requires Kotlin 1.6.20 or later.
+The SDK requires Kotlin 2.1.0 or later.
 
 * You will need Java 8 or later.
 We recommend running the latest Java LTS version with the highest patch version available.
