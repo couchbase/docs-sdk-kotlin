@@ -37,6 +37,10 @@ any changes to expected behavior are noted in the release notes that follow.
 https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.11.0/index.html[API Reference] |
 https://docs.couchbase.com/sdk-api/couchbase-core-io-3.11.0/[Core API Reference]
 
+[CAUTION]
+This version has a serious bug that causes a document inserted in a transaction to expire immediately.
+If your project uses transactions, we recommend staying on 3.10.1 until 3.11.1 is available.
+
 Kotlin 2.1 is now the minimum required version.
 
 ==== Bug Fixes
