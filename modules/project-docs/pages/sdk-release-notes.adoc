@@ -29,6 +29,24 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
+[[v3.11.1]]
+=== Version 3.11.1 (16 February 2026)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.11.1/index.html[API Reference] |
+https://docs.couchbase.com/sdk-api/couchbase-core-io-3.11.1/[Core API Reference]
+
+This critical release fixes a regression in `3.11.0` that caused documents inserted in transactions to expire immediately.
+
+==== Bug Fixes
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1712[JVMCBC-1712]:
+Document inserted in transactions no longer expire immediately.
+This fixes a regression in `3.11.0`.
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/KCBC-198[KCBC-198]:
+Exposed the `observabilitySemanticConventions` client setting.
 
 
 [[v3.11.0]]
@@ -38,8 +56,8 @@ https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.11.0/index.html[API
 https://docs.couchbase.com/sdk-api/couchbase-core-io-3.11.0/[Core API Reference]
 
 [CAUTION]
-This version has a serious bug that causes a document inserted in a transaction to expire immediately.
-If your project uses transactions, we recommend staying on 3.10.1 until 3.11.1 is available.
+This version has https://jira.issues.couchbase.com/browse/JVMCBC-1712[a serious bug that causes documents inserted in transactions to expire immediately].
+We recommend upgrading directly to `3.11.1`.
 
 Kotlin 2.1 is now the minimum required version.
 
