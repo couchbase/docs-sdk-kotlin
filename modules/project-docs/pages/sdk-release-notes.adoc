@@ -2,8 +2,7 @@
 :description: Release notes for the Couchbase Kotlin Client.
 :navtitle: Release Notes
 :page-toclevels: 2
-:page-topic-type: project-doc
 :page-partial:
 
 
-include::1.5@kotlin-sdk:project-docs:page$sdk-release-notes.adoc[tag=all]
+include::3.11@kotlin-sdk:project-docs:page$sdk-release-notes.adoc[tag=all]
