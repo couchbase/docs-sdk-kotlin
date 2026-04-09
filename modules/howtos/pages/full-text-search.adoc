@@ -19,7 +19,7 @@ When searching for words and phrases, you can look for an exact match or similar
 For numbers and dates, you can look for values in a range.
 For geographic coordinates, you can look for values near a location or within a region.
 
-For all kinds of Search Service searches, you can ask the server to count the number of matching documents that belong to different categories, called "facets."
+For all kinds of Search Service queries, you can ask the server to count the number of matching documents that belong to different categories, called "facets."
 
 [#prerequisites]
 == Before You Start
