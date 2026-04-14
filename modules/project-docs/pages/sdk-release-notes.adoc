@@ -29,6 +29,23 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
+[[v3.11.2]]
+=== Version 3.11.2 (13 April 2026)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.11.2/index.html[API Reference] |
+https://docs.couchbase.com/sdk-api/couchbase-core-io-3.11.2/[Core API Reference]
+
+This maintenance release upgrades Netty and Jackson to the latest versions.
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1726[JVMCBC-1726]:
+Upgraded Netty from to `4.2.9` to `4.2.12`.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1723[JVMCBC-1723]:
+Upgraded Jackson from `2.20.1` to `2.21.2`.
+
+
 [[v3.11.1]]
 === Version 3.11.1 (16 February 2026)
 
