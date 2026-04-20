@@ -29,6 +29,18 @@ any changes to expected behavior are noted in the release notes that follow.
 // TODO - add missing colons after JIRA links to bring consistency.
 
 
+
+[[v3.12.0]]
+=== Version 3.12.0 (???? 2026)
+
+
+
+
+
+
+== Kotlin SDK 3.11 Releases
+
+
 [[v3.11.2]]
 === Version 3.11.2 (13 April 2026)
 
