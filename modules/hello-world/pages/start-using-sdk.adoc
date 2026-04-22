@@ -1,9 +1,8 @@
 = Hello World
 :description: Install, connect, try. A quick start guide to get you up and running with Couchbase and the {name-sdk}.
 :page-toc-levels: 3
+:complete-code-include: include::devguide:example$kotlin/StartUsingCapella.kt[]
 :page-partial:
-
-include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
