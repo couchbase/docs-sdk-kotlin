@@ -1,0 +1,239 @@
+= Vector Search
+:page-toclevels: 3
+:description: Vector Search from the SDK, to enable AI integration, semantic search, and use of RAG frameworks.
+
+
+// Note to editors
+// 
+// This page pulls in content from -sdk-common-??
+// and code samples https://github.com/couchbase/docs-sdk-java/tree/release/3.9/modules/devguide/examples/java/SimpleVectorQuery.java
+// and https://github.com/couchbase/docs-sdk-java/tree/release/3.9/modules/devguide/examples/java/Search.java
+// 
+// It can be seen built at https://docs.couchbase.com/java-sdk/3.9/howtos/vector-searching-with-sdk.html
+
+
+[abstract]
+{description}
+
+
+
+
+////
+* Couchbase Server 7.6 introduces Vector Search to enable AI integration, semantic search, and the RAG framework.
+A developer-friendly vector indexing engine exposes a vector database and search functionality.
+With Couchbase Vector Search, you can enable fast and highly accurate semantic search, ground LLM responses in relevant data to reduce hallucinations, and enhance or enable use cases like personalized searches in e-commerce and media & entertainment, product recommendations, fraud detection, and reverse image search.
+You can also enable full access to an AI ecosystem with a Langchain integration, the most popular open-source framework for LLM-driven applications.
++
+A Vector Search database includes:
++
+** Standard Couchbase vertical/horizontal scaling
+** Indexing capable of efficient Insert/Update/Removal of Items (or documents)
+** Storage of raw Embedding Vectors in the Data Service in the documents themselves
+** Querying Vector Indexes (REST and UI via a JSON object/fragment, Couchbase SDKs, and {sqlpp})
+** {sqlpp}/N1QL integration
+** Third-party framework integration: Langchain (later Llamaindex + others)
+** Full support for Replicas Partitions and file-based Rebalance
+////
+
+
+
+Vector Search has been available in Couchbase Capella Operational and self-managed Server since version 7.6, using the Couchbase Search Service.
+Version 8.0 introduces vector query using Global Secondary Indexes (GSI), the Query Service index --
+using either a fast Hyperscale index, or a composite index to combine scalar queries with semantic search.
+
+For fast and scalable vector queries, use one of the above two GSI choices -- detailed in the next section.
+If you don't require the speed and scale of vector query with GSI, or need to combine vector, geo-spatial search, range search, and traditional fuzzy text searches, then consider <<#vector-search-with-the-search-service>>.
+
+
+== Vector Search With the Query Service and GSI
+
+From the SDK, a vector query using GSI is the same as any other query.
+However, you will need to build one or more indexes.
+
+=== Prerequisites
+
+* Couchbase Server 8.0.0 or newer -- or a recent Capella instance.
+
+* Your chosen xref:server:vector-index:use-vector-indexes.adoc[vector index] -- 
+hyperscale or composite.
+
+
+You will need to refer to the xref:server:vector-index:vectors-and-indexes-overview.adoc[] pages for a full discussion of using Vector Indexes with Vector Queries.
+In particular, you will need to xref:server:vector-index:hyperscale-filter.adoc#creating-a-hyperscale-vector-index-with-included-scalar-values[create a Vector Index].
+
+
+
+=== Examples
+
+The xref:server:vector-index:vectors-and-indexes-overview.adoc[] pages contain examples using both hyperscale and compound indexes.
+
+Here is the xref:server:vector-index:hyperscale-vector-index.adoc#query-example[Hyperscale Index] example,
+wrapped inside the {name-sdk} Query API.
+
+.Hyperscale Index Example
+[source,java]
+----
+include::devguide:example$java/SimpleVectorQuery.java[tag=hyperscale,indent=2]
+----
+
+Parameterizing the query, as with xref:sqlpp-queries-with-sdk.adoc#parameterized-queries[regular queries], will allow the reuse of the xref:server:n1ql:n1ql-intro/queriesandresults.adoc#prepare-stmts[Query Plan].
+This can be more efficient, unless you are doing a lot of optimization to your query.
+
+.Parameterized Vector Query
+[source,java]
+----
+include::devguide:example$java/ParameterizedVectorQuery.java[tag=parameterized,indent=2]
+----
+
+
+== Vector Search With the Search Service
+
+Vector search is also implemented using xref:full-text-searching-with-sdk.adoc[Search Indexes], and can be combined with traditional search queries.
+Vector embeddings can be an array of floats or a xref:server:vector-search:run-vector-search-ui.adoc#base64[base64 encoded string].
+
+=== Prerequisites
+
+Couchbase Server 7.6.0
+(7.6.2 for base64-encoded vectors) -- or recent Capella instance.
+
+=== Examples
+
+==== Single vector query
+
+In this first example we are performing a single vector query:
+
+[source,java]
+----
+include::devguide:example$java/Search.java[tag=vector1,indent=0]
+----
+
+Let's break this down.
+We create a `SearchRequest`, which can contain a traditional s  Search query `SearchQuery` and/or the new `VectorSearch`.
+Here we are just using the latter.
+
+The `VectorSearch` allows us to perform one or more `VectorQuery` s.
+
+The `VectorQuery` itself takes the name of the document field that contains embedded vectors ("vector_field" here), plus actual vector query in the form of a `float[]`.
+
+(Note that Couchbase itself is not involved in generating the vectors, and these will come from an external source such as an embeddings API.)
+
+Finally we execute the `SearchRequest` against the Search index "travel-sample-index", which has previously been setup to vector index the "vector_field" field.
+
+This happens to be a scoped index so we are using `scope.search()`.
+If it was a global index we would use `cluster.search()` instead - see <<Scoped vs Global Indexes>>.
+
+It returns the same `SearchResult` detailed earlier.
+
+
+==== Pre-Filters
+
+From Couchbase Server 7.6.4 -- and in Capella Operational clusters -- 
+xref:server:vector-search:pre-filtering-vector-search.adoc#about-pre-filtering[pre-filtering with similarity search] is available.
+This is a non-vector query that the server executes first to get an intermediate result.
+Then it executes the vector query on the intermediate result to get the final result.
+
+[source,java]
+----
+public VectorQuery prefilter(SearchQuery prefilter)
+----
+
+If no prefilter is specified, the server executes the vector query on all indexed documents.
+
+[source,java]
+----
+  .setOptions(VectorQueryOptions.newBuilder()
+                    .setNumCandidates(numCandidates)
+                        .setPrefilter(SearchQuery.newBuilder()
+                                .setMatch(MatchQuery.newBuilder()
+                                        .setMatch("primary").setField("color_wheel_pos"))))
+----
+
+Note that `numCandidates` sets how many similar vectors are returned. 
+If it is not set, then the Cluster's default of `3` will be used --
+this corresponds with `k` on the Server side, for K-Nearest Neighbors.
+
+The prefilter can be any Search Query --
+from a simple match, as above, to a string query:
+
+[source,java]
+----
+  .setPrefilter(SearchQuery.newBuilder()
+                        .setQueryString(QueryStringQuery.newBuilder()
+                                .setQuery("+description:sea -color_hex:fff5ee")))
+----
+
+See the link:++https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/search/vector/VectorQuery.html#prefilter(com.couchbase.client.java.search.SearchQuery)++[API reference].
+
+
+==== Multiple vector queries
+You can run multiple vector queries together:
+
+[source,java]
+----
+include::devguide:example$java/Search.java[tag=vector3,indent=0]
+----
+
+How the results are combined (ANDed or ORed) can be controlled with `vectorSearchOptions().vectorQueryCombination()`.
+
+==== Combining Search and Vector Queries
+
+You can combine a traditional Search query with vector queries:
+
+[source,java]
+----
+include::devguide:example$java/Search.java[tag=vector2,indent=0]
+----
+
+How the results are combined (ANDed or ORed) can be controlled with `vectorSearchOptions().vectorQueryCombination()`.
+
+.Scoring for these hybrid search queries combines the boost multipliers to get to the final score.
+----
+hit_score = (query_1_boost * query_1_hit_score) + (query_2_boost * query_2_hit_score)
+----
+
+
+=== Query Methods
+
+As part of the Search service, you can use the same xref:full-text-searching-with-sdk.adoc#search-queries[Search query methods] as regular Searches.
+See a fuller list, with Vector properties, in the xref:cloud:search:search-request-params.adoc[Capella docs].
+
+
+
+
+
+////
+==== Search Queries
+And note that traditional Search queries, without Vector Search, are also supported with the new `cluster.search()` / `scope.search()` APIs:
+[source,java]
+----
+include::devguide:example$java/Search.java[tag=vector4,indent=0]
+----
+
+////
+
+
+
+
+
+// integrations??
+
+
+
+
+
+== Further Reading
+
+
+=== Vector Query
+
+* xref:server:vector-index:vectors-and-indexes-overview.adoc[Vector Query for AI Apps docs (self-managed Couchbase Server)].
+* xref:cloud::vector-index/vectors-and-indexes-overview.adoc[Vector Query for AI Apps docs (Capella DBaaS)]
+* Vector GSI Query is just like any other query from the SDK to the Query service: link:++https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/Cluster.html#query(java.lang.String,com.couchbase.client.java.query.QueryOptions)++[Java SDK API Reference].
+
+=== Vector Search
+
+* xref:server:vector-search:vector-search.adoc[Vector Search for AI Apps docs (self-managed Couchbase Server)]
+* xref:cloud::vector-search:vector-search.adoc[Vector Search for AI Apps docs (Capella DBaaS)]
+* Vector Search in the https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/search/vector/VectorSearch.html[Java API reference].
+
+// https://developer.couchbase.com/tutorial-python-langchain-pdf-chat
