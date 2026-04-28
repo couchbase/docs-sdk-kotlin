@@ -1,7 +1,7 @@
 = Best Practices
 :description: Speed up your application development, with some best practices for using Couchbase SDKs.
 :page-toclevels: 2
-:page-aliases: concept-docs:errors.adoc,concept-docs:rbac.adoc
+// :page-aliases: concept-docs:errors.adoc,concept-docs:rbac.adoc
 
 
 

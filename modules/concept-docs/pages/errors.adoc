@@ -2,9 +2,9 @@
 :description: When the unexpected happens, take a step-by-step approach.
 :nav-title: Errors & Diagnostics
 :page-topic-type: concept
-:page-aliases: handling-error-conditions
+// :page-aliases: handling-error-conditions
 
-include::project-docs:partial$attributes.adoc[]
+
 
 [abstract]
 {description}
