@@ -12,20 +12,20 @@
 [IMPORTANT]
 .Is This Page for You?
 ====
-This page is to help evaluate the Couchbase Scala SDK, if Scala is not where you spend the majority of your working day. 
-It is aimed at Software Architects, QE folk, managers, and anyone else who needs to run through using the Scala SDK without necessarily being comfortable with the Scala environment.
-If this is not you, head back to the xref:overview.adoc[rest of the Couchbase Scala SDK documentation].
+This page is to help evaluate the Couchbase Kotlin SDK, if Kotlin is not where you spend the majority of your working day. 
+It is aimed at Software Architects, QE folk, managers, and anyone else who needs to run through using the Kotlin SDK without necessarily being comfortable with the Scala environment.
+If this is not you, head back to the xref:overview.adoc[rest of the Couchbase Kotlin SDK documentation].
 ====
 
 
-It may be that you are a Java developer trying out our Scala SDK, or someone else who has a JDK installed, in which case feel free to  skip ahead a section, but note that we will be installing `sdkman` in the next section, and using that to manage Scala installation.
+It may be that you are a Java developer trying out our Kotlin SDK, or someone else who has a JDK installed, in which case feel free to  skip ahead a section, but note that we will be installing `sdkman` in the next section, and using that to manage Scala installation.
 
 
 == JVM Installation
 
-Scala is a JVM language - like Java, Kotlin, and Clojure, it runs on a Java Virtual Machine.
-Running JVM programs necessitates a Java Runtime Environment (JRE), but to develop a Scala or Java app you need a Java Development Kit (JDK).
-The Scala SDK can run on any LTS (long-term support) JDK --
+Kotlin is a JVM language - like Java, Scala, and Clojure, it runs on a Java Virtual Machine.
+Running JVM programs necessitates a Java Runtime Environment (JRE), but to develop a Kotlin or Java app you need a Java Development Kit (JDK).
+The Kotlin SDK can run on any LTS (long-term support) JDK --
 see the xref:project-docs:compatibility.adoc[compatibility page] for full information.
 
 To install the JDK we are going to use a JVM-management tool called `sdkman`.
