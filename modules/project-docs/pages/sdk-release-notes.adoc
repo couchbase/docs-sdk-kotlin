@@ -19,9 +19,6 @@ include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=installation-move
 include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=signed]
 
 
-// tag::all[]
-
-
 [#latest-release]
 == Kotlin SDK 3.11 Releases
 
