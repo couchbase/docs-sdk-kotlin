@@ -4,7 +4,6 @@
 :page-toclevels: 2
 :page-partial:
 
-// tag::all[]
 [abstract]
 {description}
 
@@ -18,6 +17,7 @@ include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=installation-move
 // JVM signed
 include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=signed]
 
+// tag::all[]
 
 [#latest-release]
 == Kotlin SDK 3.11 Releases
