@@ -1,5 +1,5 @@
 = SDK Release Notes
-:description: Release notes for the Couchbase Kotlin Client.
+:description: Release notes, installation instructions, and download archive for the Couchbase {name_platform} Client.
 :navtitle: Release Notes
 :page-toclevels: 2
 :page-partial:
@@ -8,10 +8,18 @@
 [abstract]
 {description}
 
-include::{version-common}@sdk:pages:partial$signed.adoc[tag=signed]
+include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=intro]
 
 
+=== Installation
 
+include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=installation-moved]
+
+// JVM signed
+include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=signed]
+
+
+// tag::all[]
 
 
 [#latest-release]
@@ -1309,8 +1317,7 @@ Updated Netty to version `4.1.77.Final`.
 
 Initial GA release.
 
-//== Older Releases
-//
-//Although https://www.couchbase.com/support-policy/enterprise-software[no longer supported], documentation for older releases continues to be available in our https://docs-archive.couchbase.com/home/index.html[docs archive].
+== Older Releases
 
+include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=older]
 // end::all[]
