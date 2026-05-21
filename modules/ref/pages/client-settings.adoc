@@ -1,11 +1,10 @@
-= Client Settings for the Java SDK
-:description: pass:q[The `ClusterEnvironment` class enables you to configure Java SDK options for security, timeouts, reliability, and performance.]
+= Client Settings for the Kotlin SDK
+:description: pass:q[The `ClusterEnvironment` class enables you to configure Kotlin SDK options for security, timeouts, reliability, and performance.]
 :nav-title: Client Settings
 :page-topic-type: reference
 :page-aliases: ROOT:client-settings, ROOT:env-config
 :page-toclevels: 2
 
-include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
