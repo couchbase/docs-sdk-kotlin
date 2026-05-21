@@ -6,10 +6,9 @@
 
 // Note to editors
 // 
-// This page pulls in content from -sdk-common-
-// and code samples from -example-dir-
+// This page pulls in code samples from various listings in https://github.com/couchbase/docs-sdk-kotlin/blob/release/3.13/modules/devguide/examples/kotlin
 // 
-// It can be seen built at wwww.
+// It can be seen built at https://docs.couchbase.com/kotlin-sdk/current/hello-world/overview.html
 // 
 // See the antora.yml file for the {attributes}
 
@@ -17,8 +16,9 @@
 
 = Couchbase {name-sdk} {sdk_dot_minor}
 
-The Couchbase {name-sdk} allows {name_platform} applications to access a Couchbase cluster --
-The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK. +
+The Couchbase {name-sdk} allows {name_platform} applications to access a Couchbase cluster.
+
+The Couchbase Kotlin SDK is built on top of the same high performance I/O core as the Couchbase Java SDK.
 It provides idiomatic Kotlin features like default arguments, suspend functions, and tasteful DSLs.
 
 
@@ -28,10 +28,11 @@ xref:project-docs:sdk-release-notes.adoc[] |
 {sdk-gh-link}[{name-sdk} source code]
 
 
-NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to make it easier to users to track changes. So the version then jumped from 1.5.x to 3.9.x.
+NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to make it easier to users to track changes.
+So the version then jumped from 1.5.x to 3.9.x.
 
 
-What's the point of a fast and scalable database if it's not easy to develop for?
+A fast and scalable database is even better when it's easy to develop for.
 Couchbase gives you the {name_platform} APIs to work with Capella, our managed solution, or self-managed options in your private Cloud or datacenter.
 
 
@@ -43,9 +44,9 @@ Data Ops (CRUD)::
 +
 --
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/KvOperations.java[indent=0,tag=durability]
+include::devguide:example$kotlin/KvBasic.kt[indent=0,tag=upsertWithExpiry]
 ----
 --
 
@@ -53,9 +54,9 @@ include::devguide:example$java/KvOperations.java[indent=0,tag=durability]
 +
 --
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=named,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=namedParameters,indent=0]
 ----
 --
 
@@ -63,9 +64,9 @@ Vector Search::
 +
 --
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Search.java[tag=vector1,indent=0]
+include::devguide:example$kotlin/FullTextSearch.kt[tag=singleVector,indent=0]
 ----
 --
 ====
@@ -77,16 +78,10 @@ Couchbase is a large platform -- covering many services -- and Couchbase SDKs ar
 and work with Couchbase in more natural ways for your platform.
 Install the SDK, and explore in the way that works best for you.
 
-.Installing the SDK via Maven
-[source,xml,subs="normal, attributes"]
+.Installing the SDK via Gradle (Kotlin)
+[source,kotlin,subs="normal, attributes"]
 ----
-<dependencies>
-    <dependency>
-        <groupId>com.couchbase.client</groupId>
-        <artifactId>java-client</artifactId>
-        <version>{sdk_current_version}</version>
-    </dependency>
-</dependencies>
+implementation("com.couchbase.client:kotlin-client:{kotlin-current-version}")
 ----
 
 
@@ -98,6 +93,9 @@ The Couchbase Java SDK integrates into the Java ecosystem through a number of ex
 * xref:quarkus-extension:ROOT:overview.adoc[Couchbase Quarkus Java Extension]
 * xref:3.5@spark-connector:ROOT:java-api.adoc[Apache Spark Connector]
 ////
+
+
+{empty} +
 
 
 == Exploring the Kotlin SDK
