@@ -80,7 +80,7 @@ Gradle (Kotlin)::
 --
 [source,kotlin,subs="+attributes"]
 ----
-implementation("com.couchbase.client:kotlin-client:{kotlin-current-version}")
+implementation("com.couchbase.client:kotlin-client:{sdk_current_version}")
 ----
 
 --
@@ -89,7 +89,7 @@ Gradle (Groovy)::
 --
 [source,groovy,subs="+attributes"]
 ----
-implementation "com.couchbase.client:kotlin-client:{kotlin-current-version}"
+implementation "com.couchbase.client:kotlin-client:{sdk_current_version}"
 ----
 
 --
@@ -101,7 +101,7 @@ Maven::
 <dependency>
   <groupId>com.couchbase.client</groupId>
   <artifactId>kotlin-client</artifactId>
-  <version>{kotlin-current-version}</version>
+  <version>{sdk_current_version}</version>
 </dependency>
 ----
 --
@@ -202,9 +202,16 @@ Connect to your Couchbase Capella operational cluster (or your local Couchbase C
 Couchbase Capella::
 +
 --
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tags=connect,indent=0]
+    // Replace with your cluster address.
+    val address = "--your-cluster--.cloud.couchbase.com"
+
+    val cluster = Cluster.connect(
+        connectionString = "couchbases://$address", 
+        username = "username", // Replace with credentials
+        password = "password", // of a database user account.
+    )
 ----
 --
 
@@ -212,13 +219,16 @@ Self-Managed Couchbase Server::
 +
 --
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsing.java[tags="connect-info",indent=0]
-----
-[source,java]
-----
-include::devguide:example$java/StartUsing.java[tags="connect-env",indent=0]
+    // Replace with your cluster address.
+    val address = "127.0.0.1"
+
+    val cluster = Cluster.connect(
+        connectionString = "couchbases://$address", 
+        username = "username", // Replace with credentials
+        password = "password", // of a database user account.
+    )
 ----
 --
 
@@ -230,7 +240,7 @@ currently only compatible with recent versions of xref:operator:ROOT:concept-clo
 
 [source,java]
 ----
-Cluster cluster = Cluster.connect(
+val cluster = Cluster.connect(
   "couchbase2://10.12.14.16",
   ClusterOptions
     .create(username, password)
@@ -262,6 +272,8 @@ include::{version-common}@sdk:shared:partial$start-using-sdk.adoc[tag=deeper-con
 
 The `ClusterEnvironment.Builder` is covered more fully on the xref:ref:client-settings.adoc#the-environment-builder[Client Settings] page.
 
+
+////
 [TIP]
 .Simpler Connection
 ====
@@ -271,6 +283,7 @@ There's also a simpler version of `Cluster.connect()` for when you don't need to
 include::devguide:example$java/SimpleConnect.java[tags=connect-string,indent=0]
 ----
 ====
+////
 
 
 === Opening a Bucket
