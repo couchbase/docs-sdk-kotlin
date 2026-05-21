@@ -81,7 +81,7 @@ Install the SDK, and explore in the way that works best for you.
 .Installing the SDK via Gradle (Kotlin)
 [source,kotlin,subs="normal, attributes"]
 ----
-implementation("com.couchbase.client:kotlin-client:{kotlin-current-version}")
+implementation("com.couchbase.client:kotlin-client:{sdk_current_version}")
 ----
 
 
