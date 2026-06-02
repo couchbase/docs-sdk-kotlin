@@ -1,15 +1,15 @@
 name: kotlin-sdk
-version: '3.11'
+version: '3.12'
 title: Kotlin SDK
 start_page: hello-world:overview.adoc
 nav:
 - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
-    server_version: '8.0.0'
-    sdk_current_version: '3.11.1'
-    sdk_dot_minor: 3.11
-    sdk_dot_major: 3.x
+    server_version: '8.0.1'
+    sdk_current_version: '3.12.0'
+    sdk_dot_minor: 3.12
+    sdk_dot_major: '3.x'
     version-server: '8.0'
     version-common: '8.0.1'
     name_platform: 'Kotlin'
