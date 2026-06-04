@@ -20,7 +20,7 @@ include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=signed]
 // tag::all[]
 
 [#latest-release]
-== Kotlin SDK 3.11 Releases
+== Kotlin SDK 3.13 Releases
 
 NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to make it easier for users to track changes.
 *From an API compatibility and risk management perspective, upgrading from 1.5 to 3.9 is the same as a minor version bump.*
@@ -35,9 +35,56 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
-[[v3.12.0]]
-=== Version 3.12.0 (???? 2026)
 
+
+
+== Kotlin SDK 3.12 Releases
+
+
+[[v3.12.0]]
+=== Version 3.12.0 (02 June 2026)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.12.0/index.html[API Reference] |
+https://docs.couchbase.com/sdk-api/couchbase-core-io-3.12.0/[Core API Reference]
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1722[JVMCBC-1722]:
+Simplified the transaction protocol implementation, and changed the threading model to make it easier to reason about thread safety.
+As a happy side effect, internal performance testing shows improved transaction throughput and latency for some workloads.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1729[JVMCBC-1729]:
+When running on Linux, the SDK now sets the `TCP_USER_TIMEOUT` socket option to 20 seconds so it can detect dead connections more quickly.
+By default, the SDK sets the timeout to 20 seconds.
+You can override the default by configuring the new `io.tcpUserTimeout` client setting.
++
+Thank you to community member Omer Cilingir <omer.cilingir@bkm.com.tr> for this contribution.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1732[JVMCBC-1732]:
+Improved the error message when a Full-Text Search request fails due to insufficient user permissions.
+The message now indicates the cause of the failure, instead of "Request failed, but no more information available".
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1725[JVMCBC-1725]:
+Added the `db.system.name` attribute to `OpenTelemetry` spans.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1735[JVMCBC-1735], https://jira.issues.couchbase.com/browse/JVMCBC-1736[JVMCBC-1736]:
+Hardened the code that handles cluster topology changes.
+Improved the diagnostics in this critical area by adding a limited number of new `INFO` log messages that describe topology changes.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1731[JVMCBC-1731]:
+Added a new `DEBUG` log message that shows the options used for socket connections.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1733[JVMCBC-1733]:
+Upgraded to `Netty` `4.2.14`.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1734[JVMCBC-1734]:
+Upgraded to `Jackson `2.21.4`.
+
+==== Bug Fixes
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1728[JVMCBC-1728]:
+The durations reported by some transaction diagnostic messages are no longer inflated by a factor of 1,000,000.
+This bug had no effect on the SDK’s behavior, but could mislead developers reading the logs.
 
 
 
