@@ -3,11 +3,15 @@
 :navtitle: Release Notes
 :page-toclevels: 2
 :page-partial:
+:name_platform_lc: kotlin
 
 
 
 [abstract]
 {description}
+
+include::6.5@sdk:shared:partial$use-latest.adoc[tag=latest]
+
 
 
 == Kotlin SDK 1.2 Releases
