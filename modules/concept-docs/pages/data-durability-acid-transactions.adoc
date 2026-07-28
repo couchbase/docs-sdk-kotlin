@@ -9,7 +9,7 @@
 // This page pulls in content from -sdk-common-
 // and code samples from -example-dir-
 // 
-// It can be seen built at http://docs.couchbase.com/java-sdk/3.7/concept-docs/data-durability-acid-transactions.html
+// It can be seen built at http://docs.couchbase.com/kotlin-sdk/3.12/concept-docs/data-durability-acid-transactions.html
 
 
 [abstract]
@@ -149,9 +149,11 @@ A practical look at this -- using the `durability` parameter with mutating opera
 
 
 This durability is enforced by the cluster.
-Note, if you are working with an older, no longer supported version of Couchbase Server, you may want to look at
-https://docs-archive.couchbase.com/java-sdk/3.3/concept-docs/durability-replication-failure-considerations.html#older-server-versions[client-verified durability in our archived docs].
+Older, no longer supported version of Couchbase Server, relied on client-verified durability.
+The SDK does a simple poll of the replicas and only return once the requested durability level is achieved.
+Further information can be found in the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin.kv/-durability/index.html[API Reference].
 
+Durability is a useful feature but should not be the default for most applications, as there is a performance consideration, and the default level of safety provided by Couchbase will be reasonable for the majority of situations.
 
 
 
