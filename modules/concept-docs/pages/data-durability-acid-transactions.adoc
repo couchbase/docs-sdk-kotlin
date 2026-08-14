@@ -174,7 +174,7 @@ or to return _all_ of the results, for client code to handle any inconsistency, 
 
 === Preferred Server Group Replica Reads
 
-IMPORTANT: Preferred Server Group Replica Reads are only accessible with the {name-sdk} working with Couchbase Server 7.6.2 or newer (Capella or self-managed), from SDK version 3.7.4.
+IMPORTANT: Preferred Server Group Replica Reads are only accessible with the {name-sdk} working with Couchbase Server 7.6.2 or newer (Capella or self-managed), from SDK version 1.3.0.
 
 xref:server:learn:clusters-and-availability/groups.adoc#understanding-server-group-awareness[Server Groups]
 can be used to define subsets of nodes within a Couchbase cluster, which contain a complete set of vbuckets (active or replica).
