@@ -238,7 +238,7 @@ Cloud Native Gateway (CNG)::
 Couchbase's large number of ports across the URLs of many services can be proxied by using a `couchbase2://` endpoint as the connection string --
 currently only compatible with recent versions of xref:operator:ROOT:concept-cloud-native-gateway.adoc[Couchbase Autonomous Operator]:
 
-[source,java]
+[source,kotlin]
 ----
 val cluster = Cluster.connect(
   "couchbase2://10.12.14.16",
@@ -278,7 +278,7 @@ The `ClusterEnvironment.Builder` is covered more fully on the xref:ref:client-se
 .Simpler Connection
 ====
 There's also a simpler version of `Cluster.connect()` for when you don't need to customize the cluster environment:
-[source,java]
+[source,kotlin]
 ----
 include::devguide:example$java/SimpleConnect.java[tags=connect-string,indent=0]
 ----
@@ -290,9 +290,9 @@ include::devguide:example$java/SimpleConnect.java[tags=connect-string,indent=0]
 
 Following successful authentication, open the bucket with:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=bucket,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=bucket,indent=0]
 ----
 
 
@@ -313,9 +313,9 @@ As with the earlier `Cluster.connect`, we use `.get` on the result here for simp
 *Collections* allow documents to be grouped by purpose or theme, according to a specified *scope* -- see data modeling, <<data-modeling,below>>.
 Here we will use the `airport` collection within the `inventory` scope from `travel-sample` bucket as an example.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=collection,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=collection,indent=0]
 ----
 
 
@@ -330,9 +330,9 @@ We'll create a snippet of JSON to work with, using the client's own JSON library
 but you can read about the {name-sdk}'s support for other JSON libraries on the
 xref:howtos:json.adoc[] page.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=json,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=json,indent=0]
 ----
 
 === Insert (Create) and Upsert
@@ -345,9 +345,9 @@ while the `upsert` operation will succeed, replacing the content.
 We need to provide a unique ID as the key, and we'll use a UUID here:
 
 .Creating a new document
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=upsert,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=upsert,indent=0]
 ----
 
 === Get (Read)
@@ -357,9 +357,9 @@ The `get` method reads a document from a collection.
 
 Wrapping the method in a `try` / `catch` is a good way to handle exceptions:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=get,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=get,indent=0]
 ----
 
 ////
@@ -376,16 +376,16 @@ and then accessing the value of the *status* key as a String.
 All three of these operations could fail, so there's quite a lot of error handling code here to do something quite simple.
 One way to improve on this is by using `flatMap`, like this:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=get-map,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=get-map,indent=0]
 ----
 
 Alternatively, you can use a for-comprehension, like so:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=get-for,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=get-for,indent=0]
 ----
 
 Either of these methods will stop on the first failed operation.  So the final returned `Try` contains either 
@@ -402,9 +402,9 @@ For instance:
 ////
 
 .The replace method updates the value of an existing document
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=replace-options,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=replace-options,indent=0]
 ----
 
 ////
@@ -414,9 +414,9 @@ they are immutable data objects that return a copy of themselves on each change.
 The other overload is provided purely for convenience.
 It takes named arguments instead of an Options object, and provides only the most commonly used options:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=replace-named,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=replace-named,indent=0]
 ----
 ////
 
@@ -427,7 +427,7 @@ Otherwise, changes might get lost if two people change the same document at the 
 
 The remove method deletes a document from a collection:
 
-[source,java]
+[source,kotlin]
 ----
 try {
   collection.remove("my-document");
