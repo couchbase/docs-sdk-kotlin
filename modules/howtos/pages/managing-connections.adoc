@@ -4,11 +4,11 @@
 :page-aliases: ROOT:managing-connections.adoc,howtos:multi-network.adoc,ROOT:connecting.adoc,ROOT:connection-advanced.adoc
 :page-toclevels: 2
 
-include::project-docs:partial$attributes.adoc[]
 
 [abstract]
 {description}
 It contains best practices as well as information on TLS/SSL and other advanced connection options.
+
 
 == Connecting to a Cluster
 
@@ -16,9 +16,9 @@ A connection to a Couchbase Server cluster is represented by a `Cluster` object.
 A `Cluster` provides access to Buckets, Scopes, and Collections, as well as various Couchbase services and management interfaces.
 The simplest way to create a `Cluster` object is to call `Cluster.connect()` with a <<connection-strings, connection string>>, username, and password:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=simpleconnect,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=simpleconnect,indent=0]
 ----
 
 NOTE: If you are connecting to a version of Couchbase Server older than 6.5, it will be more efficient if the addresses are those of data (KV) nodes.
@@ -27,31 +27,30 @@ You will in any case, with 7.0 and earlier, need to open a `Bucket` instance bef
 In a production environment, your connection string should include the addresses of multiple server nodes in case some are currently unavailable.
 Multiple addresses may be specified in a connection string by delimiting them with commas:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=multinodeconnect,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=multinodeconnect,indent=0]
 ----
 
 TIP: You don't need to include the address of every node in the cluster.
 The client fetches the full address list from the first node it is able to contact.
 
 
-[#cluster-environment]
 == Cluster Environment
 
 A `ClusterEnvironment` manages shared resources like thread pools, timers, and schedulers.
 It also holds the client settings.
 You can customize the client's behavior by providing a callback that modifies a `ClusterEnvironment.Builder`:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=customenv,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=customenv,indent=0]
 ----
 
 TIP: When you customize the environment using a callback like in the above example, the client creates an environment that is managed completely by the Java SDK.
 This environment is automatically shut down when the associated `Cluster` is disconnected.
 
-[#connection-strings]
+
 == Connection Strings
 
 A Couchbase connection string is a comma-delimited list of IP addresses and/or hostnames, optionally followed by a list of parameters.
@@ -79,7 +78,7 @@ Any client setting with a system property name may also be specified as a connec
 
 WARNING: When creating a `Cluster` using a custom `ClusterEnvironment`, *_connection string parameters are ignored_*, since client settings are frozen when the cluster environment is built.
 
-[#connection-lifecycle]
+
 == Connection Lifecycle
 
 Most of the high-level classes in the Java SDK are designed to be safe for concurrent use by multiple threads.
@@ -96,9 +95,9 @@ If you created any `ClusterEnvironment` instances, call their `shutdown()` metho
 
 If a single application needs to connect to multiple Couchbase Server clusters, it is possible to reduce the SDK's resource consumption by creating a single `ClusterEnvironment` and sharing it between the `Clusters`:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=shareclusterenvironment,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=shareclusterenvironment,indent=0]
 ----
 
 [WARNING]
@@ -114,6 +113,8 @@ Instead, you are responsible for shutting it down after disconnecting all cluste
 TIP: When connecting to a single cluster, it's usually better to customize the `ClusterEnvironment` by <<cluster-environment,providing a configuration callback>>.
 That way, the SDK automatically shuts down the environment for you, and you can customize the environment with connection string parameters and Java system properties.
 
+
+
 [#alternate-addresses]
 == Alternate Addresses and Custom Ports
 
@@ -128,17 +129,17 @@ A node configured in this way will advertise two addresses: one for connecting f
 On the client side, the externally visible ports must be used when connecting.
 If the external ports are not the default, you can specify custom ports in the connection string when calling `Cluster.connect()`.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/managing_connections.java[tag=managing_connections_5,indent=0]
+include::devguide:example$kotlin/managing_connections.java[tag=managing_connections_5,indent=0]
 ----
 
 For nodes that do not have the KV service, you can connect using a custom manager port instead.
 Notice how `=manager` appears after the port number, identifying it as a manager port:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/managing_connections.java[tag=managing_connections_6,indent=0]
+include::devguide:example$kotlin/managing_connections.java[tag=managing_connections_6,indent=0]
 ----
 
 TIP: In a deployment that uses multi-dimensional scaling, a custom KV port is only applicable for nodes running the KV service.
@@ -213,9 +214,9 @@ F4+FjEqAEIr1mQepDaNM0gEfVcgd2SzGhC3yhYFBAH//8W4DUot5ciEhoBs=
 
 The next step is to enable encryption and pass it the path to the certificate file.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=tls,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=tls,indent=0]
 ----
 
 If you want to verify it's actually working, you can use a tool like [.cmd]`tcpdump`.
@@ -245,7 +246,7 @@ link:++https://docs.couchbase.com/sdk-api/couchbase-core-io/com/couchbase/client
 
 For example:
 
-[source,java]
+[source,kotlin]
 ----
 Cluster cluster = Cluster.connect(
   connectionString,
@@ -325,9 +326,9 @@ include::{version-common}@sdk:shared:partial$dnssrv-pars.adoc[tag=dnssrv-rev]
 DNS SRV bootstrapping is enabled by default in the {name-sdk}.
 In order to make the SDK use the SRV records, you need to pass in the hostname from your records (here `example.com`):
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=dnssrv,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=dnssrv,indent=0]
 ----
 
 If the DNS SRV records could not be loaded properly you'll get the exception logged and the given host name will be used as a A record lookup.
@@ -355,16 +356,16 @@ To prevent those early timeouts from happening, you can use the `waitUntilReady`
 
 If you are working at the _Cluster_ level, then add to the `cluster()` in the xref:#connecting-to-a-cluster[earlier example]:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/managing_connections.java[tag=managing_connections_8,indent=0]
+include::devguide:example$kotlin/managing_connections.java[tag=managing_connections_8,indent=0]
 ----
 
 Or more fully:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ClusterExample.java[tag=managing_connections_9,indent=0]
+include::devguide:example$kotlin/ClusterExample.java[tag=managing_connections_9,indent=0]
 ----
 
 If you are working at the _Bucket_ level, then the https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/Bucket.html#waitUntilReady-java.time.Duration-[Bucket-level `waitUntilReady`] does the same as the Cluster-level version,
@@ -396,23 +397,23 @@ The `bucket()` method of an `AsyncCluster` returns an `AsyncBucket`, while the `
 
 So if you are connecting to the bucket synchronously but then want to switch over to asynchronous data operations, you can do it like this:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=blockingtoasync,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=blockingtoasync,indent=0]
 ----
 
 On the other hand, you can use the Async API right from the beginning:
 // todo use tabs here?
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=asynccluster,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=asynccluster,indent=0]
 ----
 
 Here's the same example, but using the Reactive API instead of the Async API:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ManagingConnections.java[tag=reactivecluster,indent=0]
+include::devguide:example$kotlin/ManagingConnections.java[tag=reactivecluster,indent=0]
 ----
 
 
