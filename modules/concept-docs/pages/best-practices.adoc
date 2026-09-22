@@ -123,6 +123,16 @@ See the xref:howtos:concurrent-async-apis.adoc[Async & Reactive APIs page] for d
 
 
 
+=== Bulk Get, Multi-Get, and Network Latency
+
+include::{version-common}@sdk:shared:partial$best-practices.adoc[tag=bulk-get]
+
+
+==== When to Use Bulk Get
+
+include::{version-common}@sdk:shared:partial$best-practices.adoc[tag=bulk-get-async-platform]
+
+
 == Error Handling
 
 Best practices for error handling in Java depend somewhat upon your choice of API: 
