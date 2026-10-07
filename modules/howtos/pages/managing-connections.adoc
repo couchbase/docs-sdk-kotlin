@@ -18,7 +18,7 @@ The simplest way to create a `Cluster` object is to call `Cluster.connect()` wit
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=simpleconnect,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=simpleconnect,indent=0]
 ----
 
 NOTE: If you are connecting to a version of Couchbase Server older than 6.5, it will be more efficient if the addresses are those of data (KV) nodes.
@@ -29,7 +29,7 @@ Multiple addresses may be specified in a connection string by delimiting them wi
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=multinodeconnect,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=multinodeconnect,indent=0]
 ----
 
 TIP: You don't need to include the address of every node in the cluster.
@@ -44,7 +44,7 @@ You can customize the client's behavior by providing a callback that modifies a 
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=customenv,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=customenv,indent=0]
 ----
 
 TIP: When you customize the environment using a callback like in the above example, the client creates an environment that is managed completely by the Java SDK.
@@ -97,7 +97,7 @@ If a single application needs to connect to multiple Couchbase Server clusters, 
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=shareclusterenvironment,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=shareclusterenvironment,indent=0]
 ----
 
 [WARNING]
@@ -216,7 +216,7 @@ The next step is to enable encryption and pass it the path to the certificate fi
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=tls,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=tls,indent=0]
 ----
 
 If you want to verify it's actually working, you can use a tool like [.cmd]`tcpdump`.
@@ -328,7 +328,7 @@ In order to make the SDK use the SRV records, you need to pass in the hostname f
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=dnssrv,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=dnssrv,indent=0]
 ----
 
 If the DNS SRV records could not be loaded properly you'll get the exception logged and the given host name will be used as a A record lookup.
@@ -399,21 +399,21 @@ So if you are connecting to the bucket synchronously but then want to switch ove
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=blockingtoasync,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=blockingtoasync,indent=0]
 ----
 
 On the other hand, you can use the Async API right from the beginning:
 // todo use tabs here?
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=asynccluster,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=asynccluster,indent=0]
 ----
 
 Here's the same example, but using the Reactive API instead of the Async API:
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ManagingConnections.java[tag=reactivecluster,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=reactivecluster,indent=0]
 ----
 
 

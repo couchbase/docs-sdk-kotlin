@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// tag::complete-code[]
 // tag::imports[]
 import com.couchbase.client.core.error.CouchbaseException
 import com.couchbase.client.kotlin.Cluster
@@ -117,3 +118,4 @@ fun main() = runBlocking {
 
     cluster.disconnect()
 }
+// end::complete-code[]

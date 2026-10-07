@@ -54,7 +54,7 @@ include::{version-common}@sdk:shared:partial$start-using-sdk.adoc[tag=before]
 === Prerequisites
 
 * You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
-The SDK requires Kotlin 2.1.0 or later.
+The SDK requires Kotlin 2.4.0 or later.
 
 * You will need Java 8 or later.
 We recommend running the latest Java LTS version with the highest patch version available.
@@ -241,29 +241,13 @@ currently only compatible with recent versions of xref:operator:ROOT:concept-clo
 [source,kotlin]
 ----
 val cluster = Cluster.connect(
-  "couchbase2://10.12.14.16",
-  ClusterOptions
-    .create(username, password)
-    .environment(env)
+        connectionString = "couchbase2://10.12.14.16", 
+        username = "username",
+        password = "password",
 )
 ----
 
 Read more on the xref:howtos:managing-connections.adoc#cloud-native-gateway[Connections] page.
---
-
-Quarkus::
-+
---
-Our  xref:quarkus-extension:ROOT:overview.adoc[Couchbase Quarkus Java Extension docs] cover installing and connecting with the Quarkus extension in detail,
-but if you already have Quarkus installed and a project ready (with `quarkus-couchbase` in your `pom.xml` or `build.gradle`),
-then your `src/main/resources/application.properties` file needs to contain:
-
-[source,properties]
-----
-quarkus.couchbase.connection-string=localhost
-quarkus.couchbase.username=username
-quarkus.couchbase.password=password
-----
 --
 ====
 
@@ -455,86 +439,3 @@ both
 
 
 include::{version-common}@sdk:shared:partial$start-using-sdk.adoc[tag=what-next]
-
-
-
-
-
-
-
-
-////
-== Hello Couchbase
-
-Here's an example that shows how to execute a {sqlpp} (formerly N1QL) query and get a document from the Key Value (KV) service.
-
-[{tabs}]
-====
-Couchbase Capella::
-+
---
-This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] free tier operational cluster, which has the `travel-sample` bucket installed by default.
-
-(If you're not using Couchbase Capella, click the **Local Couchbase Server** tab above.)
-
-Before running the example:
-
-* Replace the `address` variable with the address of your Capella cluster.
-
-* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
-
-[source,kotlin]
-----
-include::example$HelloCloud.kt[]
-----
-<1> For Capella, the connection string starts with `couchbases://` (note the final 's') to enable a secure connection with TLS.
-
---
-Local Couchbase Server::
-+
---
-
-This version of the example assumes you are connecting to a single-node Couchbase Server cluster running on your local computer.
-
-Before running the example:
-
-* Install the `travel-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample bucket].
-
-* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
-You can use the administrator credentials you chose when setting up the cluster.
-
-[source,kotlin]
-----
-include::example$HelloWorld.kt[]
-----
---
-
-====
-
-
-
-////
-[TIP]
-.Connecting to Cloud Native Gateway, for Kubernetes or OpenShift
-====
-Couchbase's large number of ports across the URLs of many services can be proxied by using a `couchbase2://` endpoint as the connection string -- read more on the xref:howtos:managing-connections.adoc#cloud-native-gateway[Connections] page.
-====
-////
-
-
-[#additional-resources]
-== Additional Resources
-
-To see more documentation, select a chapter from the navigation sidebar on the left.
-
-Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum].
-
-The https://couchbase.live[Couchbase Playground] has Kotlin examples you can edit and run in your web browser.
-
-There are more https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
-
-The API reference is {kotlin-api-link}[here].
-
-Couchbase welcomes community contributions to the Kotlin SDK.
-The source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
-////
