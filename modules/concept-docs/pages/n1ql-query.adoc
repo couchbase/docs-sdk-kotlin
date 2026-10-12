@@ -1,10 +1,8 @@
 = Querying with {sqlpp}
 :description: Parallel data management for complex queries over many records, using a familiar SQL-like syntax.
 :nav-title: Querying with {sqlpp}
-:page-topic-type: howto
-:page-aliases: ROOT:n1ql-query,ROOT:prepared-statements,ROOT:querying
 
-include::project-docs:partial$attributes.adoc[]
+
 
 [abstract]
 {description}
@@ -17,9 +15,9 @@ include::{version-common}@sdk:shared:partial$n1ql-queries.adoc[tag=intro]
 include::{version-common}@sdk:shared:partial$n1ql-queries.adoc[tag=prepared]
 The maximum client-side query cache size is 5000 entries.
 
-[source,java]
+[source,kotlin]
 ----
-include::example$N1qlQueryExample.java[tag=n1ql_query_1,indent=0]
+include::devguide:example$kotlin/N1qlQueryExample.kt[tag=n1ql_query_1,indent=0]
 ----
 
 
@@ -65,9 +63,9 @@ For more information, see xref:7.1@server:n1ql:n1ql-language-reference/covering-
 
 You can also create and define indexes in the SDK using:
 
-[source,java]
+[source,kotlin]
 ----
-include::example$N1qlQueryExample.java[tag=n1ql_query_2,indent=0]
+include::devguide:example$kotlin/N1qlQueryExample.kt[tag=n1ql_query_2,indent=0]
 ----
 
 
@@ -91,9 +89,9 @@ and indexes it for all of the applicable indexes (in this case, those that have 
 
 Building deferred indexes can also be done via the SDK:
 
-[source,java]
+[source,kotlin]
 ----
-include::example$N1qlQueryExample.java[tag=n1ql_query_3,indent=0]
+include::devguide:example$kotlin/N1qlQueryExample.kt[tag=n1ql_query_3,indent=0]
 ----
 
 
@@ -106,9 +104,9 @@ include::7.1@server:learn:page$services-and-indexes/indexes/index-replication.ad
 
 Consider the following snippet:
 
-[source,java]
+[source,kotlin]
 ----
-include::example$N1qlQueryExample.java[tag=n1ql_query_4,indent=0]
+include::devguide:example$kotlin/N1qlQueryExample.kt[tag=n1ql_query_4,indent=0]
 ----
 
 The above query may not return the newly inserted document because it has not yet been indexed.
@@ -116,9 +114,9 @@ The query is issued immediately after document creation, and in this case the Qu
 
 If the above code is modified to use _REQUEST_PLUS_, query processing will wait until all updates have been processed and recalculated into the index from the point in time the query was received:
 
-[source,java]
+[source,kotlin]
 ----
-include::example$N1qlQueryExample.java[tag=n1ql_query_5,indent=0]
+include::devguide:example$kotlin/N1qlQueryExample.kt[tag=n1ql_query_5,indent=0]
 ----
 
 This gives the application developer more control over the balance between performance (latency) and consistency,
