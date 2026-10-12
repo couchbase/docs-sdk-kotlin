@@ -21,9 +21,9 @@ The default implementation aggregates and logs request and response metrics.
 By default the metrics will be emitted every 10 minutes, but you can customize the emit interval as well.
 Here is an example with `emitInterval` set at 30 seconds:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Metrics.java[tag=metrics-enable-custom,indent=0]
+include::devguide:example$kotlin/Metrics.kt[tag=metrics-enable-custom,indent=0]
 ----
 
 Once enabled, there is no further configuration needed. The `LoggingMeter` will emit the collected request statistics every interval.
@@ -67,15 +67,15 @@ Each report contains one object for each service that got used and is further se
 For each service / host combination, a total amount of recorded requests is reported, as well as percentiles from a histogram in microseconds. 
 The meta section on top contains information such as the emit interval in seconds so tooling can later calculate numbers like requests per second.
 
-The `LoggingMeter` can be configured on the environment as shown above.
+The `LoggingMeter` is configured with the `loggingMeter` block of the cluster environment configuration, as shown above.
 The following table shows the currently available properties:
 
-.LoggingMeterConfig Properties
+.loggingMeter Properties
 [options="header"]
 |====
 | Property       | Default | Description
-| `enabled`   | false | If the `LoggingMeter` should be enabled.
-| `emitInterval` | 600 seconds | The interval where found orphans are emitted.
+| `enabled`   | true | If the `LoggingMeter` should be enabled.
+| `emitInterval` | 600 seconds | The interval at which the collected metrics are emitted.
 |====
 
 
@@ -112,7 +112,24 @@ To do this, first add this to your Maven, or the equivalent to your build tool o
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-sdk</artifactId>
     </dependency>
+    <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-exporter-otlp</artifactId>
+    </dependency>
 </dependencies>
+----
+
+Or, with Gradle (Kotlin DSL):
+
+[source,kotlin]
+----
+dependencies {
+    implementation(platform("io.opentelemetry:opentelemetry-bom:1.17.0"))
+    implementation("com.couchbase.client:metrics-opentelemetry:0.4.4")
+    implementation("io.opentelemetry:opentelemetry-api")
+    implementation("io.opentelemetry:opentelemetry-sdk")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+}
 ----
 
 In addition, you'll need to get the metrics data into your metrics backend.
@@ -126,11 +143,12 @@ As that library is in alpha, here we will instead show how to send OpenTelemetry
 This aligns well with tracing, where a recommended approach is also to send OpenTelemetry spans into `opentelemetry-collector`, where they can be processed and forwarded elsewhere.
 See xref:howtos:observability-tracing.adoc[the Request Tracing documentation] for more information.
 
-For metrics, add this logic to the application:
+For metrics, add this logic to the application.
+The Kotlin SDK's environment configuration has a `meter` property, which accepts the `OpenTelemetryMeter` that wraps the OpenTelemetry object:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Metrics.java[tag=metrics-otel-prometheus,indent=0]
+include::devguide:example$kotlin/Metrics.kt[tag=metrics-otel-prometheus,indent=0]
 ----
 
 
@@ -238,15 +256,29 @@ To do this, first add this to your Maven, or the equivalent to your build tool o
 </dependency>
 ----
 
+Or, with Gradle (Kotlin DSL):
+
+[source,kotlin]
+----
+dependencies {
+    implementation("com.couchbase.client:metrics-micrometer:0.4.4")
+    implementation("io.prometheus:simpleclient:0.16.0")
+    implementation("io.prometheus:simpleclient_httpserver:0.16.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.5")
+    // Gives improved histograms for Micrometer when on classpath
+    implementation("org.hdrhistogram:HdrHistogram:2.1.12")
+}
+----
+
 You can now create a Micrometer registry and pass it into the SDK.
 Here we're using a Prometheus Micrometer registry, and setting up an HTTP server inside the application that will run on port 10000 and which Prometheus can scrape.
 
 But Micrometer of course, like OpenTelemetry, can support many more metrics backends than Prometheus.
 See the Micrometer documentation for details.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/MetricsMicrometer.java[tag=metrics-micrometer-prometheus,indent=0]
+include::devguide:example$kotlin/MetricsMicrometer.kt[tag=metrics-micrometer-prometheus,indent=0]
 ----
 
 
@@ -283,3 +315,4 @@ All being well, Prometheus (the UI is available on http://localhost:9090) should
 (Though a real deployment will generally use another tool, such as Grafana, for visualization.)
 
 If this fails, check http://localhost:9090/api/v1/targets to see if Prometheus is unable to contact the application.
+

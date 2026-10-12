@@ -1,7 +1,5 @@
 = Health Check
 :description: pass:q[Health Check provides `ping()` and `diagnostics()` tests for the health of the network and the cluster.]
-:page-aliases: concept-docs:health-check.adoc
-// :page-aliases: ROOT:health-check.adoc
 :page-toclevels: 2
 
 
@@ -34,56 +32,78 @@ In addition to its use as a monitoring tool, a regular `Ping` can be used in an 
 
 At its simplest, `ping` provides information about the current state of the connections in the Couchbase Cluster, by actively polling:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/HealthCheck.java[tag=ping-basic]
+include::devguide:example$kotlin/HealthCheck.kt[tag=ping-basic,indent=0]
 ----
 
-This will print the latency for each socket (endpoint) connected per service. More information is available on the classes. 
-Usually though, you want to regularly perform the ping and then print the results into the log. 
+`ping` is a `suspend` function, so call it from a coroutine.
+This will print the latency for each socket (endpoint) connected per service.
+More information is available on the `EndpointPingReport` class, such as each endpoint's `state` and any `error`.
+Usually though, you want to regularly perform the ping and then print the results into the log.
 This is made easy by the `exportToJson` method:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/HealthCheck.java[tag=ping-json-export]
+include::devguide:example$kotlin/HealthCheck.kt[tag=ping-json-export,indent=0]
 ----
 
-By default the SDK will ping all services available on the target cluster. 
-You can customize the type of services to ping through the `PingOptions`:
+By default the SDK will ping all services available on the target cluster.
+You can customize the type of services to ping through the optional `services` parameter:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/HealthCheck.java[tag=ping-options]
+include::devguide:example$kotlin/HealthCheck.kt[tag=ping-options,indent=0]
 ----
 
 In this example, only the Query service is included in the ping report.
 
-Note that `ping` is available both at the `Cluster` and the `Bucket` level. 
+`ping` also accepts an optional `reportId`, which is included in the report to help you correlate it with your own logs, and a `common` parameter for setting a custom timeout or retry strategy.
+
+Note that `ping` is available both at the `Cluster` and the `Bucket` level.
 The difference is that at the cluster level, the key-value (Data) service might not be
-included based on the Couchbase Server version in use. 
-If you want to make sure the key-value service is included, perform it at the bucket level.
+included based on the Couchbase Server version in use.
+If you want to make sure the key-value service is included, perform it at the bucket level:
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/HealthCheck.kt[tag=ping-bucket,indent=0]
+----
 
 
 == Diagnostics
 
-Diagnostics works in a similar fashion to `ping` in the sense that it returns a report of how all the sockets/endpoints are doing, but the main difference is that it is passive. 
-While a ping proactively sends an operation across the network, a diagnostics report just returns whatever current state the client is in. 
+Diagnostics works in a similar fashion to `ping` in the sense that it returns a report of how all the sockets/endpoints are doing, but the main difference is that it is passive.
+While a ping proactively sends an operation across the network, a diagnostics report just returns whatever current state the client is in.
 This makes it much cheaper to call on a regular basis, but does not provide any live insight into network slowness, etc.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/HealthCheck.java[tag=diagnostics-basic]
+include::devguide:example$kotlin/HealthCheck.kt[tag=diagnostics-basic,indent=0]
 ----
 
-Because it is passive, diagnostics are only available at the `Cluster` level and cover everything in the current SDK state. Also, because it is not doing any I/O you cannot proactively filter the list of services that are returned, all you need to do is look only at the ones that are interesting to you.
+Because it does no I/O, `diagnostics` is a regular function rather than a `suspend` function, so you can call it from anywhere.
+Each endpoint's `lastActivity` is a nullable Kotlin `Duration`, which is null if the endpoint has not been used yet.
 
-A `DiagnosticsResult` has one interesting property over a ping result -- it provides a cumulative `ClusterState` through the `state()` method. 
+Because it is passive, diagnostics are only available at the `Cluster` level and cover everything in the current SDK state.
+Also, because it is not doing any I/O you cannot proactively filter the list of services that are returned, all you need to do is look only at the ones that are interesting to you.
+
+A `DiagnosticsResult` has one interesting property over a ping result -- it provides a cumulative `ClusterState` through the `state` property.
 The state can be `ONLINE`, `DEGRADED` or `OFFLINE`.
-This allows to give a single, although simplistic, view on how your cluster is doing from a client point of view. 
+This allows to give a single, although simplistic, view on how your cluster is doing from a client point of view.
 The state is determined as follows:
 
  * If at least one socket is open and all of them are connected, it is `ONLINE`
  * If at least one is connected but not all are, it is `DEGRADED`
  * If none are connected, it is `OFFLINE`
 
+[source,kotlin]
+----
+include::devguide:example$kotlin/HealthCheck.kt[tag=diagnostics-state,indent=0]
+----
+
 You can iterate over the individual states and apply a different algorithm if needed.
+
+TIP: To wait until the cluster or a bucket reaches a particular state, rather than polling `diagnostics` yourself, use `cluster.waitUntilReady(timeout)` or `bucket.waitUntilReady(timeout)`.
+Both accept optional `services` and `desiredState` parameters.
+

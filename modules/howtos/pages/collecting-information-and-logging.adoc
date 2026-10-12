@@ -1,20 +1,25 @@
 = Logging
 :description: Configuring logging; working with the event bus; and log redaction for data security.
 :page-toclevels: 3
-:page-aliases: ROOT:logging.adoc
+
+
+
 
 [abstract]
 {description}
 
 
-The Couchbase Java SDK logs events and also provides an event bus that transmits information about the behavior of your database system, including system and metric events.
+The Couchbase Kotlin SDK logs events and also provides an event bus that transmits information about the behavior of your database system, including system and metric events.
 
 == Logging
 
-The Couchbase Java SDK uses https://www.slf4j.org[SLF4J], a logging façade that lets you use any logging framework that has an SLF4J binding.
-This includes popular Java logging frameworks like Log4j, Logback, and `java.util.logging` (JUL).
+The Couchbase Kotlin SDK uses https://www.slf4j.org[SLF4J], a logging façade that lets you use any logging framework that has an SLF4J binding.
+This includes popular JVM logging frameworks like Log4j, Logback, and `java.util.logging` (JUL).
 
 To see log messages from the Couchbase SDK, add an SLF4J binding as a dependency of your project.
+
+NOTE: The SDK always logs through SLF4J.
+The `fallbackToConsole`, `consoleLogLevel`, and `disableSlf4J` properties of the cluster environment's `logger { }` DSL block are deprecated, and have no effect.
 
 [slf4j-api-versions]
 .SLF4J API versions
@@ -42,6 +47,28 @@ The following example uses the binding for SLF4J API version 2.
 
 [{tabs}]
 ====
+Gradle (Kotlin)::
++
+--
+.`*build.gradle.kts*`
+[source,kotlin]
+----
+// Add this to the `dependencies` section:
+implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.0")
+----
+NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by `log4j-slf4j2-impl`, even though the Couchbase SDK declares a dependency on SLF4J API 1.7.
+--
+Gradle (Groovy)::
++
+--
+.`*build.gradle*`
+[source,groovy]
+----
+// Add this to the `dependencies` section:
+implementation "org.apache.logging.log4j:log4j-slf4j2-impl:2.22.0"
+----
+NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by `log4j-slf4j2-impl`, even though the Couchbase SDK declares a dependency on SLF4J API 1.7.
+--
 Maven::
 +
 --
@@ -70,17 +97,6 @@ Add these as children of the `dependencies` element.
 TIP: An alternate way to ensure Maven uses the correct version of the SLF4J API is to declare the dependency on `log4j-slf4j2-impl` *before* the dependency on the Couchbase SDK.
 See the Maven documentation on https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Transitive_Dependencies[Transitive Dependencies] to learn more about how Maven resolves transitive dependency version conflicts.
 --
-Gradle::
-+
---
-.`*build.gradle*`
-[source,groovy]
-----
-// Add this to the `dependencies` section:
-implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.22.0")
-----
-NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by `log4j-slf4j2-impl`, even though the Couchbase SDK declares a dependency on SLF4J API 1.7.
---
 ====
 
 [configuring-log4j]
@@ -91,7 +107,7 @@ Log4j 2 needs a configuration file to tell it which messages to log, where to wr
 Here's an example `log4j2.xml` configuration file you can use to get started.
 It tells Log4j 2 to log messages to the console, and sets some reasonable logging levels.
 
-TIP: If your project uses the https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html[Maven Standard Directory Layout], this file should live in the `src/main/resources` directory.
+TIP: If your project uses the standard Gradle or Maven directory layout, this file should live in the `src/main/resources` directory.
 This makes it available at runtime as a class path resource.
 
 .src/main/resources/log4j2.xml
@@ -135,6 +151,28 @@ If `java.util.logging` (JUL) is your preferred logging framework, add the `slf4j
 
 [{tabs}]
 ====
+Gradle (Kotlin)::
++
+--
+.`*build.gradle.kts*`
+[source,kotlin]
+----
+// Add this to your `dependencies` section:
+implementation("org.slf4j:slf4j-jdk14:2.0.9")
+----
+NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by `slf4j-jdk14`, even though the Couchbase SDK declares a dependency on SLF4J API 1.7.
+--
+Gradle (Groovy)::
++
+--
+.`*build.gradle*`
+[source,groovy]
+----
+// Add this to your `dependencies` section:
+implementation "org.slf4j:slf4j-jdk14:2.0.9"
+----
+NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by `slf4j-jdk14`, even though the Couchbase SDK declares a dependency on SLF4J API 1.7.
+--
 Maven::
 +
 --
@@ -163,18 +201,6 @@ Add these as children of the `dependencies` element.
 TIP: An alternate way to ensure Maven uses the correct version of the SLF4J API is to declare the dependency on `slf4j-jdk14` *before* the dependency on the Couchbase SDK.
 See the Maven documentation on https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Transitive_Dependencies[Transitive Dependencies] to learn more about how Maven resolves transitive dependency version conflicts.
 --
-
-Gradle::
-+
---
-.`*build.gradle*`
-[source,groovy]
-----
-// Add this to your `dependencies` section:
-implementation("org.slf4j:slf4j-jdk14:2.0.9")
-----
-NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by `slf4j-jdk14`, even though the Couchbase SDK declares a dependency on SLF4J API 1.7.
---
 ====
 
 
@@ -182,11 +208,11 @@ NOTE: Gradle automatically uses the correct SLF4J API 2.x dependency required by
 ==== Configuring a JUL Logger
 
 By default, JUL logs INFO level and above.
-If you want to set it to DEBUG (or the JUL equivalent: Fine) you can do it like this programmatically before initializing the `Cluster` object (or creating a custom `ClusterEnvironment`):
+If you want to set it to DEBUG (or the JUL equivalent: Fine) you can do it like this programmatically before connecting to the `Cluster` (or creating a custom `ClusterEnvironment`):
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/CollectingInformationAndLogging.java[tag=collecting_information_and_logging_1,indent=0]
+include::devguide:example$kotlin/CollectingInformationAndLogging.kt[tag=collecting_information_and_logging_1,indent=0]
 ----
 
 TIP: We do not recommend using JUL in production.
@@ -197,7 +223,7 @@ Dedicated logging frameworks like Log4j 2 and Logback are more configurable, and
 [NOTE]
 .Event Bus Stability
 ====
-While the event bus functionality itself is considered stable, the events themselves may not be. 
+While the event bus functionality itself is considered stable, the events themselves may not be.
 Please only consume the events you are interested in, and add error handling code in case of unexpected behavior.
 ====
 
@@ -205,53 +231,70 @@ Log files are neither fun to wade through, nor do they have any kind of real-tim
 To make them usable, normally their content is piped into systems such as http://graphite.wikidot.com[Graphite^] or https://www.elastic.co/products/logstash[Logstash^].
 Since most setups interleave all different kinds of log messages, it makes it very hard to see whats going on, let alone perform post-disaster analysis.
 
-To make the situation better and ultimately improve supportability, the Java SDK provides you with the ability to tap into all events before they get logged and consume them in "real-time".
+To make the situation better and ultimately improve supportability, the Kotlin SDK provides you with the ability to tap into all events before they get logged and consume them in "real-time".
 
-You can subscribe to the event bus, and receive and react to events as they are happening; 
+You can subscribe to the event bus, and receive and react to events as they are happening;
 not when someone parses the logs, sends them into another system where an alarm is triggered, and eventually a sysadmin checks what is going on.
 The time delta between an event happening and reacting to it can thus be substantially decreased.
 
+The event bus belongs to the `ClusterEnvironment`.
+To subscribe to it, create the environment yourself and connect using `Cluster.connectUsingSharedEnvironment`.
 The following code subscribes to the event bus and prints out all events that are published on it with INFO or WARN level:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/CollectingInformationAndLogging.java[tag=collecting_information_and_logging_3,indent=0]
+include::devguide:example$kotlin/CollectingInformationAndLogging.kt[tag=collecting_information_and_logging_3,indent=0]
 ----
+<1> Creating the environment with `ClusterEnvironment.builder().build()` gives you a reference to it, so you can subscribe to its event bus before connecting.
+You can still configure the environment by passing a DSL block to `builder { ... }`.
+<2> Because you created the environment, connect with `connectUsingSharedEnvironment`.
 
-This leads to output similar to this:
+When you create an environment yourself, you are responsible for shutting it down after every `Cluster` using it has disconnected:
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/CollectingInformationAndLogging.kt[tag=shutdown,indent=0]
+----
+<1> `shutdownSuspend` is the suspending equivalent of `shutdown`.
+Once shut down, an environment cannot be restarted.
+
+This leads to output similar to this (descriptions abbreviated):
 
 ----
-CoreCreatedEvent{severity=INFO, category=com.couchbase.core, duration=PT0S, createdAt=43700573062858, description={"clientVersion":"3.0.0","clientGitHash":"a3d7a770","coreVersion":"2.0.0","coreGitHash":"a3d7a770","userAgent":"couchbase-java/3.0.0 (Mac OS X 10.14.6 x86_64; OpenJDK 64-Bit Server VM 1.8.0_202-b08)","maxNumRequestsInRetry":32768,"ioEnvironment":{"nativeIoEnabled":true,"eventLoopThreadCount":6,"eventLoopGroups":["KQueueEventLoopGroup"]},"ioConfig":{"captureTraffic":[],"mutationTokensEnabled":true,"networkResolution":"auto","dnsSrvEnabled":true,"tcpKeepAlivesEnabled":true,"tcpKeepAliveTimeMs":60000,"configPollIntervalMs":2500,"kvCircuitBreakerConfig":"disabled","queryCircuitBreakerConfig":"disabled","viewCircuitBreakerConfig":"disabled","searchCircuitBreakerConfig":"disabled","analyticsCircuitBreakerConfig":"disabled","managerCircuitBreakerConfig":"disabled","numKvConnections":1,"maxHttpConnections":12,"idleHttpConnectionTimeoutMs":30000,"configIdleRedialTimeoutMs":300000},"compressionConfig":{"enabled":true,"minRatio":0.83,"minSize":32},"securityConfig":{"tlsEnabled":false,"nativeTlsEnabled":true,"hasTrustCertificates":false,"trustManagerFactory":null},"timeoutConfig":{"kvMs":2500,"kvDurableMs":10000,"managementMs":75000,"queryMs":75000,"viewMs":75000,"searchMs":75000,"analyticsMs":75000,"connectMs":10000,"disconnectMs":10000},"loggerConfig":{"customLogger":null,"fallbackToConsole":false,"disableSlf4j":false,"loggerName":"CouchbaseLogger","diagnosticContextEnabled":false},"orphanReporterConfig":{"emitIntervalMs":10000,"sampleSize":10,"queueLength":1024},"retryStrategy":"BestEffortRetryStrategy","requestTracer":"OwnedSupplier"}, context=CoreContext{coreId=1}, cause=null}
+CoreCreatedEvent{severity=INFO, category=com.couchbase.core, duration=PT0S, createdAt=43700573062858, description={"clientVersion":"...","userAgent":"couchbase-kotlin/...", ...}, context=CoreContext{coreId=1}, cause=null}
 
 NodeConnectedEvent{severity=INFO, category=com.couchbase.node, duration=PT0S, createdAt=43700609755560, description=Node connected, context=NodeContext{coreId=1, managerPort=8091, remote=127.0.0.1}, cause=null}
 
 BucketOpenedEvent{severity=INFO, category=com.couchbase.core, duration=PT0.281625729S, createdAt=43701036027888, description=Opened bucket "travel-sample", context=CoreContext{coreId=1}, cause=null}
 ----
 
-We recommend filtering on the specific events you are interested in, since most of the time only a subset of the published ones will be of use to you. 
+We recommend filtering on the specific events you are interested in, since most of the time only a subset of the published ones will be of use to you.
 Also, there are new events added between releases so make sure these new events do not break your functionality.
 
 [WARNING]
 .Blocking Warning
 ====
-If you consume the `EventBus` you MUST NOT block inside the consumer callback. It will stall all other consumers. 
+If you consume the `EventBus` you MUST NOT block inside the consumer callback. It will stall all other consumers.
 If you must write into a blocking sink like a blocking HTTP API you MUST write it onto a different thread with a non-blocking queue first.
+
+The callback is a plain (non-suspending) function, so you cannot call `suspend` functions from it directly.
+To hand events to coroutine code, send them to a buffered `Channel` with `trySend`, and consume the channel in a separate coroutine.
 ====
 
 
 == Log Redaction
 
-Redacting logs is a two-stage process. 
+Redacting logs is a two-stage process.
 If you want to redact client logs (for example before handing them off to the Couchbase Support team) you first need to enable log redaction in your application.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/CollectingInformationAndLogging.java[tag=collecting_information_and_logging_4,indent=0]
+include::devguide:example$kotlin/CollectingInformationAndLogging.kt[tag=collecting_information_and_logging_4,indent=0]
 ----
 
 Different redaction levels are supported -- please see the `RedactionLevel` enum description for more information.
 
-Note that you need to run this command before any of the SDK code is initialized so all of the logs are captured properly. 
+Note that you need to run this command before any of the SDK code is initialized so all of the logs are captured properly.
 Once the SDK writes the logs with the tags to a file, you can then use the xref:7.2@server:cli:cbcli/cblogredaction.adoc[`cblogredaction` tool] to obfuscate the log.
 
 * You may wish to read more on Log Redaction xref:7.2@server:manage:manage-logging/manage-logging.adoc#understanding_redaction[in the Server docs].
@@ -259,7 +302,7 @@ Once the SDK writes the logs with the tags to a file, you can then use the xref:
 == SDK Telemetry from the Server
 
 In addition to Tracing and other metrics, and client logging, SDK telemetry is also sent to the Server -- available from 8.0, and in new Capella Operational clusters -- for ingestion with other Prometheus metrics.
-Capella Operatioal exposes these metrics through the UI.
+Capella Operational exposes these metrics through the UI.
 
 For self-managed Server, collection can be disabled and enabled through the REST API:
 
