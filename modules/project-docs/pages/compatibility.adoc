@@ -11,7 +11,7 @@ Plus notes on Cloud, networks, and AWS Lambda.
 
 
 The Kotlin SDK requires Java 8 or later (_Java 25 is recommended_),
-and Kotlin 2.1.0 or later.
+and Kotlin 2.2.0 or later.
 
 
 == Platform Compatibility
