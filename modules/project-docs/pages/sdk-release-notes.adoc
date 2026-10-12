@@ -15,7 +15,7 @@ include::{version-common}@sdk:pages:partial$signed.adoc[tag=signed]
 
 
 [#latest-release]
-== Kotlin SDK 3.12 Releases
+== Kotlin SDK 3.13 Releases
 
 NOTE: From 3.9.0 on, all Couchbase JVM SDKs have an aligned version number to make it easier for users to track changes.
 *From an API compatibility and risk management perspective, upgrading from 1.5 to 3.9 is the same as a minor version bump.*
@@ -27,6 +27,24 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 // TODO - add missing colons after JIRA links to bring consistency.
+
+
+
+
+[[v3.13.0]]
+=== Version 3.13.0 (??? October 2026)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.13.0/index.html[API Reference] |
+https://docs.couchbase.com/sdk-api/couchbase-core-io-3.13.0/[Core API Reference]
+
+
+
+
+
+
+== Kotlin SDK 3.12 Releases
+
+
 
 [[v3.12.3]]
 === Version 3.12.3 (10 September 2026)
