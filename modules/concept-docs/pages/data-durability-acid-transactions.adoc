@@ -20,11 +20,9 @@ You want to query your data, but does that always mean a {sqlpp} query to the Qu
 The CRUD API of the {sqlpp} Query service is mirrored by the Data Service's API, but without the need for indexes, and using a binary protocol gives faster access than streaming JSON from the Query Service.
 
 
-[source,java]
+[source,kotlin]
 ----
-collection.upsert("my-document", JsonObject.create().put("doc", true),
-    upsertOptions().durability(DurabilityLevel.MAJORITY));
-}
+include::devguide:example$kotlin/KvBasic.kt[indent=0,tag=get]
 ----
 
 At its heart, a database is in the business of storing data and letting you query and retrieve it.
@@ -174,7 +172,7 @@ or to return _all_ of the results, for client code to handle any inconsistency, 
 
 === Preferred Server Group Replica Reads
 
-IMPORTANT: Preferred Server Group Replica Reads are only accessible with the {name-sdk} working with Couchbase Server 7.6.2 or newer (Capella or self-managed), from SDK version 1.3.0.
+IMPORTANT: Preferred Server Group Replica Reads are only accessible with the {name-sdk} working with Couchbase Server 7.6.2 or newer (Capella or self-managed), from SDK version 1.4.8.
 
 xref:server:learn:clusters-and-availability/groups.adoc#understanding-server-group-awareness[Server Groups]
 can be used to define subsets of nodes within a Couchbase cluster, which contain a complete set of vbuckets (active or replica).
@@ -278,15 +276,19 @@ setting a bucket's `maxExpiry` to `0` (the default) means it will never expire.
 The table in the xref:{version-server}@server:learn:data/expiration.adoc#expiration-setting-priorities[expiration documentation]
 covers the interaction between a document’s expiration setting and the `maxExpiry` settings of the collection and bucket that contain it.
 
+////
 TIP: In earlier releases of the SDK, `maxTTL` was used for setting the time to live.
 This method has been deprecated.
 Please use `maxExpiry` at the bucket and collection level.
+////
+
 
 // TODO check they all use MAX32INT -- 2147483648 seconds
 
+
 === Collection No-Expiry Option
 
-From Java SDK 3.5.3 with Capella (and self-managed Server from 7.6.0), setting a `maxExpiry` of `-1` on a collection will prevent it from expiring, even when its containing bucket has reached expiry time.
+From Kotlin SDK 1.2.3, setting a `maxExpiry` of `-1` on a collection will prevent it from expiring, even when its containing bucket has reached expiry time.
 Again, see the table in the xref:{version-server}@server:learn:data/expiration.adoc#expiration-setting-priorities[expiration documentation].
 
 === Changing a Document, but Not the Expiry

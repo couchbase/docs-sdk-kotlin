@@ -1,402 +1,447 @@
 = Data Operations
-:description: The Key Value (KV) service, sometimes called the "data service", is often the best way to get or change a document when you know its ID.
-:page-topic-type: howto
-:page-toclevels: 2
-:page-pagination: full
+:description: The Data Service offers the simplest way to retrieve or mutate data where the key is known.
+:page-toclevels: 3
 
-include::project-docs:partial$attributes.adoc[]
+
 
 [abstract]
 {description}
-Here we cover CRUD operations and locking strategies.
+Here we cover CRUD operations, document expiration, and optimistic locking with CAS -- 
+as well as KV Range scan, for querying without an index.
 
-[#prerequisites]
-== Before You Start
 
-You should know xref:howtos:connecting.adoc[how to connect to a Couchbase cluster].
 
-You should know about xref:howtos:organizing-documents.adoc[documents and collections, and how to get a Couchbase `Collection` object].
+The complete code sample used on this page can be downloaded from https://github.com/couchbase/docs-sdk-java/blob/release/{sdk_dot_minor}/modules/devguide/examples/java/KvOperations.java[here].
 
-You should know https://kotlinlang.org/docs/coroutines-basics.html[how to call a Kotlin suspending function].
 
-[#basic-kv-ops]
-== CRUD Operations
+// intro
+include::{version-common}@sdk:shared:partial$data-service.adoc[tag=intro]
 
-The KV service has https://en.wikipedia.org/wiki/CRUD[CRUD] operations for working with whole documents.
-This table shows the Couchbase KV method for each CRUD operation.
 
-[%autowidth,cols="<,1*<"]
+Every KV (Data Service) method in the Kotlin SDK is a Kotlin _suspending function_, so you call it from inside a coroutine.
+The Kotlin SDK has no separate asynchronous or reactive API like the Java SDK's `collection.async()` and `collection.reactive()`; suspending functions cover those use cases.
+If you are not yet comfortable with suspending functions, see the https://kotlinlang.org/docs/coroutines-basics.html[Kotlin coroutines guide^].
+ 
+
+//{sqlpp} vs. Key-Value
+include::{version-common}@sdk:shared:partial$data-service.adoc[tag=sql-vs-kv]
+
+
+
+
+== JSON
+ 
+The Couchbase Server is a key-value store that's agnostic to what's stored, but it's very common to store JSON so most of the examples below will focus on that use-case.
+ 
+In Kotlin, you can pass a `Map` or `List` as document content, and the SDK's JSON serializer encodes it transparently.
+When you read a document back, use `contentAs<T>()` on the result — for example `contentAs<Map<String, Any?>>()`.
+The SDK also supports custom serializers and transcoders.
+See xref:howtos:json.adoc[Working with JSON] for details, including how to use your own classes as document content.
+ 
+Kotlin `Map` and `List` values are immutable.
+Where the Java examples mutate a `JsonObject` in place, the Kotlin examples build a new `Map` --
+for example with the `+` operator -- and pass that to `replace`.
+ 
+ 
+
+
+== CRUD
+
+
+// Sub-Document Operations
+include::{version-common}@sdk:shared:partial$data-service.adoc[tag=subdoc]
+
+
+
+
+The table shows the Collection method for each CRUD operation.
+ 
+[cols="1,2"]
 |===
-h| CRUD operation  h| Couchbase KV method
- | Create           | <<insert,Collection.insert>>
- | Read             | <<get,Collection.get>>
- | Update           | <<replace,Collection.replace>>
- | Delete           | <<remove,Collection.remove>>
- | Create or Update | <<upsert,Collection.upsert>>
+| CRUD operation | Couchbase KV method
+ 
+| Create | `Collection.insert`
+| Read | `Collection.get`
+| Update | `Collection.replace`
+| Delete | `Collection.remove`
+| Create or update | `Collection.upsert`
 |===
 
-[#insert]
-=== Insert (Create)
 
-The `insert` method creates a new document in a collection.
 
-This method has two required parameters:
+=== Upsert
 
-* *`id: String`* - The new document's ID.
-* *`content: Any?`* - The new document's value.
+Here is a simple upsert operation, which will insert the document if it does not exist, or replace it if it does.
 
-If the collection already has a document with the same ID, the `insert` method throws `DocumentExistsException`.
-
-For example, let's pretend we're writing a program that helps a storyteller remember details about characters in a story.
-
-To start, let's insert a document that represents a character in a story.
-The document ID is the character's name.
-The document content is some information about the character.
-
-.Creating a new document
+We'll use a `Map` for simplicity, but you can use different types if you want.
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=insert,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=upsert,indent=0]
 ----
-<1> The content doesn't have to be a `Map`.
-To learn more, please read xref:howtos:json.adoc[].
-
-[#get]
-=== Get (Read)
-
-The `get` method reads a document from a collection.
-
-It has one required parameter:
-
-* *`id: String`* - The ID of the document to get.
-
-If the collection does not have a document with this ID, the `get` method throws `DocumentNotFoundException`.
-
-.Reading a document
+ 
+=== Insert
+ 
+Insert works very similarly to upsert, but will fail if the document already exists with a `DocumentExistsException`:
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=get,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=insert,indent=0]
 ----
+ 
+=== Retrieving documents
 
-[#replace]
-=== Replace (Update)
 
-The `replace` method updates the value of an existing document.
-
-This method has two required parameters:
-
-* *`id: String`* - The ID of the document to replace.
-* *`content: Any?`* - The document's new value.
-
-If the collection does not have a document with this ID, the `replace` method throws `DocumentNotFoundException`.
-
-.Updating an existing document
+We've tried upserting and inserting documents into Couchbase Server, let's get them back:
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=replace,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=get-simple,indent=0]
 ----
-
-CAUTION: When you replace a document, it's usually good to use <<optimistic-locking,optimistic locking>>.
-Otherwise, changes might get lost if two people change the same document at the same time.
-
-[#remove]
-=== Remove (Delete)
-
-The `remove` method deletes a document from a collection.
-
-This method has one required parameter:
-
-* *`id: String`* - The ID of the document to remove.
-
-If the collection does not have a document with this ID, the `remove` method throws `DocumentNotFoundException`.
-
-.Deleting a document
+ 
+If the document does not exist, `get` throws `DocumentNotFoundException`.
+If you would rather get `null`, call `getOrNull` instead:
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=remove,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=get-or-null,indent=0]
 ----
-
-[#upsert]
-=== Upsert (Create or Update)
-
-The word "upsert" is a https://simple.wikipedia.org/wiki/Portmanteau_word[portmanteau word] that means "**up**date or in**sert**."
-
-If the document already exists, the `upsert` method updates (replaces) it.
-If the document does not exist, the `upsert` method inserts it.
-
-This method has two required parameters:
-
-* *`id: String`* - The ID of the document to create or update.
-* *`content: Any?`* - The document's new value.
-
-.Creating or updating a document
+ 
+Of course if we're getting a document we probably want to do something with the content:
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=upsert,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=get,indent=0]
 ----
+ 
+Once we have a `GetResult`, we can use `contentAs<T>()` to turn the content back into a `Map`, a `List`, or another type.
+The type argument tells the SDK what to decode the JSON into.
 
-You can run this example many times.
-It should succeed each time, because the `upsert` method does not care if the document already exists.
 
-[#bulk]
-== Bulk Operations
 
-The Couchbase Kotlin SDK does not have bulk operations.
-However, coroutines make it easy to do many things at the same time.
-
-Here is an example `bulkGet` function you can add to your project.
-This function can get many documents at the same time.
-
-.Extension function `Collection.bulkGet`
+==== Selecting fields
+ 
+If you only need part of a document, use the `project` parameter to name the paths to fetch.
+The SDK fetches only those paths, instead of the whole document.
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=bulkGet,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=get-project,indent=0]
 ----
-<1> Starting a new coroutine scope ensures the `bulkGet` method does not return until all coroutines launched inside the scope finish.
-<2> Start a new coroutine for each `get` operation, so all the gets happen at the same time.
-<3> The semaphore prevents sending too many requests at once.
-You can change the function to take the semaphore as a parameter, and pass the same semaphore whenever calling the method.
-If you do that, the concurrency limit will be shared by all bulk requests.
-
-After adding the `Collection.bulkGet` extension function to your project, call it like this:
-
-.Calling the `Collection.bulkGet` extension function
+ 
+This feature is implemented using the sub-document API, which you can also use directly for more sophisticated access to parts of a document.
+ 
+=== Replace
+ 
+A very common sequence of operations is to `get` a document, modify its contents, and `replace` it.
+ 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=callBulkGet,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=replace,indent=0]
 ----
+ 
+We `upsert` an initial version of the document.
+We don't care about the exact details of the result, just whether it succeeded or not, so we do not assign a return value.
+Then we `get` it back and read its content with `contentAs`.
+A Kotlin `Map` is immutable, so we make a new `Map` containing the changes.
+Finally, we `replace` the document with the updated content and the CAS value from the `get`.
+ 
+If the collection has no document with that ID, `replace` throws `DocumentNotFoundException`.
 
-TIP: You can copy the `bulkGet` extension function and change it to do other operations, like upsert.
 
-[#locking]
-== Locking
 
-[NOTE]
-.What is an "atomic" operation?
-====
-An atomic operation succeeds completely or fails completely.
-When Couchbase Server works on an atomic operation, you never see the result of incomplete work.
-A failed atomic operation never changes a document.
+==== What is CAS?
 
-If two or more atomic operations use the same document, Couchbase Server works on only one of the operations at a time.
-====
+include::{version-common}@sdk:shared:partial$data-service.adoc[tag=cas]
 
-A KV operation is atomic.
-However, a _sequence_ of KV operations is _not_ atomic.
 
-You can use a locking strategy to make a sequence of KV operations on the same document succeed or fail together.
-This makes the sequence of operations behave like a single atomic operation.
 
-The locking strategy can be optimistic or pessimistic.
+=== Retrying on CAS failures
 
-[#optimistic-locking]
-=== Optimistic Locking
 
-When you use optimistic locking, you assume nobody else will change a document while you work with it.
-If somebody else _does_ change the document, start again.
-Keep trying until you succeed or decide to give up.
+But if we get a CAS mismatch, we usually just want to retry the operation.
+Let's see a more advanced `replace` example that shows one way to handle this:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=replace-retry,indent=0]
+----
+ 
+Note that this code is simplistic to show how CAS retry works in general.
+Because `get` and `replace` are suspending functions, the loop stops if the coroutine is cancelled.
+But if the `replace` above never works, you would always get a CAS mismatch, and never break out of the loop -- so a limit on the number of attempts, or a timeout, would be a reasonable addition.
+ 
+In later chapters we cover more sophisticated approaches to this, including retry with backoff and bailing out after a maximum amount of tries.
+All these should be in place for robust, production ready code.
+ 
 
-How do you tell if the document changed?
-Every Couchbase document has a Compare-And-Swap (CAS) value.
-The CAS value is a number that changes every time the document changes.
 
-Most KV operations that change documents have a `cas` parameter.
-If you set this parameter, the operation fails with `CasMismatchException` if the document's current CAS value does not match the `cas` parameter value.
-
-Optimistic locking can make `get` and `replace` behave like an atomic unit:
-
-1. Read a document using the `get` method.
-Remember the document's CAS value.
-
-2. Use the old document content to make new content.
-For example, add or remove a field, or change a field value.
-
-3. Replace the document content using the `replace` method. Pass the new content and the CAS value from step 1.
-If `replace` throws `CasMismatchException`, start again at step 1.
-
-If you pass a CAS value to `replace`, the operation succeeds only if nobody changed the document after you got the CAS value.
-
-This example shows how to safely change a document, without losing changes made by somebody else at the same time:
+=== Pessimistic locking
+ 
+Optimistic locking assumes nobody else will change the document while you work with it, and starts again if somebody does.
+Pessimistic locking does the opposite: it stops anyone except you from changing the document.
+ 
+`getAndLock` fetches the document and locks it.
+While the document is locked, only a caller who knows the CAS value returned by `getAndLock` can modify it.
 
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=replaceWithCas,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=pessimistic-lock,indent=0]
 ----
-<1> This example keeps trying until the coroutine is cancelled.
-Another choice would be to set a time limit, or limit the number of tries.
-
-[#collection-mutate]
-[TIP]
-====
-You don't need to write all of that code every time you want to use optimistic locking.
-Instead, you can define your own extension function like this:
-
-[source,kotlin]
-----
-include::example$KvBasic.kt[tag=mutate,indent=0]
-----
-
-Now the optimistic locking example from before looks like this:
-
-[source,kotlin]
-----
-include::example$KvBasic.kt[tag=callingMutate,indent=0]
-----
-====
-
-[#pessimistic-locking]
-=== Pessimistic Locking
-
-Pessimistic locking stops anyone except you from changing a document.
-
-When a document is locked, only people who know the CAS value from `getAndLock` can modify the document.
-
-The lock is released when you change the document using the correct CAS, or when you call the `unlock` method.
-
-.Changing a document safely, using pessimistic locking
-[source,kotlin]
-----
-include::example$KvBasic.kt[tag=pessimisticLocking,indent=0]
-----
-<1> The lock is automatically released (unlocked) after this duration.
+ 
+The lock is released when you change the document using the correct CAS, when you call `unlock`, or automatically when the lock time expires.
 The lock time can be as short as 1 second, or as long as 30 seconds.
-<2> `replace` automatically releases the lock.
-Alternatively, you can release the lock by calling `unlock`.
-
+ 
 Pessimistic locking is expensive.
 It's usually better to use optimistic locking.
+ 
+=== Removing
+ 
+Removing a document is straightforward:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=remove,indent=0]
+----
+ 
+Like `replace`, `remove` also optionally takes the CAS value if you want to make sure you are only removing the document if it hasn't changed since you last fetched it.
 
 
 
-== Selecting Fields
 
-The `project()` feature allows you to select a couple of fields -- specify a path or paths within the JSON document, and this list is fetched rather than the whole document.
+
+== Durability
+ 
+Writes in Couchbase are written to a single node, and from there the Couchbase Server will take care of sending that mutation to any configured replicas.
+ 
+The optional `durability` parameter, which all mutating operations accept, allows the application to wait until this replication (or persistence) is successful before proceeding.
+ 
+It can be used like this:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=durability,indent=0]
+----
+ 
+If no argument is provided (the same as `Durability.none()`) the application will report success back as soon as the primary node has acknowledged the mutation in its memory.
+However, we recognize that there are times when the application needs that extra certainty that especially vital mutations have been successfully replicated, and the other durability options provide the means to achieve this.
+
+
+If you need stronger durability guarantees,
+you can take advantage of the xref:concept-docs:durability-replication-failure-considerations.adoc#durable-writes[Durable Write] feature, 
+in which Couchbase Server (self-managed or Capella) will only return success to the SDK after the requested replication level has been achieved. 
+The three replication levels are:
+
+* `Durability.majority()` -- The server will ensure that the change is available in memory on the majority of configured replicas.
+* `Durability.majorityAndPersistToActive()` -- Majority level, plus persisted to disk on the active node.
+* `Durability.persistToMajority()` -- Majority level, plus persisted to disk on the majority of configured replicas.
+ 
+The options are in increasing levels of safety.
+Note that nothing comes for free -- for a given node, waiting for writes to storage is considerably slower than waiting for it to be available in-memory.
+These tradeoffs, as well as which settings may be tuned, are discussed in the xref:concept-docs:durability-replication-failure-considerations.adoc#durable-writes[durability page].
+
+
+
+
+
+This durability is enforced by the cluster.
+A client verified durability API was necessary with older, no longer supported version of Couchbase Server.
+Here the SDK does a simple poll of the replicas and only return once the requested durability level is achieved.
+
+This API is still avaialable, but there are few cases where you would want to use this less performant option.
+Should you need to consider it, here is an example:
 
 [source,kotlin]
 ----
-	project​(Iterable<String> paths)
-	project​(String path, String... morePaths)
+include::devguide:example$kotlin/KvOperations.kt[tag=durability-observed,indent=0]
 ----
 
-This feature is implemented by internally using our subdocument API, which you can access directly -- for more sophisticated selection of portions of a document -- xref:subdocument-operations.adoc[].
 
-
-== Preferred Server Group Replica Reads
-
-IMPORTANT: Preferred Server Group Replica Reads are only accessible with the {name-sdk} working with Couchbase Server 7.6.2 or newer (Capella or self-managed), from SDK version 1.4.8.
-
-xref:server:learn:clusters-and-availability/groups.adoc#understanding-server-group-awareness[Server Groups]
-can be used to define subsets of nodes within a Couchbase cluster, which contain a complete set of vbuckets (active or replica).
-As well as high availability use cases, Servre Groups can also be used to keep much traffic within the same cloud Availability Zone.
-
-For Capella users with high data volumes, egress charges for reads from other Availability Zones (AZ) in AWS can be a significant cost.
-The {name-sdk}, when making read replica requests, can make a request to a preferred Server Group --
-in this case the local AZ --
-and set to always read from a copy of the document in this local zone.
-This is done by putting cluster nodes in the same AZ into the same 
-xref:server:learn:clusters-and-availability/groups.adoc#server-groups-and-vbuckets[Server Group], too.
-
-This may mean the application has to be tolerant of slight inconsistencies,
-until the local replica catches up.
-Alternatively, it may demand a stronger level of durability, to ensure that all copies of a document are consistent before they are accessible --
-provided that this is `persistToMajority` with xref:server:learn:data/durability.adoc#majority[no more than one replica].
-
-Couchbase does not recommend this feature where read consistency is critical,
-but with the appropriate durability settings consistency can be favored ahead of availability.
-
-[CAUTION]
-.Replicas, Nodes, and Server Groups
-====
-Implicit in the rules for durability, and the process of setting up Server Groups, is the following information -- which we mention here explicitly to ensure it is all noted:
-
-* Moving servers between Server Groups updates the `clustermap` immediately, but to move the data, an administrator *must* perform rebalance. Until the rebalance is complete, the SDK will see and be able to 'use' the new server groups, but the `vBucketMap` may still refer to data in the previous locations.
-
-* The cluster should have enough nodes and group to make sure that copies of the same document are not stored on the same node, and each group has nodes that cover all 1024 vbuckets (in other words, the number of the groups does not exceeds number of the copies: `active+num_replicas`). The Admin UI should emit small yellow warning if the configuration is considered unbalanced.
-
-* Setting *three* replicas for the bucket xref:server:learn:data/durability.adoc#majority[disables durability for sync writes], also precluding the use of
-xref:concept-docs:transactions.adoc[multi-document ACID transactions].
-====
+To stress, durability is a useful feature but should not be the default for most applications, as there is a performance consideration, 
+and the default level of safety provided by Couchbase will be reasonable for the majority of situations.
 
 
 
-[#kv-range-scan]
+
+== Document Expiration
+ 
+Couchbase Server includes an option to have particular documents automatically expire after a set time.
+This can be useful for some use-cases, such as user sessions, caches, or other temporary documents.
+ 
+You can set an expiry from a `kotlin.time.Duration` when creating a document:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=expiry-insert,indent=0]
+----
+ 
+`Expiry.of(duration)` throws an exception if the duration is less than 1 second.
+ 
+If you have already calculated when a document should expire, you can specify the expiry as an `Instant`:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=expiry-insert-instant,indent=0]
+----
+ 
+An instant in the recent past makes the document expire immediately.
+An instant in the distant past (before 1970-02-01) throws an exception.
+ 
+When getting a document from Couchbase Server, the expiry is not included by default, but it can be requested by setting the `withExpiry` parameter to true.
+The result's `expiry` property is `Expiry.None` if the document does not expire, or `Expiry.Absolute` if it does.
+
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=expiry-get,indent=0]
+----
+ 
+Note that when updating the document, special care must be taken to avoid resetting the expiry to zero.
+Set the `preserveExpiry` option when updating the document:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=preserve-expiry,indent=0]
+----
+
+//// 
+Prior to Couchbase 7.0, it's necessary to fetch the previous expiry and set it again:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=expiry-replace,indent=0]
+----
+////
+
+
+Some applications may find `getAndTouch` useful, which fetches a document while updating its expiry field.
+It can be used like this:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=expiry-touch,indent=0]
+----
+
+// See xref:howtos:document-expiry.adoc[Document Expiry] for more.
+
+
+
+
+
+== Atomic Counters
+ 
+The value of a document can be increased or decreased atomically using `collection.binary.increment()` and `collection.binary.decrement()`.
+
+NOTE: Increment & Decrement are considered part of the "binary" API and as such may still be subject to change
+
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=counter,indent=0]
+----
+ 
+The `delta` is an unsigned number (`ULong`), so write literals with a `u` suffix, like `1u`.
+If the counter document does not exist, `initialValue` decides what happens: if it is `null`, the call throws `DocumentNotFoundException`; otherwise the document is created with that value, and that value is returned (the `delta` is ignored).
+
+
+TIP: Setting the document expiry time only works when a document is created, and it is not possible to update the expiry time of an existing counter document with the Increment method -- to do this during an increment, use the `touch` method.
+ 
+See the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-binary-collection/index.html[API Reference^] for full details.
+
+
+
+
+
+// Atomicity Across Data Centers
+
+include::{version-common}@sdk:shared:partial$atomic.adoc[tag=xdcr]
+
+
+== Scoped KV Operations
+
+It is possible to perform scoped key-value operations on named xref:{version-server}@server:learn:data/scopes-and-collections.adoc[`Collections`].
+See the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-collection/index.html[API docs^] for more information.
+ 
+Here is an example showing an upsert in the `users` collection, which lives in the `travel-sample.tenant_agent_00` keyspace:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=named-collection-upsert,indent=0]
+----
+
+
 == KV Range Scan
-
+ 
 A range scan gives you documents from a collection, even if you don't know the document IDs.
 This feature requires Couchbase Server 7.6 or newer.
+
 
 TIP: KV range scan is suitable for use cases that require relatively low concurrency and tolerate relatively high latency.
 If your application does many scans at once, or requires low latency results, we recommend using {sqlpp} (with a primary index on the collection) instead of KV range scan.
 
+// `scanDocuments` returns a `Flow` of results, so you collect it from a coroutine.
 
-[#kv-range-scan-range]
+
 === Range scan
-
+ 
 Here's an example of a KV range scan that gets all documents in a collection:
-
+ 
 .KV Range Scan for all documents in a collection
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=rangeScanAllDocuments,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=rangeScanAllDocuments,indent=0]
 ----
-<1> The `ScanType.range()` method has two optional parameters: `from` and `to`.
+<1> The `ScanType.range()` function has two optional parameters: `from` and `to`.
 If you omit them like in this example, you'll get all documents in the collection.
 These parameters are for advanced use cases; you probably won't need to specify them.
 Instead, it's more common to use the "prefix" scan type shown in the next example.
+ 
 
 
-[#kv-range-scan-prefix]
 === Prefix scan
-
+ 
 KV range scan can also give you all documents whose IDs start with the same prefix.
-
+ 
 Imagine you have a collection where documents are named like this: `<username>::<uuid>`.
 In other words, the document ID starts with the name of the user associated with the document, followed by a delimiter, and then a UUID.
 If you use this document naming scheme, you can use a prefix range scan to get all documents associated with a user.
-
+ 
 For example, to get all documents associated with user "alice", you would write:
-
-.KV Range Scan for all documents in a collection whose IDs start with `alice::`
+ 
+.KV Range Scan for all documents in a collection whose IDs start with "alice::"
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=rangeScanPrefix,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=rangeScanPrefix,indent=0]
 ----
 <1> Note the scan type is *prefix*.
 
-[#kv-range-scan-sample]
+
 === Sample scan
-
+ 
 If you want to get random documents from a collection, use a sample scan.
-
+ 
 .KV Range Scan for 100 random documents
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=rangeScanSample,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=rangeScanSample,indent=0]
 ----
-
-[#kv-range-scan-only-ids]
+<1> In this example, no more than `100` documents are returned.
+ 
 === Get IDs instead of full document
-
+ 
 If you only want the document IDs, call `scanIds()` instead of `scanDocuments()`, like this:
-
+ 
 .KV Range Scan for all document IDs in a collection
 [source,kotlin]
 ----
-include::example$KvBasic.kt[tag=rangeScanAllDocumentIds,indent=0]
+include::devguide:example$kotlin/KvOperations.kt[tag=rangeScanAllDocumentIds,indent=0]
 ----
 <1> Note the call to `scanIds()` instead of `scanDocuments()`.
+ 
+The `scanIds()` function also works with the other scan types described above.
 
-The `scanIds()` methods also works with the other scan types described above.
 
-[#summary]
-== Summary
 
-The Couchbase Key Value (KV) service is the fastest way to work with single documents when you know the document ID.
+== Additional resources
 
-The `insert`, `get`, `replace`, `remove`, and `upsert` methods of the `Collection` object do the standard <<basic-kv-ops,CRUD operations>> on full documents.
-
-When changing a document, use a <<locking,locking strategy>> if the new content depends on the old content.
-<<optimistic-locking,Optimistic locking>> usually performs better than <<pessimistic-locking,pessimistic locking>>.
-
-You can do a KV range scan to get documents even if you don't know their IDs.
-However, it's faster to use {sqlpp} for this.
+include::{version-common}@sdk:shared:partial$data-service.adoc[tag=resources]
