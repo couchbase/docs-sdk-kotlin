@@ -207,16 +207,17 @@ xref:concept-docs:transactions.adoc[multi-document ACID transactions].
 ====
 
 .getReplicaFromPreferredServerGroup example, using Transactions
-[source,java]
+[source,kotlin]
 ----
-    cluster.transactions().run((ctx) -> {
-      TransactionGetResult getResult;
-      try {
-        getResult = ctx.getReplicaFromPreferredServerGroup(collection, id);
-      } catch (DocumentUnretrievableException err) {
-        getResult = ctx.get(collection, id);
-      }      
-    });
+import com.couchbase.client.core.error.DocumentUnretrievableException
+
+cluster.transactions.run {
+    val getResult = try {
+        getReplicaFromPreferredServerGroup(collection, id)
+    } catch (e: DocumentUnretrievableException) {
+        get(collection, id)
+    }
+}
 ----
 
 
