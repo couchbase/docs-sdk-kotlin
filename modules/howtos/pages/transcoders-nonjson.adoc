@@ -1,21 +1,26 @@
 = Transcoders and Non-JSON Documents
 :page-toclevels: 2
-:description: The Java SDK supports common JSON document requirements out-of-the-box.
+:description: The Kotlin SDK supports common JSON document requirements out-of-the-box.
 :nav-title: Using Transcoders
+
+
 
 [abstract]
 {description}
 Custom transcoders and serializers provide support for applications needing to perform advanced operations, including supporting non-JSON data.
 
-The Java SDK uses the concepts of transcoders and serializers, which are used whenever data is sent to or retrieved from Couchbase Server.
+
+
+The Kotlin SDK uses the concepts of transcoders and serializers, which are used whenever data is sent to or retrieved from Couchbase Server.
 
 When sending data to Couchbase, the SDK passes the Object being sent to a transcoder.
-The transcoder can either reject the Object as being unsupported, or convert it into a `byte[]` and a Common Flag.
+The transcoder can either reject the Object as being unsupported, or convert it into a `ByteArray` and a Common Flag.
 The Common Flag specifies whether the data is JSON, a non-JSON string, or raw binary data.
+In the Kotlin SDK, the bytes and the Common Flag are held together in a `Content` object.
 It may, but does not have to, use a serializer to perform the byte conversion.
 
-On retrieving data from Couchbase, the fetched `byte[]` and Common Flag are passed to a transcoder.  
-The transcoder converts the bytes into a concrete class (the application specifies the required type) if possible.  
+On retrieving data from Couchbase, the fetched `ByteArray` and Common Flag are passed to a transcoder.  
+The transcoder converts the bytes into a concrete class (the application specifies the required type, with `contentAs<T>()`) if possible.  
 It may use a serializer for this.
 
 NOTE: Many applications will not need to be aware of transcoders and serializers, as the defaults support most standard JSON use cases.
@@ -24,17 +29,18 @@ The information in this page is only needed if the application has an advanced u
 
 == Default Behaviour
 
-The `ClusterEnvironment` contains a global transcoder and serializer, which by default are  `JsonTranscoder` and `DefaultJsonSerializer`.
+The `ClusterEnvironment` contains a global transcoder and serializer, which by default are  `JsonTranscoder` and `JacksonJsonSerializer`.
 
-`DefaultJsonSerializer` uses the high-performance JSON library https://github.com/FasterXML/jackson[Jackson] for serializing and deserializing byte arrays to and from concrete objects.
+`JacksonJsonSerializer` uses the high-performance JSON library https://github.com/FasterXML/jackson[Jackson] for serializing and deserializing byte arrays to and from concrete objects.
 
-On sending data to Couchbase, `JsonTranscoder` will send Objects to its serializer (`DefaultJsonSerializer` by default) to convert into a `byte[]`.
+On sending data to Couchbase, `JsonTranscoder` will send Objects to its serializer (`JacksonJsonSerializer` by default) to convert into a `ByteArray`.
 The serialized bytes are then sent to the Couchbase Server, along with a Common Flag of JSON.
 
-`JsonTranscoder` will pass any Object to its serializer, apart from a `byte[]`.  
+`JsonTranscoder` will pass any Object to its serializer, apart from a `ByteArray`.  
 It will reject this with an InvalidArgumentException, as it is ambiguous how it should be handled.
+For the same reason, it will not decode into a `ByteArray`: to get the raw bytes of a document, use the `content` property of the result instead of `contentAs<ByteArray>()`.
 
-On retrieving data from Couchbase, `JsonTranscoder` passes the fetched `byte[]` and Common Flag to its serializer (`DefaultJsonSerializer` by default) to convert into a concrete class.
+On retrieving data from Couchbase, `JsonTranscoder` passes the fetched `ByteArray` and Common Flag to its serializer (`JacksonJsonSerializer` by default) to convert into a concrete class.
 
 This table summarizes that information, and this more concise form will be used to describe the other transcoders included in the SDK.
 
@@ -48,7 +54,7 @@ This table summarizes that information, and this more concise form will be used 
 |Results of serializer
 |JSON
 
-|byte[]
+|ByteArray
 |InvalidArgumentException
 |-
 
@@ -58,31 +64,21 @@ This table summarizes that information, and this more concise form will be used 
 |===
 
 
+
 == Using Custom Jackson
 
-As described above, the default serializer (`DefaultJsonSerializer`) uses Jackson for serializing objects.
-(This Jackson dependency is shaded into a different namespace, so that it does not clash with any Jackson used by your application.)
+As described above, the default serializer (`JacksonJsonSerializer`) uses Jackson for serializing objects.
+By default it uses a Jackson `JsonMapper` with default settings, plus the Jackson Kotlin and JDK 8 modules.
+Always import Jackson classes from the `com.fasterxml.jackson` package.
+(The Kotlin SDK includes a repackaged version of Jackson for its own internal use, so your code should never import from `com.couchbase.client.core.deps.com.fasterxml.jackson`.)
 
-If Jackson is on the application's classpath, the SDK will instead automatically default to using this.
-It does this during `ClusterEnvironment` creation: if no serializer has been specified, and if Jackson is detected on the classpath, then a `JacksonJsonSerializer` is used as the global default serializer instead of `DefaultJsonSerializer`.  
-This will create and use a Jackson `ObjectMapper` from the standard `com.fasterxml.jackson.databind` package.
-
-// TODO add this to Transcoding.java file
+To customize Jackson, create your own mapper, and give it to a `JacksonJsonSerializer` when you connect to the cluster.
+If you build a mapper from scratch, remember to register the Jackson Kotlin module, or Kotlin data classes will not work.
 
 .Using a custom JsonMapper
-[source,java]
+[source,kotlin]
 ----
-JsonMapper customMapper = JsonMapper.builder()
-  // add modules or customize other settings
-  .build();
- 
-Cluster cluster = Cluster.connect(
-  connectionString,
-  ClusterOptions.clusterOptions(username, password)
-    .environment(env -> env
-      .jsonSerializer(JacksonJsonSerializer.create(customMapper))
-    )
-);
+include::devguide:example$kotlin/Transcoding.kt[tag=custom-jackson,indent=0]
 ----
 
 
@@ -92,7 +88,8 @@ The RawJsonTranscoder provides the ability for the application to explicitly spe
 This transcoder does not accept a serializer, and always performs straight pass through of the data to the server.
 This enables the application to avoid unnecessary parsing costs when they are certain they are using JSON data.
 
-It only accepts Strings and `byte[]`.
+It only accepts Strings and `ByteArray`.
+When reading, it can only decode into a `String` or a `ByteArray`.
 
 [cols="3", options="header"]
 |===
@@ -104,7 +101,7 @@ It only accepts Strings and `byte[]`.
 |Passthrough
 |JSON
 
-|byte[]
+|ByteArray
 |Passthrough
 |JSON
 
@@ -116,20 +113,21 @@ It only accepts Strings and `byte[]`.
 This transcoder is particularly useful when working with third-party JSON libraries.
 Here we want to use https://github.com/google/gson[Google Gson] for serialization, instead of the default Jackson:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=gson-encode,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=gson-encode,indent=0]
 ----
 
-Since Gson has already done the serialization work, we don't want to use the default `JsonTranscoder`, as this will run the provided String needlessly through `DefaultJsonSerializer` (Jackson).
+Since Gson has already done the serialization work, we don't want to use the default `JsonTranscoder`, as this will run the provided String needlessly through `JacksonJsonSerializer` (Jackson).
 Instead, RawJsonTranscoder is used, which just passes through the serialized bytes, and stores them in Couchbase with the JSON Common Flag set.
 
-Similarly, the same transcoder is used on reading the document, so the raw bytes can be retrieved in a String without going through `DefaultJsonSerializer` (Jackson).  
+Similarly, the same transcoder is used on reading the document, so the raw bytes can be retrieved in a String without going through `JacksonJsonSerializer` (Jackson).  
 Gson can then be used for the deserialization.
+Note that in the Kotlin SDK the transcoder for reading is passed to `contentAs`, not to `get`.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=gson-decode,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=gson-decode,indent=0]
 ----
 
 
@@ -143,12 +141,14 @@ NOTE: It's important to note that the Couchbase Data Platform includes multiple 
 Also note that some simple data types can be stored directly as JSON, without recourse to non-JSON transcoding.
 A valid JSON document can be a simple integer (`42`), string (`"hello"`), array (`[1,2,3]`), boolean (`true`, `false`) and the JSON `null` value.
 
+
+
 === RawStringTranscoder
 
 The RawStringTranscoder provides the ability for the user to explicitly store and retrieve raw string data with Couchbase.
 It can be used to avoid the overhead of storing the string as JSON, which requires two bytes for double quotes, plus potentially more for escaping characters.
 
-Note that this transcoder does not accept a serializer, and always performs straight passthrough of the data to the server.  It only accepts Strings.
+Note that this transcoder does not accept a serializer, and always performs straight passthrough of the data to the server.  It only accepts Strings, and can only decode into a `String`.
 
 [cols="3", options="header"]
 |===
@@ -160,7 +160,7 @@ Note that this transcoder does not accept a serializer, and always performs stra
 |Passthrough
 |String
 
-|byte[]
+|ByteArray
 |InvalidArgumentException
 |-
 
@@ -171,15 +171,17 @@ Note that this transcoder does not accept a serializer, and always performs stra
 
 Here’s an example of using the `RawStringTranscoder`:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=string,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=string,indent=0]
 ----
+
 
 === RawBinaryTranscoder
 
 The RawBinaryTranscoder provides the ability for the user to explicitly store and retrieve raw byte data to Couchbase.
 The transcoder does not perform any form of real transcoding, and does not take a serializer, but rather passes the data through and assigns the appropriate binary Common Flag.
+It only accepts a `ByteArray`, and can only decode into a `ByteArray`.
 
 [cols="3", options="header"]
 |===
@@ -191,7 +193,7 @@ The transcoder does not perform any form of real transcoding, and does not take 
 |InvalidArgumentException
 |-
 
-|byte[]
+|ByteArray
 |Passthrough
 |Binary
 
@@ -202,50 +204,69 @@ The transcoder does not perform any form of real transcoding, and does not take 
 
 Here’s an example of using the `RawBinaryTranscoder`:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=binary,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=binary,indent=0]
 ----
+
+
+=== Content
+
+Every transcoder produces a `Content` object, which holds the bytes to send to the server, and the Common Flag.
+You can also create a `Content` yourself, using the helper functions `Content.json()`, `Content.string()` and `Content.binary()`.
+If the value you pass to `upsert`, `insert` or `replace` is already a `Content`, the SDK sends it as it is, and does not use a transcoder at all.
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/Transcoding.kt[tag=content-passthrough,indent=0]
+----
+
+To get the raw bytes of a document, whatever its Common Flag, read the `content` property of the `GetResult`.
+
+
 
 == Custom Transcoders and Serializers
 
 More advanced transcoding needs can be accomplished if the application implements their own transcoders and serializers.
+
 
 === Creating a Custom Serializer
 
 We saw above one example of using Google Gson with the `RawJsonTranscoder`, but it requires the application to explicitly serialize and deserialize objects each time.  
 By creating a custom Gson serializer, we can avoid this.
 
-It’s easy to create a serializer.  Simply implement the `JsonSerializer` interface’s three methods:
-[source,java]
+It’s easy to create a serializer.  Simply implement the `JsonSerializer` interface’s two methods:
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=gson-serializer,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=gson-serializer,indent=0]
 ----
 
-NOTE: The `TypeRef` overload is optional, and is only used if the application explicitly uses it with for example `result.contentAs(new TypeRef<String> {})`, which is an uncommon requirement.  
-It is fine to throw an exception from this method rather than implementing it, if it is not needed.
+NOTE: The `TypeRef` describes the type the application asked for, including generic type arguments such as `List<User>`.  
+Its `type` property is a `java.lang.reflect.Type`, which Gson accepts directly.  
+A serializer that can't handle some types, such as generic ones, can throw an exception for them, as the MessagePack example below does.
 
 In this case, there is no need to provide a custom transcoder.
-The <<Default Behaviour,table for `JsonTranscoder`>> shows that it already does what we need: for any Object (that’s not a `byte[]`), it sends it to its serializer, and then stores the result in Couchbase with the JSON Common Flag set.
+The <<Default Behaviour,table for `JsonTranscoder`>> shows that it already does what we need: for any Object (that’s not a `ByteArray`), it sends it to its serializer, and then stores the result in Couchbase with the JSON Common Flag set.
 All we need to do is change the serializer, as so:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=gson-custom-encode,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=gson-custom-encode,indent=0]
 ----
 
 And for decoding:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=gson-custom-decode,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=gson-custom-decode,indent=0]
 ----
 
-If you want to use Gson for all JSON serialization, you can register it as the global JSON serializer when creating a `ClusterEnvironment`:
+If you want to use Gson for all JSON serialization, you can register it as the global JSON serializer when connecting to the cluster.
+The cluster creates the `ClusterEnvironment` for you, and shuts it down when you disconnect:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=gson-register-1,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=gson-register-1,indent=0]
 ----
 
 The default global `JsonTranscoder` will be initialized with this serializer.
@@ -262,37 +283,36 @@ So we need to write one.
 
 Start by creating a new serializer for MessagePack.  This is similar to the GsonSerializer example above:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=msgpack-serializer,indent=0]
-----
-
-And now create a transcoder that uses the `MsgPackSerializer`, and sets the binary Common Flag when storing the data:
-
-[source,java]
-----
-include::devguide:example$java/Transcoding.java[tag=msgpack-transcoder,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=msgpack-serializer,indent=0]
 ----
 
-Note the use of `BINARY_COMPAT_FLAGS`.  The other Common Flags that can be used are `JSON_COMPAT_FLAGS` and `STRING_COMPAT_FLAGS`.  
-Any other flags in `CodecFlags` are for legacy purposes and internal SDK usage, and should not be used.
+And now create a transcoder that uses the `MsgPackSerializer`, and sets the binary Common Flag when storing the data.
+A transcoder implements two methods, `doEncode` and `decode`.
+(The interface's `encode` method is already implemented: it passes a `Content` through unchanged, and calls `doEncode` for anything else.)
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/Transcoding.kt[tag=msgpack-transcoder,indent=0]
+----
+
+Note the use of `Content.binary()`, which sets the binary Common Flag (`BINARY_COMPAT_FLAGS`).  The other Common Flags that can be used are `JSON_COMPAT_FLAGS` and `STRING_COMPAT_FLAGS`, which you get from `Content.json()` and `Content.string()`.  
+You can also create a `Content` from your own bytes and one of these flags from `CodecFlags`.  Any other flags in `CodecFlags` are for legacy purposes and internal SDK usage, and should not be used.
 
 Now we can use the new transcoder to seamlessly store MessagePack data in Couchbase Server:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Transcoding.java[tag=msgpack-encode,indent=0]
+include::devguide:example$kotlin/Transcoding.kt[tag=msgpack-encode,indent=0]
 ----
 
 
-== Further reading
+// == Further reading
 
 // * For _Common flags_, setting the data format used, see the xref:ref:data-structures.adoc#common-flags[Data Structures reference].
 // * _Format flags_ for ancient SDKs are still available for compatibility, if you are porting a long-lived legacy app. 
 // See the xref:ref:data-structures.adoc#legacy-formats[Legacy formats reference].
-* If you want to work with binary documents and our Search service, you might like to take a look at https://github.com/khanium/couchbase-fts-binary
-
-
-
+// * If you want to work with binary documents and our Search service, you might like to take a look at https://github.com/khanium/couchbase-fts-binary
 
 

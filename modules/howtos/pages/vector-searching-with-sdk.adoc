@@ -6,10 +6,10 @@
 // Note to editors
 // 
 // This page pulls in content from -sdk-common-??
-// and code samples https://github.com/couchbase/docs-sdk-java/tree/release/3.9/modules/devguide/examples/java/SimpleVectorQuery.java
-// and https://github.com/couchbase/docs-sdk-java/tree/release/3.9/modules/devguide/examples/java/Search.java
+// and code samples SimpleVectorQuery.kt, ParameterizedVectorQuery.kt and VectorSearch.kt
+// (devguide:example$kotlin/)
 // 
-// It can be seen built at https://docs.couchbase.com/java-sdk/3.9/howtos/vector-searching-with-sdk.html
+// It can be seen built at https://docs.couchbase.com/kotlin-sdk/3.13/howtos/vector-searching-with-sdk.html
 
 
 [abstract]
@@ -49,6 +49,7 @@ If you don't require the speed and scale of vector query with GSI, or need to co
 
 From the SDK, a vector query using GSI is the same as any other query.
 However, you will need to build one or more indexes.
+In the Kotlin SDK, `cluster.query()` returns a `Flow`, and the query only runs when the `Flow` is collected -- the examples below do that with `execute()`.
 
 === Prerequisites
 
@@ -71,18 +72,18 @@ Here is the xref:server:vector-index:hyperscale-vector-index.adoc#query-example[
 wrapped inside the {name-sdk} Query API.
 
 .Hyperscale Index Example
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/SimpleVectorQuery.java[tag=hyperscale,indent=2]
+include::devguide:example$kotlin/SimpleVectorQuery.kt[tag=hyperscale,indent=0]
 ----
 
 Parameterizing the query, as with xref:sqlpp-queries-with-sdk.adoc#parameterized-queries[regular queries], will allow the reuse of the xref:server:n1ql:n1ql-intro/queriesandresults.adoc#prepare-stmts[Query Plan].
 This can be more efficient, unless you are doing a lot of optimization to your query.
 
 .Parameterized Vector Query
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/ParameterizedVectorQuery.java[tag=parameterized,indent=2]
+include::devguide:example$kotlin/ParameterizedVectorQuery.kt[tag=parameterized,indent=0]
 ----
 
 
@@ -90,6 +91,8 @@ include::devguide:example$java/ParameterizedVectorQuery.java[tag=parameterized,i
 
 Vector search is also implemented using xref:full-text-searching-with-sdk.adoc[Search Indexes], and can be combined with traditional search queries.
 Vector embeddings can be an array of floats or a xref:server:vector-search:run-vector-search-ui.adoc#base64[base64 encoded string].
+
+NOTE: The `VectorQuery` and `VectorSearchSpec` classes are marked as volatile APIs in the Kotlin SDK, which means they may change in a future release.
 
 === Prerequisites
 
@@ -102,27 +105,36 @@ Couchbase Server 7.6.0
 
 In this first example we are performing a single vector query:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Search.java[tag=vector1,indent=0]
+include::devguide:example$kotlin/VectorSearch.kt[tag=vector1,indent=0]
 ----
 
 Let's break this down.
-We create a `SearchRequest`, which can contain a traditional s  Search query `SearchQuery` and/or the new `VectorSearch`.
-Here we are just using the latter.
+We create a `SearchSpec`, which describes the search.
+A `SearchSpec` can be a traditional Search query, a vector query, or a combination of the two.
+Here we are just using a vector query.
 
-The `VectorSearch` allows us to perform one or more `VectorQuery` s.
-
-The `VectorQuery` itself takes the name of the document field that contains embedded vectors ("vector_field" here), plus actual vector query in the form of a `float[]`.
+`SearchSpec.vector()` creates a `VectorQuery`.
+It takes the name of the document field that contains embedded vectors ("vector_field" here), plus the actual vector query in the form of a `FloatArray`.
+(A vector can also be given as a Base64-encoded string -- see below.)
 
 (Note that Couchbase itself is not involved in generating the vectors, and these will come from an external source such as an embeddings API.)
 
-Finally we execute the `SearchRequest` against the Search index "travel-sample-index", which has previously been setup to vector index the "vector_field" field.
+Finally we run the search against the Search index "vector-index", which has previously been setup to vector index the "vector_field" field.
 
 This happens to be a scoped index so we are using `scope.search()`.
 If it was a global index we would use `cluster.search()` instead - see <<Scoped vs Global Indexes>>.
 
-It returns the same `SearchResult` detailed earlier.
+`search()` returns a `Flow`, and nothing happens until the `Flow` is collected.
+Calling `execute()` on it collects all the rows and the metadata into a `SearchResult`, the same as for a traditional Search query.
+
+To pass the vector as a Base64-encoded string (Couchbase Server 7.6.2 or newer), give `SearchSpec.vector()` a `String` instead of a `FloatArray`:
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/VectorSearch.kt[tag=vector-base64,indent=0]
+----
 
 
 ==== Pre-Filters
@@ -132,59 +144,60 @@ xref:server:vector-search:pre-filtering-vector-search.adoc#about-pre-filtering[p
 This is a non-vector query that the server executes first to get an intermediate result.
 Then it executes the vector query on the intermediate result to get the final result.
 
-[source,java]
-----
-public VectorQuery prefilter(SearchQuery prefilter)
-----
+In Kotlin, pass the pre-filter to `SearchSpec.vector()` as the `prefilter` parameter.
 
 If no prefilter is specified, the server executes the vector query on all indexed documents.
 
-[source,java]
+[source,kotlin]
 ----
-  .setOptions(VectorQueryOptions.newBuilder()
-                    .setNumCandidates(numCandidates)
-                        .setPrefilter(SearchQuery.newBuilder()
-                                .setMatch(MatchQuery.newBuilder()
-                                        .setMatch("primary").setField("color_wheel_pos"))))
+include::devguide:example$kotlin/VectorSearch.kt[tag=prefilter-match,indent=0]
 ----
 
 Note that `numCandidates` sets how many similar vectors are returned. 
-If it is not set, then the Cluster's default of `3` will be used --
+If it is not set, then the default of `3` will be used --
 this corresponds with `k` on the Server side, for K-Nearest Neighbors.
 
 The prefilter can be any Search Query --
 from a simple match, as above, to a string query:
 
-[source,java]
+[source,kotlin]
 ----
-  .setPrefilter(SearchQuery.newBuilder()
-                        .setQueryString(QueryStringQuery.newBuilder()
-                                .setQuery("+description:sea -color_hex:fff5ee")))
+include::devguide:example$kotlin/VectorSearch.kt[tag=prefilter-querystring,indent=0]
 ----
 
-See the link:++https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/search/vector/VectorQuery.html#prefilter(com.couchbase.client.java.search.SearchQuery)++[API reference].
+See the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin.search/-search-spec/index.html[API reference].
 
 
 ==== Multiple vector queries
 You can run multiple vector queries together:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Search.java[tag=vector3,indent=0]
+include::devguide:example$kotlin/VectorSearch.kt[tag=vector3,indent=0]
 ----
 
-How the results are combined (ANDed or ORed) can be controlled with `vectorSearchOptions().vectorQueryCombination()`.
+`SearchSpec.anyOf()` combines the vector queries with OR.
+To AND them together instead, use `SearchSpec.allOf()`:
+
+[source,kotlin]
+----
+include::devguide:example$kotlin/VectorSearch.kt[tag=vector-allof,indent=0]
+----
+
+The `boost` function gives a vector query a boost multiplier, which only has an effect when the query is combined with others.
+Nested combinations, such as "A or (B and C)", are not supported.
 
 ==== Combining Search and Vector Queries
 
 You can combine a traditional Search query with vector queries:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Search.java[tag=vector2,indent=0]
+include::devguide:example$kotlin/VectorSearch.kt[tag=vector2,indent=0]
 ----
 
-How the results are combined (ANDed or ORed) can be controlled with `vectorSearchOptions().vectorQueryCombination()`.
+`SearchSpec.mixedMode()` combines the traditional Search query with the vector query using OR.
+The vector part can itself be a compound query, made with `SearchSpec.anyOf()` or `SearchSpec.allOf()`.
 
 .Scoring for these hybrid search queries combines the boost multipliers to get to the final score.
 ----
@@ -195,6 +208,7 @@ hit_score = (query_1_boost * query_1_hit_score) + (query_2_boost * query_2_hit_s
 === Query Methods
 
 As part of the Search service, you can use the same xref:full-text-searching-with-sdk.adoc#search-queries[Search query methods] as regular Searches.
+In Kotlin these are the query functions of `SearchSpec`, such as `SearchSpec.match()` and `SearchSpec.queryString()`.
 See a fuller list, with Vector properties, in the xref:cloud:search:search-request-params.adoc[Capella docs].
 
 
@@ -203,10 +217,10 @@ See a fuller list, with Vector properties, in the xref:cloud:search:search-reque
 
 ////
 ==== Search Queries
-And note that traditional Search queries, without Vector Search, are also supported with the new `cluster.search()` / `scope.search()` APIs:
-[source,java]
+And note that traditional Search queries, without Vector Search, are also supported with the `cluster.search()` / `scope.search()` functions:
+[source,kotlin]
 ----
-include::devguide:example$java/Search.java[tag=vector4,indent=0]
+include::devguide:example$kotlin/VectorSearch.kt[tag=vector4,indent=0]
 ----
 
 ////
@@ -228,12 +242,14 @@ include::devguide:example$java/Search.java[tag=vector4,indent=0]
 
 * xref:server:vector-index:vectors-and-indexes-overview.adoc[Vector Query for AI Apps docs (self-managed Couchbase Server)].
 * xref:cloud::vector-index/vectors-and-indexes-overview.adoc[Vector Query for AI Apps docs (Capella DBaaS)]
-* Vector GSI Query is just like any other query from the SDK to the Query service: link:++https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/Cluster.html#query(java.lang.String,com.couchbase.client.java.query.QueryOptions)++[Java SDK API Reference].
+* Vector GSI Query is just like any other query from the SDK to the Query service: https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-cluster/query.html[Kotlin SDK API Reference].
 
 === Vector Search
 
 * xref:server:vector-search:vector-search.adoc[Vector Search for AI Apps docs (self-managed Couchbase Server)]
 * xref:cloud::vector-search:vector-search.adoc[Vector Search for AI Apps docs (Capella DBaaS)]
-* Vector Search in the https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/search/vector/VectorSearch.html[Java API reference].
+* Vector Search in the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin.search/-search-spec/index.html[Kotlin API reference].
 
 // https://developer.couchbase.com/tutorial-python-langchain-pdf-chat
+
+

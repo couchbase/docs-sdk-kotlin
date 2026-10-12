@@ -1,3 +1,445 @@
+= JSON Modelling
+:description: The Kotlin SDK supports multiple options for working with JSON.
+
+
+[abstract]
+{description}
+
+
+== Philosophy
+
+The Couchbase Server is a key-value store that's agnostic to what's stored, but it's very common to store JSON.
+
+The Kotlin SDK has these main objectives for JSON:
+
+* Be usable 'out-of-the-box'.
+You can write Kotlin `Map`, `List`, and data class values directly, and read them back as the type you ask for.
+There is no JSON library for you to learn, and no SDK-specific JSON object type: the SDK converts to and from JSON for you.
+This conversion is called _data binding_.
+* Be agnostic.
+Your application may already be using its own JSON library, and it shouldn't be forced to use the built-in one.
+The part of the SDK that does data binding is called a `JsonSerializer`.
+By default the SDK uses https://github.com/FasterXML/jackson[Jackson], so if you're already using that popular ecosystem's annotations you're set to go.
+But you're never locked into it: the SDK also includes a `MoshiJsonSerializer` and a `KotlinxSerializationJsonSerializer`, you can write your own `JsonSerializer`, and you can skip data binding altogether and use any library you like to create and read JSON text.
+
+
+== Getting Started
+
+The examples below assume you're familiar with connecting to a Couchbase cluster using the Kotlin SDK, and opening resources.
+Please check out xref:hello-world/start-using-sdk.adoc[the Getting Started guide] for help with this.
+Every operation is a Kotlin _suspending function_, so call these examples from a coroutine.
+
+=== Inserting a simple object
+
+Let's assume we have a very simple JSON structure we want to insert:
+
+[source,json]
+----
+{
+  "name": "Arthur",
+  "number": 42
+}
+----
+
+Once we've connected to a Couchbase server and the bucket, scope, and collection that we want to write to, we know that inserting is as simple as passing the content to `upsert`.
+The simplest way to model a JSON object is with a Kotlin `Map`:
+
+[source,kotlin]
+----
+collection.upsert("arthur", mapOf("name" to "Arthur", "number" to 42))
+----
+
+The SDK converts the `Map` to JSON, and saves that JSON in Couchbase.
+
+=== Retrieving
+
+Couchbase's `collection.get()` method returns a `GetResult` object.
+You choose what Kotlin type to convert the content to by giving a type argument to `contentAs<T>()`.
+In this example, we read the JSON back as a `Map`, print it, and access one of the fields:
+
+[source,kotlin]
+----
+val jsonResult = collection.get("arthur").contentAs<Map<String, Any?>>()
+
+println(jsonResult)
+println(jsonResult["name"])
+----
+
+Once the data is in Couchbase, it is stored as JSON -- the same JSON we started this example with.
+A `Map` that was written can be read back as a `Map`, as a data class (see <<serializing-objects,Serializing objects>>), or as a Jackson `JsonNode` (see <<identifying-the-type-of-arbitrary-json,Identifying the type of arbitrary JSON>>).
+
+NOTE: A `Map<String, Any?>` can hold any Kotlin value, including values that can't be represented as JSON.
+If the serializer can't convert a value, the write fails.
+Data classes, described below, give you a defined structure that the compiler can check.
+
+
+=== Inserting a JSON string or `.json` file
+
+If we read the contents of a file to get a JSON string, we have to tell the SDK that the string is already JSON.
+Otherwise it will do data binding on it, and store it as a JSON _string_ value.
+
+[source,kotlin]
+----
+val content = File(pathToArthurJson).readText()
+----
+
+There are two ways to skip data binding.
+Either use the `RawJsonTranscoder`:
+
+[source,kotlin]
+----
+collection.upsert("arthur", content, transcoder = RawJsonTranscoder)
+----
+
+or wrap the string in a `Content`:
+
+[source,kotlin]
+----
+collection.upsert("arthur", Content.json(content))
+----
+
+Both avoid parsing the JSON and turning it back into a string, so they are a good way to handle JSON created by other libraries such as Gson.
+See the xref:howtos:transcoders-nonjson.adoc[Transcoder documentation] for more details.
+
+[WARNING]
+====
+If you use a `String` for the content and don't skip data binding, the SDK assumes you want the document content to be a JSON String.
+For example, if you write:
+
+[source,kotlin]
+----
+// Don't do this!
+collection.upsert("arthur", """{"name":"Arthur","number":42}""")
+----
+
+the document content in Couchbase is:
+
+[source,json]
+----
+"{\"name\":\"Arthur\",\"number\":42}"
+----
+
+instead of what you probably want:
+
+[source,json]
+----
+{"name":"Arthur","number":42}
+----
+====
+
+The same applies in the other direction.
+To get the unprocessed content of a JSON document, read the bytes, then parse the JSON yourself, or do something else with them:
+
+[source,kotlin]
+----
+val jsonBytes: ByteArray = collection.get("arthur").content.bytes
+println(jsonBytes.decodeToString())
+----
+
+
+=== Serializing objects
+
+It's common to want to serialize your own objects, rather than creating JSON programmatically or textually.
+Luckily the SDK's default serializer makes light work of this task.
+Using this simple data class:
+
+[source,kotlin]
+----
+data class Person(val name: String, val number: Int)
+----
+
+We could insert the exact same JSON as before with:
+
+[source,kotlin]
+----
+collection.upsert("arthur", Person("Arthur", 42))
+----
+
+It's now trivial to return the data either as a `Map`, exactly as we've done before, or indeed as a `Person` object:
+
+[source,kotlin]
+----
+val person = collection.get("arthur").contentAs<Person>()
+----
+
+Unlike with the Java SDK, you don't need a default constructor or mutable properties.
+The default serializer's Jackson mapper has the Jackson Kotlin module registered, so it can build data classes through their primary constructors.
+Data binding works with complicated classes, too.
+Your classes can have properties that are maps or lists of other complicated objects.
+
+
+// [#ObjectMapper]
+=== More complex Object to JSON mapping
+
+Because the SDK's default serializer is backed by an industry standard library (Jackson), it is easy to model all kinds of object to JSON mappings, using Jackson's annotations.
+Here, we've just renamed the Kotlin class and its properties in Spanish.
+But the generated JSON will have the same fields as before, for easy interoperability:
+
+[source,kotlin]
+----
+data class Persona(
+    @JsonProperty("name") val nombre: String,
+    @JsonProperty("number") val numero: Int,
+)
+----
+
+[source,kotlin]
+----
+collection.upsert("arthur", Persona(nombre = "Arthur", numero = 42))
+val persona = collection.get("arthur").contentAs<Persona>()
+----
+
+Always import Jackson classes from the `com.fasterxml.jackson` package.
+The Kotlin SDK includes a repackaged version of Jackson for its own internal use, and your code should never import from `com.couchbase.client.core.deps.com.fasterxml.jackson`.
+
+By default, the SDK's `JacksonJsonSerializer` uses a `JsonMapper` with default settings, plus the Jackson Kotlin and JDK 8 modules.
+If you need other settings or modules, create your own mapper and tell the SDK to use it when you connect.
+The environment configuration lambda sets the default serializer for the cluster:
+
+[source,kotlin]
+----
+val mapper = JsonMapper.builder()
+    .addModule(KotlinModule.Builder().build())
+    // ... your own modules and settings ...
+    .build()
+
+val cluster = Cluster.connect(connectionString, username, password) {
+    jsonSerializer = JacksonJsonSerializer(mapper)
+}
+----
+
+If you prefer a different library, the SDK also provides `MoshiJsonSerializer`, and `KotlinxSerializationJsonSerializer` (an experimental API) for kotlinx.serialization.
+You can set these as the `jsonSerializer` in the same way.
+See the xref:howtos:json.adoc[Working with JSON] page, and the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin.codec/index.html[API reference for the `codec` package^], for details.
+
+[#datatypes]
+== Modelling JSON datatypes in Kotlin
+
+We've only looked at a few datatypes so far, JSON objects `{}`, strings, and integers.
+But the full range of JSON types can be expressed, with the obvious mappings to Kotlin.
+
+[cols="1,2"]
+|===
+| JSON | Kotlin
+
+| string `"hello"` | `String`
+| integer `123` | `Int`, `Long`
+| float `123.456` | `Double`
+| boolean: `true`, `false` | `Boolean`
+| object | `Map<String, Any?>`, a data class, or a Jackson `ObjectNode`
+| array | `List<Any?>`, or a Jackson `ArrayNode`
+| null | `null` (use a nullable type, such as `String?`)
+|===
+
+In general, these values can be inserted as top-level values, or nested within an object or array.
+Let's look at a few examples:
+
+
+=== Nested object
+
+This example shows a variety of data types, including a nested array ("possessions") and object ("address"):
+
+[source,kotlin]
+----
+val arthur = mapOf(
+    "name" to "Arthur",
+    "number" to 42,
+    "float" to 42.0,
+    "address" to mapOf(
+        "street" to "Country Lane",
+        "number" to 155,
+        "town" to "Cottington",
+    ),
+    "harmless" to true,
+    "tea" to null,
+    "possessions" to listOf("dressing gown", "pyjamas"),
+)
+
+collection.upsert("arthur", arthur)
+----
+
+
+=== Top level values other than objects
+
+Although it's common to use an object or an array as the inserted value to Couchbase, other values are supported.
+
+For example, to insert a string value, we could simply:
+
+[source,kotlin]
+----
+collection.upsert("some-string", "string-value")
+----
+
+We can retrieve this value as usual, with the appropriate `contentAs<T>()`:
+
+[source,kotlin]
+----
+println(collection.get("some-string").contentAs<String>())
+----
+
+
+=== Dates
+
+JSON has no built-in representation of dates, so commonly they are represented as one of:
+
+* a string-formatted https://www.w3.org/TR/NOTE-datetime[ISO-8601] date
+* an offset in seconds or milliseconds from the Unix epoch 1 January 1970 UTC
+
+While it doesn't matter which you choose (as long as you serialize and deserialize your date objects consistently!) it may make sense to store the dates in Couchbase in a format that can be easily manipulated using the xref:server:n1ql:n1ql-language-reference/datefun.adoc[date functions in SQL++].
+
+Handily, as we can see on the same page, the xref:server:n1ql:n1ql-language-reference/datefun.adoc#date-formats[supported date formats] are the usual convention in JSON.
+
+Let's look at a brief example of how we might implement this, to serialize a new `Event` class:
+
+[source,kotlin]
+----
+data class Event(val name: String, val date: LocalDateTime)
+----
+
+The SDK's default Jackson mapper has the Kotlin and JDK 8 modules, but not the module for the `java.time` classes.
+So we need our own mapper, as above, with the Jackson `JavaTimeModule` registered.
+Add the module's dependency to your project (`com.fasterxml.jackson.datatype:jackson-datatype-jsr310`), then configure the mapper.
+We also disable `WRITE_DATES_AS_TIMESTAMPS`, so that dates are written as ISO-8601 strings instead of numbers:
+
+[source,kotlin]
+----
+val mapper = JsonMapper.builder()
+    .addModule(KotlinModule.Builder().build())
+    .addModule(JavaTimeModule())
+    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .build()
+
+val cluster = Cluster.connect(connectionString, username, password) {
+    jsonSerializer = JacksonJsonSerializer(mapper)
+}
+----
+
+If you want a particular date pattern, Jackson's `@JsonFormat` annotation can specify it for a property.
+
+Now all this is set up we can simply serialize and deserialize our `Event` objects exactly as we've done before:
+
+[source,kotlin]
+----
+val towelDay = Event("Towel Day", LocalDateTime.of(2021, Month.MAY, 25, 9, 30))
+
+collection.upsert("towel-day", towelDay)
+
+val event = collection.get("towel-day").contentAs<Event>()
+println(event.date)
+----
+
+
+== Subdocuments
+
+Kotlin values work equally well with the xref:howtos:subdocument-operations.adoc[Sub-Document] API.
+So taking our original "Arthur" object above, we can insert a simple value:
+
+[source,kotlin]
+----
+collection.mutateIn("arthur") {
+    upsert("key", "value")
+}
+----
+
+[source,json]
+----
+{ "name": "Arthur",
+  "number": 42,
+  "key": "value" }
+----
+
+Or we could insert another nested object:
+
+[source,kotlin]
+----
+collection.mutateIn("arthur") {
+    upsert("key", mapOf("subkey" to "subvalue"))
+}
+----
+
+[source,json]
+----
+{ "name": "Arthur",
+  "number": 42,
+  "key": {
+    "subkey":"subvalue"
+  }
+}
+----
+
+NOTE: Currently, paths cannot exceed 1024 characters, and cannot be more than 32 levels deep.
+JSON documents with more than 32 nested layers cannot be parsed, and attempting to do so will result in a `DocumentTooDeepException` exception.
+
+[#identifying-the-type-of-arbitrary-json]
+== Identifying the type of arbitrary JSON
+
+Though you will often be mapping objects to JSON according to a defined schema, sometimes you may wish to handle values with unknown types.
+
+Jackson can represent any JSON document as a tree of `JsonNode` objects, and you can use data binding with `JsonNode`.
+Its rich set of methods lets you identify and handle arbitrary values.
+Always import `JsonNode` from `com.fasterxml.jackson.databind`.
+
+[source,kotlin]
+----
+val node = collection.get("mystery").contentAs<JsonNode>()
+
+if (node.isBoolean) {
+    println("It's a boolean!")
+    if (node.booleanValue()) {
+        println("SUCCESS!")
+    }
+} else {
+    println(node.nodeType)
+    // STRING
+}
+----
+
+Or use Kotlin's `when` with the subclasses of `JsonNode`:
+
+[source,kotlin]
+----
+when (node) {
+    is ArrayNode -> println("Content is a JSON Array")
+    is ObjectNode -> println("Content is a JSON Object")
+    else -> println("Content is a JSON primitive")
+}
+----
+
+Sometimes it's easier to do data binding with a `JsonNode` than a `Map`.
+
+
+== Additional Resources
+
+* Read more about the https://docs.couchbase.com/server/current/learn/data/data.html[Couchbase Data Model^].
+* See xref:concept-docs:documents.adoc[Documents] for the key-value operations used on this page.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////
 = Working with JSON
 :description: The SDK makes it easy to turn Kotlin objects into JSON, and JSON into Kotlin objects.
 :page-topic-type: howto
@@ -238,3 +680,4 @@ If there is a JSON library you like more than Jackson or Moshi, you can make you
 The <<moshi,Moshi>> section shows how to tell the SDK which serializer to use.
 
 Alternatively, you can <<skip-data-binding,skip data binding>> and use your preferred JSON library to read and write JSON without using the SDK.
+////

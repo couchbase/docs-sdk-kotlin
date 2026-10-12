@@ -13,9 +13,9 @@ After familiarizing yourself with the basics on how the {sqlpp} query language w
 
 Before starting, here are all of the imports used in the following examples:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=imports,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=imports,indent=0]
 ----
 
 Here's a complete example of doing a query and handling the results:
@@ -28,9 +28,9 @@ Couchbase Capella Sample::
 These examples requires the Travel Sample Bucket.
 The Couchbase Capella free tier version comes with this bucket, and its Query indexes, loaded and ready.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/SimpleQueryCloud.java[tag=class,indent=0]
+include::devguide:example$kotlin/SimpleQueryCloud.kt[tag=class,indent=0]
 ----
 --
 
@@ -41,9 +41,9 @@ To run these examples, you will need to install the Travel Sample Bucket
 using either the xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc#install-sample-buckets-with-the-ui[Web interface]
 or the xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc#install-sample-buckets-with-the-cli[command line].
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/SimpleQuery.java[tag=class,indent=0]
+include::devguide:example$kotlin/SimpleQuery.kt[tag=class,indent=0]
 ----
 --
 ====
@@ -75,16 +75,16 @@ You can either supply these parameters by name or by position.
 
 The first example shows how to provide them by name:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=named,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=named,indent=0]
 ----
 
 The second example by position:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=positional,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=positional,indent=0]
 ----
 
 What style you choose is up to you, for readability in more complex queries we generally recommend using the named parameters.
@@ -98,9 +98,9 @@ If no exception gets raised the request succeeded and provides access to both th
 
 Rows can be consumed either through a `JsonObject` directly, turned into a java collection instance (like a `Map`) or into your POJO of choice mapping directly to your domain logic.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=rowsasobject,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=rowsasobject,indent=0]
 ----
 
 The `QueryMetaData` provides insight into some basic profiling/timing information as well as information like the `clientContextId`.
@@ -120,9 +120,9 @@ The `QueryMetaData` provides insight into some basic profiling/timing informatio
 
 For example, here is how you can print the `executionTime` of a query:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=printmetrics,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=printmetrics,indent=0]
 ----
 
 == Query Options
@@ -157,9 +157,9 @@ By default, the query engine will return whatever is currently in the index at t
 If you need to include everything that has just been written, a different scan consistency must be chosen.
 If `QueryScanConsistency.REQUEST_PLUS` is chosen, it will likely take a bit longer to return the results but the query engine will make sure that it is as up-to-date as possible.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=scanconsistency,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=scanconsistency,indent=0]
 ----
 
 // Due to https://issues.couchbase.com/browse/MB-46876 this section won’t work with named scopes and collections,
@@ -169,10 +169,10 @@ include::devguide:example$java/Queries.java[tag=scanconsistency,indent=0]
 //Construct the `MutationState` from individual `MutationToken`s that are returned from KV `MutationResult`s to make sure at least those mutations are visible.
 //Depending on the index update rate this might provide a speedier response.
 //
-//[source,java]
+//[source,kotlin]
 //----
-//include::devguide:example$java/Queries.java[tag=connect-bucket-and-scope,indent=0]
-//include::devguide:example$java/Queries.java[tag=scanconsistency_with,indent=0]
+//include::devguide:example$kotlin/Query.kt[tag=connect-bucket-and-scope,indent=0]
+//include::devguide:example$kotlin/Query.kt[tag=scanconsistency_with,indent=0]
 //----
 //
 //Note that you cannot use this method and `scanConsistency(QueryScanConsistency)` at the same time, since they are mutually exclusive.
@@ -187,9 +187,9 @@ By default a UUID will be generated that is mirrored back from the query engine 
 A custom string can always be provided if you want to introduce application-specific semantics into it (so that for example in a network dump it shows up with a certain identifier).
 Whatever is chosen, we recommend making sure it is unique so different queries can be distinguished during debugging or monitoring.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=clientcontextid,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=clientcontextid,indent=0]
 ----
 
 === Readonly
@@ -198,9 +198,9 @@ If the query is marked as readonly, both the server and the SDK can improve proc
 On the client side, the SDK can be more liberal with retries because it can be sure that there are no state-mutating side-effects happening.
 The query engine will ensure that actually no data is mutated when parsing and planning the query.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=readonly,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=readonly,indent=0]
 ----
 
 === Custom JSON Serializer
@@ -231,9 +231,9 @@ Please see the guides on reactive programming for more information on the basics
 A simple reactive query is similar to the blocking one:
 
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/Queries.java[tag=simplereactive,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=simplereactive,indent=0]
 ----
 
 This query will stream all rows as they become available from the server, automatically applying backpressure as necessary.
@@ -247,12 +247,12 @@ It takes the statement as a required argument, and then allows additional option
 
 A complete list of `QueryOptions` can be found in the https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/AsyncScope.html#query-java.lang.String-[API docs].
 
-[source,java]
+[source,kotlin]
 ----
 
-include::devguide:example$java/Queries.java[tag=connect-bucket-and-scope,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=connect-bucket-and-scope,indent=0]
 
-include::devguide:example$java/Queries.java[tag=scope-level-query,indent=0]
+include::devguide:example$kotlin/Query.kt[tag=scope-level-query,indent=0]
 
 ----
 

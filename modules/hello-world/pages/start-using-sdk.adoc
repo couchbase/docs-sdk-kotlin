@@ -54,7 +54,7 @@ include::{version-common}@sdk:shared:partial$start-using-sdk.adoc[tag=before]
 === Prerequisites
 
 * You should know https://kotlinlang.org/docs/gradle.html[how to set up a new Kotlin project using Gradle] (or https://kotlinlang.org/docs/maven.html[using Maven]).
-The SDK requires Kotlin 2.1.0 or later.
+The SDK requires Kotlin 2.4.0 or later.
 
 * You will need Java 8 or later.
 We recommend running the latest Java LTS version with the highest patch version available.
@@ -238,32 +238,16 @@ Cloud Native Gateway (CNG)::
 Couchbase's large number of ports across the URLs of many services can be proxied by using a `couchbase2://` endpoint as the connection string --
 currently only compatible with recent versions of xref:operator:ROOT:concept-cloud-native-gateway.adoc[Couchbase Autonomous Operator]:
 
-[source,java]
+[source,kotlin]
 ----
 val cluster = Cluster.connect(
-  "couchbase2://10.12.14.16",
-  ClusterOptions
-    .create(username, password)
-    .environment(env)
+        connectionString = "couchbase2://10.12.14.16", 
+        username = "username",
+        password = "password",
 )
 ----
 
 Read more on the xref:howtos:managing-connections.adoc#cloud-native-gateway[Connections] page.
---
-
-Quarkus::
-+
---
-Our  xref:quarkus-extension:ROOT:overview.adoc[Couchbase Quarkus Java Extension docs] cover installing and connecting with the Quarkus extension in detail,
-but if you already have Quarkus installed and a project ready (with `quarkus-couchbase` in your `pom.xml` or `build.gradle`),
-then your `src/main/resources/application.properties` file needs to contain:
-
-[source,properties]
-----
-quarkus.couchbase.connection-string=localhost
-quarkus.couchbase.username=username
-quarkus.couchbase.password=password
-----
 --
 ====
 
@@ -278,7 +262,7 @@ The `ClusterEnvironment.Builder` is covered more fully on the xref:ref:client-se
 .Simpler Connection
 ====
 There's also a simpler version of `Cluster.connect()` for when you don't need to customize the cluster environment:
-[source,java]
+[source,kotlin]
 ----
 include::devguide:example$java/SimpleConnect.java[tags=connect-string,indent=0]
 ----
@@ -290,9 +274,9 @@ include::devguide:example$java/SimpleConnect.java[tags=connect-string,indent=0]
 
 Following successful authentication, open the bucket with:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=bucket,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=bucket,indent=0]
 ----
 
 
@@ -313,9 +297,9 @@ As with the earlier `Cluster.connect`, we use `.get` on the result here for simp
 *Collections* allow documents to be grouped by purpose or theme, according to a specified *scope* -- see data modeling, <<data-modeling,below>>.
 Here we will use the `airport` collection within the `inventory` scope from `travel-sample` bucket as an example.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=collection,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=collection,indent=0]
 ----
 
 
@@ -330,9 +314,9 @@ We'll create a snippet of JSON to work with, using the client's own JSON library
 but you can read about the {name-sdk}'s support for other JSON libraries on the
 xref:howtos:json.adoc[] page.
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=json,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=json,indent=0]
 ----
 
 === Insert (Create) and Upsert
@@ -345,9 +329,9 @@ while the `upsert` operation will succeed, replacing the content.
 We need to provide a unique ID as the key, and we'll use a UUID here:
 
 .Creating a new document
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=upsert,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=upsert,indent=0]
 ----
 
 === Get (Read)
@@ -357,9 +341,9 @@ The `get` method reads a document from a collection.
 
 Wrapping the method in a `try` / `catch` is a good way to handle exceptions:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=get,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=get,indent=0]
 ----
 
 ////
@@ -376,16 +360,16 @@ and then accessing the value of the *status* key as a String.
 All three of these operations could fail, so there's quite a lot of error handling code here to do something quite simple.
 One way to improve on this is by using `flatMap`, like this:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=get-map,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=get-map,indent=0]
 ----
 
 Alternatively, you can use a for-comprehension, like so:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=get-for,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=get-for,indent=0]
 ----
 
 Either of these methods will stop on the first failed operation.  So the final returned `Try` contains either 
@@ -402,9 +386,9 @@ For instance:
 ////
 
 .The replace method updates the value of an existing document
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=replace-options,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=replace-options,indent=0]
 ----
 
 ////
@@ -414,9 +398,9 @@ they are immutable data objects that return a copy of themselves on each change.
 The other overload is provided purely for convenience.
 It takes named arguments instead of an Options object, and provides only the most commonly used options:
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/StartUsingCapella.java[tag=replace-named,indent=0]
+include::devguide:example$kotlin/StartUsingCapella.kt[tag=replace-named,indent=0]
 ----
 ////
 
@@ -427,7 +411,7 @@ Otherwise, changes might get lost if two people change the same document at the 
 
 The remove method deletes a document from a collection:
 
-[source,java]
+[source,kotlin]
 ----
 try {
   collection.remove("my-document");
@@ -455,86 +439,3 @@ both
 
 
 include::{version-common}@sdk:shared:partial$start-using-sdk.adoc[tag=what-next]
-
-
-
-
-
-
-
-
-////
-== Hello Couchbase
-
-Here's an example that shows how to execute a {sqlpp} (formerly N1QL) query and get a document from the Key Value (KV) service.
-
-[{tabs}]
-====
-Couchbase Capella::
-+
---
-This version of the example assumes you are connecting to a https://docs.couchbase.com/cloud/index.html[Couchbase Capella] free tier operational cluster, which has the `travel-sample` bucket installed by default.
-
-(If you're not using Couchbase Capella, click the **Local Couchbase Server** tab above.)
-
-Before running the example:
-
-* Replace the `address` variable with the address of your Capella cluster.
-
-* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
-
-[source,kotlin]
-----
-include::example$HelloCloud.kt[]
-----
-<1> For Capella, the connection string starts with `couchbases://` (note the final 's') to enable a secure connection with TLS.
-
---
-Local Couchbase Server::
-+
---
-
-This version of the example assumes you are connecting to a single-node Couchbase Server cluster running on your local computer.
-
-Before running the example:
-
-* Install the `travel-sample` xref:{version-server}@server:manage:manage-settings/install-sample-buckets.adoc[sample bucket].
-
-* Replace the `username` and `password` arguments with credentials for a cluster user that can read the `travel-sample` bucket.
-You can use the administrator credentials you chose when setting up the cluster.
-
-[source,kotlin]
-----
-include::example$HelloWorld.kt[]
-----
---
-
-====
-
-
-
-////
-[TIP]
-.Connecting to Cloud Native Gateway, for Kubernetes or OpenShift
-====
-Couchbase's large number of ports across the URLs of many services can be proxied by using a `couchbase2://` endpoint as the connection string -- read more on the xref:howtos:managing-connections.adoc#cloud-native-gateway[Connections] page.
-====
-////
-
-
-[#additional-resources]
-== Additional Resources
-
-To see more documentation, select a chapter from the navigation sidebar on the left.
-
-Join us on the https://discord.com/invite/sQ5qbPZuTh[Couchbase Discord server] and the https://forums.couchbase.com/c/kotlin-sdk/40[Couchbase Forum].
-
-The https://couchbase.live[Couchbase Playground] has Kotlin examples you can edit and run in your web browser.
-
-There are more https://github.com/couchbase/couchbase-jvm-clients/tree/master/kotlin-client/src/main/kotlin/com/couchbase/client/kotlin/samples[code samples on GitHub].
-
-The API reference is {kotlin-api-link}[here].
-
-Couchbase welcomes community contributions to the Kotlin SDK.
-The source code is available on https://github.com/couchbase/couchbase-jvm-clients[GitHub].
-////
