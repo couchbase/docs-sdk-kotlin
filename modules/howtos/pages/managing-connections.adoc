@@ -131,7 +131,7 @@ If the external ports are not the default, you can specify custom ports in the c
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/managing_connections.java[tag=managing_connections_5,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=managing_connections_5,indent=0]
 ----
 
 For nodes that do not have the KV service, you can connect using a custom manager port instead.
@@ -139,7 +139,7 @@ Notice how `=manager` appears after the port number, identifying it as a manager
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/managing_connections.java[tag=managing_connections_6,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=managing_connections_6,indent=0]
 ----
 
 TIP: In a deployment that uses multi-dimensional scaling, a custom KV port is only applicable for nodes running the KV service.
@@ -358,14 +358,14 @@ If you are working at the _Cluster_ level, then add to the `cluster()` in the xr
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/managing_connections.java[tag=managing_connections_8,indent=0]
+include::devguide:example$kotlin/ManagingConnections.kt[tag=managing_connections_8,indent=0]
 ----
 
 Or more fully:
 
 [source,kotlin]
 ----
-include::devguide:example$kotlin/ClusterExample.java[tag=managing_connections_9,indent=0]
+include::devguide:example$kotlin/ClusterExample.kt[tag=managing_connections_9,indent=0]
 ----
 
 If you are working at the _Bucket_ level, then the https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/Bucket.html#waitUntilReady-java.time.Duration-[Bucket-level `waitUntilReady`] does the same as the Cluster-level version,
@@ -376,45 +376,3 @@ See the xref:#working-in-the-cloud[Cloud section] below for some suggestions of 
 
 include::{version-common}@sdk:shared:partial$managing-connections.adoc[tag=cloud]
 
-
-== Async and Reactive APIs
-
-The Couchbase Java SDK provides first-class support for asynchronous and reactive programming.
-In fact, the synchronous API is just a thin wrapper around the asynchronous API.
-
-Methods in the asynchronous API return instances of the standard `CompletableFuture` introduced in Java 8.
-
-The Java SDK's reactive API is built on link:https://projectreactor.io[Project Reactor].
-Reactor implements the standard Reactive Streams API introduced in Java 9, and extends it with a rich set of useful operators.
-Methods in the reactive API return instances of `Flux` or `Mono`.
-
-If you wish to embrace the async or reactive programming model, there are two ways to get started:
-
-* Call `async()` or `reactive()` on the object to access its `Async*` or `Reactive*` counterpart.
-For example, if you have a `Collection` called `myCollection`, you can obtain a `ReactiveCollection` by calling `myCollection.reactive()`.
-* Instantiate an `AsyncCluster` or `ReactiveCluster` in the first place.
-The `bucket()` method of an `AsyncCluster` returns an `AsyncBucket`, while the `bucket()` method of a `ReactiveCluster` turns a `ReactiveBucket`.
-
-So if you are connecting to the bucket synchronously but then want to switch over to asynchronous data operations, you can do it like this:
-
-[source,kotlin]
-----
-include::devguide:example$kotlin/ManagingConnections.kt[tag=blockingtoasync,indent=0]
-----
-
-On the other hand, you can use the Async API right from the beginning:
-// todo use tabs here?
-[source,kotlin]
-----
-include::devguide:example$kotlin/ManagingConnections.kt[tag=asynccluster,indent=0]
-----
-
-Here's the same example, but using the Reactive API instead of the Async API:
-
-[source,kotlin]
-----
-include::devguide:example$kotlin/ManagingConnections.kt[tag=reactivecluster,indent=0]
-----
-
-
-// == Working in the Cloud

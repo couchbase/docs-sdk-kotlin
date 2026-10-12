@@ -13,7 +13,7 @@ include::{version-common}@sdk:shared:partial$cas.adoc[tag=errors]
 
 [source,kotlin]
 ----
-include::devguide:example$java/Cas.kt[tag=handlingerrors,indent=0]
+include::devguide:example$kotlin/Cas.kt[tag=handlingerrors,indent=0]
 ----
 
 Sometimes more logic is needed when performing updates, for example, if a property is mutually exclusive with another property; only one or the other can exist, but not both.
@@ -27,7 +27,7 @@ include::{version-common}@sdk:shared:partial$cas.adoc[tag=locking]
 
 [source,kotlin]
 ----
-include::devguide:example$java/Cas.kt[tag=locking,indent=0]
+include::devguide:example$kotlin/Cas.kt[tag=locking,indent=0]
 ----
 
 The handler will unlock the item either via an explicit unlock operation ([.api]`unlock`) or implicitly via modifying the item with the correct CAS.

@@ -70,14 +70,6 @@ The _lookupIn_ operations query the document for certain path(s); these path(s) 
 You have a choice of actually retrieving the document path using the _get_ Sub-Document operation, simply querying the existence of the path using the _exists_ Sub-Document operation, or asking how many elements an array or object has using the _count_ operation.
 The _exists_ and _count_ operations save even more bandwidth by not retrieving the contents of the path if it is not needed.
 
-.Imports
-The examples use the following imports:
-
-[source,java]
-----
-include::devguide:example$java/SubDocument.java[tag=imports,indent=0]
-----
-
 
 === Describing a lookup
  
@@ -408,8 +400,8 @@ The path `tags.sierra` is a mismatch, since `tags` is actually an array, while t
 Certain commands such as _arrayInsert_ expect array elements as their final component, while others such as _upsert_ and _insert_ expect dictionary (object) keys.
  
 Exceptions such as `PathExistsException` and `PathNotFoundException` live in the `com.couchbase.client.core.error.subdoc` package.
- 
- 
+
+
 == Path Syntax
  
 Path syntax largely follows SQL++ conventions: A path is divided into components, with each component referencing a specific _level_ in a document hierarchy.
