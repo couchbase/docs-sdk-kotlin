@@ -8,9 +8,9 @@
 [abstract]
 {description}
 
-include::{version-common}@sdk:pages:partial$signed.adoc[tag=signed]
 
-
+// JVM signed
+include::{version-common}@sdk:shared:partial$relnotes.adoc[tag=signed]
 
 
 
