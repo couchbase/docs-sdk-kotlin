@@ -118,7 +118,8 @@ It's fine to percent-encode the whole value.
 === Connection string scheme
 
 A connection string may start with a URI scheme.
-The supported prefixes are `couchbase://` and `couchbases://` (note the final 's', which stands for "secure").
+The supported prefixes are `couchbase://`, `couchbases://` (note the final 's', which stands for "secure"), and `couchbase2://`
+(see xref:#cloud-native-gateway[Cloud Native Gateway], below).
 For example:
 
 .Connection string with a URI scheme specifying TLS is required
