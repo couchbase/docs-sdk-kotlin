@@ -1,62 +1,167 @@
-= Document 
+= Documents
 :description: Couchbase supports CRUD operations, various data structures, and binary documents.
-:nav-title: Documents & Doc Ops
-:page-topic-type: concept
 
-include::project-docs:partial$attributes.adoc[]
+
 
 [abstract]
 {description}
 
+
 Although query and path-based (Sub-Document) services are available, the simplicity of the document-based key-value (kv) interface is the fastest way to perform operations involving single documents.
 
-
-// use the simplicity of https://developer.couchbase.com/documentation/server/3.x/developer/dev-guide-3.0/read-write.html possibly?
-// don't forget https://docs-staging.couchbase.com/dotnet-sdk/2.7/datastructures.html - and Java equiv?
-
-////
-== Documents
-
-== Input and Output Types
-
-== Counters
-
-== Data Structures
-
-== Raw Byte Concatenation
-////
+Every operation on this page is a Kotlin _suspending function_, so you call it from inside a coroutine.
+The examples assume that `collection` is a `Collection` you have already opened -- see xref:howtos:connecting.adoc[Connecting] -- and that the imports they need are in place.
 
 
+== Document
 
+A _document_ refers to an entry in the database (other databases may refer to the same concept as a xref:server:learn:data/document-data-model.adoc#couchbase-server-and-json-the-benefits[_row_]).
+A document has an ID (_primary key_ in other databases), which is unique to the document and by which it can be located.
+The document also has a value which contains the actual application data.
 
+*Document IDs* (keys) are assigned by the application.
+A valid document ID must:
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=document]
+* Conform to UTF-8 encoding
+* Be no longer than 246 bytes
++
+NOTE: There is a difference between bytes and characters: most non-Latin characters occupy more than a single byte.
+A Kotlin `String` counts characters, so check the length of its UTF-8 encoding: `id.encodeToByteArray().size <= 246`.
+
+You are free to choose any ID (key) for your document, so long as it conforms to the above restrictions.
+Unlike some other databases, Couchbase does not automatically generate IDs for you, though you may use a separate <<counters,counter>> to increment a serial number -- you can also use UUIDs as keys (for example `UUID.randomUUID().toString()`), the best choice being determined by your use case.
+
+The *document value* contains the actual application data; for example, a _product_ document may contain information about the price and description.
+Documents are usually (xref:howtos:json.adoc[but not always]) stored as JSON on the server.
+Because JSON is a structured format, it can be subsequently searched and queried.
+
+[source,json]
+----
+{
+    "type": "product",
+    "sku": "CBSRV45DP",
+    "msrp": [5.49, "USD"],
+    "ctime": "092011",
+    "mfg": "couchbase",
+    "tags": ["server", "database", "couchbase", "nosql", "fast", "json", "awesome"]
+}
+----
+
+In Kotlin you would normally pass a `Map`, a `List`, or another value the SDK's JSON serializer can encode, such as a data class -- see xref:howtos:json.adoc[Working with JSON].
+
 
 == Primitive Key-Value Operations
 
-[source,java]
+[source,kotlin]
 ----
-upsert(String docid, Object document)
-insert(String docid, Object document)
-replace(String docid, Object document)
-get(String docid)
-remove(String docid)
+collection.upsert(id, content)
+collection.insert(id, content)
+collection.replace(id, content)
+collection.get(id)
+collection.remove(id)
 ----
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=crud-overview]
+Each of these methods also takes optional named parameters, such as `expiry`, `durability`, and `cas`, which are described below.
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=store-update]
+In Couchbase documents are stored using one of the operations: `upsert`, `insert`, and `replace`.
+Each of these operations will write a JSON document with a given document ID (key) to the cluster.
+The update methods differ in behavior in respect to the existing state of the document:
 
-[NOTE]
+* `insert` will only create the document if the given ID is not found within the cluster.
+* `replace` will only replace the document if the given ID already exists within the cluster.
+* `upsert` will always replace the document, ignoring whether the ID already exists or not.
+
+Documents can be retrieved using the `get` operation, and finally removed using the `remove` operation.
+
+Since Couchbase's KV store may be thought of as a distributed hashmap or dictionary, the following Kotlin code is explanatory pseudo-code for Couchbase's update operations.
+It is not SDK code:
+
+[source,kotlin]
+----
+class KvStore {
+    private val store = mutableMapOf<String, Any?>()
+
+    fun insert(docId: String, value: Any?) {
+        if (docId in store) throw DocumentExistsException()
+        store[docId] = value
+    }
+
+    fun replace(docId: String, value: Any?) {
+        if (docId !in store) throw DocumentNotFoundException()
+        store[docId] = value
+    }
+
+    fun upsert(docId: String, value: Any?) {
+        store[docId] = value
+    }
+
+    fun get(docId: String): Any? {
+        if (docId !in store) throw DocumentNotFoundException()
+        return store[docId]
+    }
+}
+----
+
+In the SDK, `insert` throws `DocumentExistsException` if the document already exists, and `replace`, `get` and `remove` throw `DocumentNotFoundException` if it does not.
+If you would rather get `null` than an exception from `get`, call `getOrNull` instead.
+
+You can also use xref:concept-docs:n1ql-query.adoc[{sqlpp} Queries] and xref:concept-docs:full-text-search-overview.adoc[Full Text Search] to access documents by means other than their IDs, however these query operations Couchbase eventually translate into primitive key-value operations, and exist as separate services outside the data store.
+
+
+== Storing and Updating Documents
+
+Documents can be stored and updated using either the SDK, Command line, or Web UI.
+When using a storage operation, the _full content_ of the document is replaced with a new value.
+
+The following example shows a document being stored using the xref:server:cli:cbc.adoc[`cbc`] utility.
+The ID of the document is `docid` and its value is JSON containing a single field (`json`) with the value of `value`.
+
+[source,console]
+----
+# When storing JSON data using cbc, ensure it is properly quoted for your shell:
+$ cbc create -u Administrator -P password docid -V '{"json":"value"}' -M upsert -U couchbase://cluster-node/bucket-name
+docid               Stored. CAS=0x8234c3c0f213
+----
+
+The same thing from the Kotlin SDK:
+
+[source,kotlin]
+----
+collection.upsert("docid", mapOf("json" to "value"))
+----
+
+You can also specify additional options when storing a document in Couchbase:
+
+* <<expiry,Expiry>> (or `TTL`) value which will instruct the server to delete the document after a given amount of time.
+This option is useful for transient data (such as sessions).
+By default documents do not expire.
+See <<expiry,Expiry>> for more information on expiration.
+* CAS value to protect against concurrent updates to the same document.
+In Kotlin, pass it as the `cas` parameter of `replace` (or `remove`).
+* xref:concept-docs:durability-replication-failure-considerations.adoc[Durability Requirements], with the `durability` parameter.
+
+[source,kotlin]
+----
+collection.upsert(
+    id = "session-1",
+    content = mapOf("user" to "alice"),
+    expiry = Expiry.of(30.minutes),
+    durability = Durability.majority(),
+)
+----
+
+[TIP]
 ====
-If you wish to only modify certain parts of a document, you can use xref:subdocument-operations.adoc[sub-document] operations which operate on specific subsets of documents:
+If you wish to only modify certain parts of a document, you can use xref:howtos:subdocument-operations.adoc[sub-document] operations which operate on specific subsets of documents:
 
-[source,java,indent=0]
+[source,kotlin]
 ----
-include::example$DocumentsExample.java[tag=mutate-in]
+collection.mutateIn("airline_10") {
+    upsert("msrp", 18.00)
+}
 ----
 
-or xref:7.1@server:n1ql:n1ql-language-reference/update.adoc[N1QL UPDATE] to update documents based on specific query criteria:
+or xref:server:n1ql:n1ql-language-reference/update.adoc[SQL++ UPDATE] to update documents based on specific query criteria:
 
 [source,sql]
 ----
@@ -64,7 +169,43 @@ update `travel-sample`.inventory.airline SET sale_price = msrp * 0.75 WHERE msrp
 ----
 ====
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=get_generic]
+
+== Retrieving Documents
+
+This section discusses retrieving documents using their IDs, or primary keys.
+Documents can also be accessed using secondary lookups via xref:concept-docs:n1ql-query.adoc[SQL++ queries].
+Primary key lookups are performed using the key-value API, which simplifies use and increases performance (as applications may interact with the KV store directly, rather than a secondary index or query processor).
+
+In Couchbase, documents are stored with their IDs.
+Retrieving a document via its ID is the simplest and quickest operation in Couchbase.
+
+[source,kotlin]
+----
+val result = collection.get("docid")
+println(result.contentAs<Map<String, Any?>>()) // {json=value}
+----
+
+[source,console]
+----
+$ cbc cat docid
+docid                CAS=0x8234c3c0f213, Flags=0x0. Size=16
+{"json":"value"}
+----
+
+Once a document is retrieved, you choose the Kotlin type you want it in by passing a type argument to `contentAs<T>()`.
+The SDK deserializes the stored JSON into that type: for example `Map<String, Any?>`, `List<Any?>`, or a data class.
+It is possible to store and retrieve non-JSON documents as well, using a `transcoder` -- see xref:howtos:json.adoc[Working with JSON].
+
+You can also modify a document's expiration time while retrieving it; this is known as _get-and-touch_ and allows you to keep temporary data alive while retrieving it in one atomic and efficient operation.
+
+[source,kotlin]
+----
+val result = collection.getAndTouch("session-1", Expiry.of(1.hours))
+----
+
+Documents can also be retrieved with SQL++.
+While SQL++ is generally used for secondary queries, it can also be used to retrieve documents by their primary keys (ID) (though it is recommended to use the key-value API if the ID is known).
+Lookups may be done either by comparing the `META(from-term).id` or by using the `USE KEYS` [...] keyword:
 
 [source,sql]
 ----
@@ -78,63 +219,175 @@ or
 SELECT * FROM `travel-sample`.inventory.airport WHERE META().id = "airport_1254";
 ----
 
-You can also retrieve _parts_ of documents using xref:subdocument-operations.adoc[sub-document operations], by specifying one or more sections of the document to be retrieved
+You can also retrieve _parts_ of documents using xref:howtos:subdocument-operations.adoc[sub-document operations], by specifying one or more sections of the document to be retrieved:
 
-[source,java,indent=0]
+[source,kotlin]
 ----
-include::example$DocumentsExample.java[tag=lookup-in]
-----
+val usersCollection = bucket.scope("tenant_agent_00").collection("users")
 
-// Counters
+val spec = object : LookupInSpec() {
+    val type = get("credit_cards[0].type")
+    val expiration = get("credit_cards[0].expiration")
+}
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=counters1]
-
-[source,java,indent=0]
-----
-include::example$DocumentsExample.java[tag=counters]
-----
-
-You can simplify by importing `decrementOptions()` statically:
-
-[source,java]
-----
-collection.binary().decrement(counterDocId, decrementOptions().delta(5));   
+usersCollection.lookupIn("1", spec) {
+    with(spec) {
+        println("Card type: ${type.contentAs<String>()}")
+        println("Expiration: ${expiration.contentAs<String>()}")
+    }
+}
 ----
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=counters2]
 
-[source,java,indent=0]
+== Counters
+
+You can atomically increment or decrement the numerical value of special counter document -- examples can be found in the xref:howtos:kv-operations.adoc#atomic-counters[practical K-V Howto document].
+
+WARNING: Do not increment or decrement counters if using XDCR.
+Within a single cluster the `increment` is atomic, as is `decrement`; across XDCR however, if two clients connecting to two different (bidirectional) clusters issue `increment` concurrently, this may (and most likely will) result in the value only getting incremented once in total.
+The same is the case for `decrement`.
+
+A document may be used as a counter if its value is a simple ASCII number, like `42`.
+Couchbase allows you to increment and decrement these values atomically using the `increment` and `decrement` operations of `collection.binary`.
+The example below shows a counter being initialised, then being incremented and decremented:
+
+[source,kotlin]
 ----
-include::example$DocumentsExample.java[tag=counter-increment]
+val counterDocId = "counter-doc"
+
+// Increment by 1, creating the doc if needed.
+// Because initialValue is 1, a newly created counter starts at 1.
+// If the document already exists, the count increases by 1.
+collection.binary.increment(counterDocId, delta = 1u, initialValue = 1u)
+
+// Decrement by 1.
+// The document must already exist: with initialValue = null, decrement
+// throws DocumentNotFoundException instead of creating it.
+collection.binary.decrement(counterDocId, delta = 1u, initialValue = null)
+
+// Decrement by 5
+collection.binary.decrement(counterDocId, delta = 5u, initialValue = null)
 ----
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=counters3]
+In the above example, a counter is created by calling `increment` with an `initialValue`.
+The initial value is the value the counter uses if the counter ID does not yet exist.
+(If you leave out `initialValue` on `increment`, it defaults to `delta`.)
+
+Once created, the counter can be incremented or decremented atomically by a given _amount_ or _delta_.
+In Kotlin the `delta` is an unsigned number (`ULong`), so write literals with a `u` suffix, like `5u`.
+Because it can't be negative, you use `increment` to add and `decrement` to subtract.
+A delta of zero returns the current value without changing it.
+When a counter operation is complete, the application receives a `CounterResult`, whose `content` is the current value of the counter, after the change.
+
+Couchbase counters are 64-bit unsigned integers in Couchbase and do not wrap around if decremented beyond 0.
+However, counters will wrap around if incremented past their maximum value (which is the maximum value contained within a 64-bit integer, 2^64 - 1).
+Counter values above 2^53 - 1 may have interoperability issues with languages that store all numbers as floating point values.
+
+An <<expiry,expiration>> time can also be specified when using counter operations, with the `expiry` parameter.
+It is only used if the operation creates the counter document; if the document already exists, its existing expiry is kept.
+
+xref:howtos:concurrent-document-mutations.adoc[CAS] values are not used with counter operations since counter operations are atomic.
+The intent of the counter operation is to simply increment the current server-side value of the document.
+If you wish to only increment the document if it is at a certain value, then you may use a normal `replace` function with CAS:
+
+[source,kotlin]
+----
+val getResult = collection.get("counter-doc")
+val value = getResult.contentAs<Int>()
+val incrementAmnt = 5
+
+if (shouldIncrementAmnt(value)) {
+    collection.replace(
+        id = "counter-doc",
+        content = value + incrementAmnt,
+        cas = getResult.cas,
+    )
+}
+----
+
+You can also use xref:howtos:subdocument-operations.adoc[sub-document counter operations] to increment numeric values _within_ a document containing other content.
+An example can be found in the xref:howtos:subdocument-operations.adoc#counters-and-numeric-fields[practical sub-doc page].
 
 
 === Use Cases
 
-The SDK provides a high-level abstraction over the simple `incr()`/`decr()` of Couchbase Server's memcached binary protocol, using `collections.binary()`. 
+The SDK provides a high-level abstraction over the simple increment and decrement operations of Couchbase Server's memcached binary protocol, using `collection.binary`.
 This enables you to work with counters using `get()` and `upsert()` operations -- allowing, _inter alia_, the use of durability options with the operations.
-You will find several ways of working with counters https://docs.couchbase.com/sdk-api/couchbase-java-client/com/couchbase/client/java/kv/CounterAccessor.html#increment(com.couchbase.client.core.Core,com.couchbase.client.core.msg.kv.IncrementRequest,java.lang.String,com.couchbase.client.java.kv.PersistTo,com.couchbase.client.java.kv.ReplicateTo)(java.lang.String,long)[in the API docs].
+See the https://docs.couchbase.com/sdk-api/couchbase-kotlin-client/kotlin-client/com.couchbase.client.kotlin/-binary-collection/index.html[API docs for `BinaryCollection`^], which also has `append` and `prepend` operations for raw binary content.
 
 
-// Expiry
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=expiration]
+== Expiration Overview
+
+Most data in a cluster is there to be persisted and long-lived.
+However, the need for transient or temporary data does arise in applications, such as in the case of user sessions, caches, or temporary documents representing a given process ownership.
+You can use expiration values on documents to handle transient data.
+
+In databases without a built-in expiration feature, dealing with transient data may be cumbersome.
+To provide "expiration" semantics, applications are forced to record a time stamp in a record, and then upon each access of the record check the time stamp and, if invalid, delete it.
+
+Since some logically 'expired' documents might never be accessed by the application, to ensure that temporary records do not persist and occupy storage, a scheduled process is typically also employed to scan the database for expired entries routinely, and to purge those entries that are no longer valid.
+
+Workarounds such as those described above are not required for Couchbase, as it allows applications to declare the lifetime of a given document, eliminating the need to embed "validity" information in documents and eliminating the need for a routine "purge" of logically expired data.
+
+When an application attempts to access a document which has already expired, the server will indicate to the client that the item is not found.
+The server internally handles the process of determining the validity of the document and removing older, expired documents.
 
 
-////
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
+=== Setting Document Expiration
 
+By default, Couchbase documents do not expire.
+However, the expiration value may be set for the _upsert_, _replace_, and _insert_ operations when modifying data, using the `expiry` parameter.
+In Kotlin an expiry is an `Expiry` object, which you create from either a `kotlin.time.Duration` or an absolute `java.time.Instant`:
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
+[source,kotlin]
+----
+collection.upsert("session-1", session, expiry = Expiry.of(30.minutes))
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
+collection.upsert(
+    id = "session-2",
+    content = session,
+    expiry = Expiry.of(Instant.now().plus(2, ChronoUnit.DAYS)),
+)
+----
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
+Couchbase offers two additional operations for setting the document's expiration without modifying its contents:
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
+* The _get-and-touch_ operation (`getAndTouch`) allows an application to retrieve a document while modifying its expiration time.
+This method is useful when reading session data from the cluster: since accessing the data is indicative of it still being "alive", _get-and-touch_ provides a natural way to extend its lifetime.
+* The _touch_ operation (`touch`) allows an application to modify a document's expiration time without otherwise accessing the document.
+This method is useful when an application is handling a user session but does not need to access the cluster (for example, if a particular document is already cached locally).
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
+[source,kotlin]
+----
+collection.touch("session-1", Expiry.of(1.hours))
+----
 
-include::{version-common}@sdk:shared:partial$documents.adoc[tag=]
-////
+Code snippets for setting document expiration can be found on the xref:howtos:kv-operations.adoc#document-expiration[data operations page].
+This page also covers the nuances of setting relative or absolute document expiry times.
+
+[IMPORTANT]
+.Remember
+====
+If you wish to use the expiration feature, then you should supply the expiry value for every mutation operation.
+When dealing with expiration, it is important to note that _most operations will implicitly remove any existing expiration_.
+Thus, when modifying a document with expiration, it is important to pass the desired expiration time.
+Alternatively, with Couchbase Server 7.0 or later, pass `preserveExpiry = true` to `replace` or `upsert` to keep the document's existing expiry:
+
+[source,kotlin]
+----
+collection.replace("session-1", session, preserveExpiry = true)
+----
+
+A document is expired as soon as the current time on the Couchbase Server node responsible for the document exceeds the expiration value.
+Bear this in mind in situations where the time on your application servers differs from the time on your Couchbase Server nodes.
+====
+
+Note that expired documents are not deleted from the server as soon as they expire.
+While a request to the server for an expired document will receive a response indicating the document does not exist, expired documents are actually deleted (_i.e._ cease to occupy storage and RAM) when an _expiry pager_ is run.
+The _expiry pager_ is a routine internal process which scans the cluster for items which have expired and promptly removes them from storage.
+
+When gathering resource usage statistics, note that expired-but-not-purged items (such as the expiry pager has not scanned this item yet) will still be considered with respect to the overall storage size and item count.
+
+NOTE: Although the API only sets expiry values _per document_, it is possible that elsewhere in the server, an expiry value is being set for https://docs.couchbase.com/server/current/learn/data/expiration.html[every document in a bucket^].
+Should this be the case, the document TTL may be reduced, and the document may become unavailable to the app sooner than expected.
+

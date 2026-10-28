@@ -1,9 +1,8 @@
 = Compression
 :description: In response to increasing volumes of data being sent over the wire, Couchbase Data Platform provides data compression between the SDK and Couchbase Server.
-:page-topic-type: concept
 :page-edition: Enterprise Edition
-:page-aliases:../../ROOT/pages/compression-intro.adoc
-include::project-docs:partial$attributes.adoc[]
+
+
 
 [abstract]
 {description}
@@ -25,7 +24,7 @@ Compression is only available in the Enterprise Edition of Couchbase Data Platfo
 [TIP]
 ====
 This size limit is enforced by Couchbase Server; in practice it will affect very few users, as most JSON documents are considerably smaller.
-A compressed doument of just under 20MB, which is greater than 20,971,520 bytes (20 MiB) when uncompressed, will be rejected by the server as follows:
+A compressed document of just under 20MB, which is greater than 20,971,520 bytes (20 MiB) when uncompressed, will be rejected by the server as follows:
 
 * Couchbase Server decompresses the document to check that it is valid JSON, and is correctly compressed with _Snappy_, and at this point measures it against `max data size` (20 MiB).
 * If the decompressed value's size exceeds this limit, the mutation is failed with a "too big" error code (E2BIG code 3).
@@ -72,15 +71,46 @@ The three modes in which compression can be used, "off", "passive" and "active",
 
 The server may change compression settings for the bucket at any time, but it is guaranteed that once the socket negotiates compression, the server will never reject compressed data, even if the bucket setting has been changed.
 
+
+
 == Minimum Size
-
+ 
 While the tiniest of documents will not be reduced in size by compressing, there is another category of slightly larger documents in whose case the time overhead of compressing and decompressing outweighs the slight advantage of marginally reduced transmission time from client to server or back.
-
-To safeguard against the case of several thousand documents stealing CPU time to barely discernable advantage, a threshold for minimum doument size to compress is set in the SDK, with a sensible default value - that value can be seen for your chosen SDK in its API documentation (32 bytes), and you can override this to disable compression of smaller ones:
-
-[source,java]
+ 
+To safeguard against the case of several thousand documents stealing CPU time to barely discernible advantage, a threshold for minimum document size to compress is set in the SDK, with a sensible default value - that value can be seen for your chosen SDK in its API documentation (32 bytes), and you can override this to disable compression of smaller ones.
+Documents of at least this size are considered for compression.
+In the Kotlin SDK, set `minSize` in the `compression` block of the cluster environment configuration:
+ 
+[source,kotlin]
 ----
-include::example$CompressionExample.java[tag=compression_1,indent=0]
+include::devguide:example$kotlin/CompressionExample.kt[tag=compression_1,indent=0]
 ----
 
-The `CompressionConfig` also allows you to disable compression completely or tune the ratio of when a compressed document (compared to the size of the uncompressed) should be sent over the wire.
+
+
+== Configuring Compression
+ 
+As well as the above example of changing the minimum size of document to undergo compression,
+the `compression` block of the cluster environment configuration also allows you to disable compression completely or tune the ratio of when a compressed document (compared to the size of the uncompressed) should be sent over the wire.
+ 
+It has three settings:
+ 
+* `enable` -- `true` by default. Set it to `false` to disable compression completely.
+* `minSize` -- the minimum size, in bytes, of a document to be considered for compression. The default is 32.
+* `minRatio` -- the compressed size divided by the uncompressed size. The compressed form is only sent if this ratio is no higher than `minRatio`; otherwise the uncompressed document is sent. The default is 0.83, so by default a document is sent compressed only if compression makes it at least 17% smaller.
+ 
+To disable compression completely:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/CompressionExample.kt[tag=compression_2,indent=0]
+----
+ 
+To tune the ratio:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/CompressionExample.kt[tag=compression_3,indent=0]
+----
+ 
+More details can be found on the xref:ref:client-settings.adoc#compression-options[Client Settings page].

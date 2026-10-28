@@ -168,3 +168,39 @@ include::devguide:example$java/AsyncOperations.java[tag=rs-conversion]
 ----
 
 The same strategy can be used to convert to https://akka.io/[Akka^], but if you are working in the Scala world we recommend using our first-class Scala SDK directly instead!
+
+
+
+
+
+
+
+
+////
+
+== Bulk Operations
+ 
+The Kotlin SDK has no dedicated bulk API.
+Instead, coroutines make it easy to run many operations at the same time.
+ 
+Here is an extension function, `Collection.bulkGet`, that you can add to your project.
+It gets many documents concurrently, and returns a `Map` from document ID to a `kotlin.Result` that holds either the document or the failure.
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=bulk-get-helper,indent=0]
+----
+ 
+* `coroutineScope` makes `bulkGet` wait until every coroutine started inside it has finished.
+* Each `get` runs in its own coroutine (`async`), so the gets happen at the same time.
+* The semaphore limits how many requests are in flight at once. To share one limit between several bulk calls, pass the same `Semaphore` into each call.
+ 
+After adding the extension function to your project, call it like this:
+ 
+[source,kotlin]
+----
+include::devguide:example$kotlin/KvOperations.kt[tag=bulk-get,indent=0]
+----
+ 
+You can copy `bulkGet` and change it to do other operations, such as `upsert`.
+////

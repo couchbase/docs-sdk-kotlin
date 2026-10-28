@@ -1,9 +1,9 @@
 = XATTR and Virtual XATTR
 :description: Extended Attributes (XATTR) are metadata that can be provided on a per-application basis.
 :nav-title: XATTR
-:page-aliases: sdk-xattr-overview.adoc,ROOT:sdk-xattr-overview.adoc
 
-include::project-docs:partial$attributes.adoc[]
+
+
 
 [abstract]
 {description}
@@ -14,7 +14,14 @@ include::{version-common}@sdk:shared:partial$sdk-xattr-overview.adoc[tag=using_e
 
 include::{version-common}@sdk:shared:partial$sdk-xattr-overview.adoc[tag=virtual_extended_attributes]
 
-[source,java]
+[source,kotlin]
 ----
-include::devguide:example$java/XattrExample.java[tag=xattr_1,indent=0]
+suspend fun getExpiry() {
+    val spec = LookupInSpec()
+    val expiry = spec.get(LookupInMacro.ExpiryTime)
+
+    collection.lookupIn("airport_1254", spec) {
+        println(expiry.contentAs<Long>())
+    }
+}
 ----
