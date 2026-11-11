@@ -31,6 +31,49 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
+[[v3.13.1]]
+=== Version 3.13.1 (10 November 2026)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.13.1/index.html[API Reference] |
+https://docs.couchbase.com/sdk-api/couchbase-core-io-3.13.1/[Core API Reference]
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1802[JVMCBC-1802]:
+Upgraded Netty to 4.2.20.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1801[JVMCBC-1801]:
+Upgraded Jackson to 2.21.8.
+
+==== Bug Fixes
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1817[JVMCBC-1817]:
+Fixed an issue where `bucket.waitUntilReady()` could time out during a rebalance while a data node hosted the bucket but held none of its active vBuckets.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1795[JVMCBC-1795]:
+Fixed a bug that could cause a query, analytics, search or view request to hang if the connection to a node closed while the results were arriving.
+Instead of hanging, these requests now fail with a `RequestCanceledException`, the same error a request gets when its connection closes before it can be retried.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1786[JVMCBC-1786]:
+Fixed a bug where `Cluster.disconnect()` could leave requests unfinished if they were waiting to retry, for example after a “document locked” or “temporary failure” response.
+Blocking calls could hang forever, and async and reactive calls never completed.
+These requests now fail with `RequestCanceledException` (reason: `SHUTDOWN`).
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1789[JVMCBC-1789]:
+Fixed a resource leak when `Cluster.connect()` fails.
+The leak could also cause later calls to `Cluster.connect()` to throw `TooManyInstancesException` or log a `TooManyInstancesDetectedEvent` warning.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1799[JVMCBC-1799]:
+Fixed an issue where the SDK did not use enhanced prepared statements unless at least one bucket was open.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1805[JVMCBC-1805]:
+Fixed a regression in 3.12.3 that caused the SDK to hang when the `security.enableNativeTls` client setting was true on x86_64 Alpine Linux and other x86_64 Linux distributions that use musl libc.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1792[JVMCBC-1792]:
+The POM files embedded in the SDK JARs no longer contain `+${revision}+` or other unresolvable placeholders that could confuse certain vulnerability scanners.
+Also, POM files for internal shaded artifacts that only exist during the build process are no longer included in the JAR.
+
+
 [[v3.13.0]]
 === Version 3.13.0 (13 October 2026)
 
@@ -230,6 +273,23 @@ This bug had no effect on the SDK’s behavior, but could mislead developers rea
 
 
 == Kotlin SDK 3.11 Releases
+
+
+[[v3.11.4]]
+=== Version 3.11.4 (10 November 2026)
+
+https://docs.couchbase.com/sdk-api/couchbase-kotlin-client-3.11.4/index.html[API Reference] |
+https://docs.couchbase.com/sdk-api/couchbase-core-io-3.11.4/[Core API Reference]
+
+This maintenance release upgrades Netty and Jackson to the latest versions.
+
+==== Improvements
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1802[JVMCBC-1802]:
+Upgraded Netty to 4.2.20.
+
+* https://jira.issues.couchbase.com/browse/JVMCBC-1801[JVMCBC-1801]:
+Upgraded Jackson to 2.21.8.
 
 
 [[v3.11.3]]
